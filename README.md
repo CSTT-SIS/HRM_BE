@@ -88,6 +88,7 @@ We will follow the RESTful API naming and HTTP methods convention.
 Read more about [RESTful API naming convention](https://restfulapi.net/resource-naming/)
 
 Open terminal, go to project folder and run this command:
+
 MacOS/Linux:
 
 ```bash
