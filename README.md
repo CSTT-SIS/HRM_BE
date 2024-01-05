@@ -174,7 +174,7 @@ We use Relation in Entity to create relation between entities.
 It will help us to query data from database easier.
 And it will create the foreign key between tables in database.
 
-But we don't need to create foreign key in database. It will cause error when you try to delete data in database or sync database. And will **slow down** the performance of database.
+But we don't need to create foreign key in database. It will cause error when you try to delete data in database or sync database. And will **slow down** the performance of database. If you want to keep constraint, you can do it in your code.
 
 But we just want to create the relation, not the foreign key. So we need to set `createForeignKeyConstraints: false` in RelationOptions.
 
@@ -206,6 +206,7 @@ $ node scripts/generate-and-import-entity.js
 
 -   Input Table name follow this format: **`tablename`**</br>
     <ins>Ex:</ins> Input `user_data` => output `user_data`
+-   Don't forget to index the column that you use to query data (or search/filter as you want). It will help you to query data faster.</br>Read more about [Index](https://typeorm.io/indices)
 
 Repository:
 
@@ -330,6 +331,7 @@ $ npm run seed:run
 ```
 
 There are some examples in **`src/database/typeorm/factories`** and **`src/database/typeorm/seeds`** folder.
+
 Read more about [Database Seeding](https://en.wikipedia.org/wiki/Database_seeding)
 
 ## Module Structure
@@ -372,11 +374,11 @@ Use `generate-module.sh` script to generate module and it will create files foll
 
 -   Module folder: **`moduleName`**. Ex: `user`, `userData`
 -   File name: **`moduleName`**.(controller|module|service|dto|entity|repository).ts. Ex: `user.controller.ts`, `userData.service.ts`
--   Class name: **`ModuleName`**.(Controller|Module|Service|Dto|Entity|Repository). Ex: `UserController`, `UserDataService`
+-   Class name: **`ModuleName`** + (Controller|Module|Service|Dto|Entity|Repository). Ex: `UserController`, `UserDataService`
 -   Column name: **`column_name`**. Ex: `first_name`, `last_name`
 -   Property of entity: **`propertyName`**. Ex: `firstName`, `lastName`
 -   Table name: **`table_name`**. Ex: `user_data`, `user_role`
--   Permission action: **`module_name:actionName`**. Ex: `user:create`, `user:findAll`
+-   Permission action: **`moduleName:actionName`**. Ex: `user:create`, `userData:findAll`
 
 ## RBAC (Role-Based Access Control)
 
@@ -394,7 +396,7 @@ So, User role can create, find all, update, delete post.
 
 ### How to use RBAC
 
-First, insert `@Permission` decorator into controller. Permission name will have format: **`module_name:action`**.
+First, insert `@Permission` decorator into controller. Permission name will have format: **`moduleName:action`**.
 
 ```typescript
     @Permission('post:findAll')
@@ -529,7 +531,7 @@ Swagger API Documentation: [http://localhost:8080/docs](http://localhost:8080/do
 
 Using Jest for API Testing.
 
-Every API will have a test file in **`test`** folder.
+Every Module will have a test file in **`test`** folder.
 
 ```bash
 # run all test
