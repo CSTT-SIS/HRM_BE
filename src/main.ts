@@ -35,9 +35,9 @@ async function bootstrap() {
 
     /* boostrap */
     // bootstrapLogging(app);
+    bootstrapSwagger(app, '1.0');
     bootstrapCors(app);
     bootstrapHelmet(app);
-    bootstrapSwagger(app, '1.0');
     bootstrapValidation(app);
     bootstrapSocket(app);
     bootstrapInterceptor(app);
