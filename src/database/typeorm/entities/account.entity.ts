@@ -1,4 +1,4 @@
-import { Column, Entity, OneToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
+import { Column, Entity, Index, OneToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
 import { AbstractEntity } from '~/database/typeorm/entities/abstract.entity';
 import { UserEntity } from '~/database/typeorm/entities/user.entity';
 
@@ -7,6 +7,7 @@ export class AccountEntity extends AbstractEntity {
     @PrimaryGeneratedColumn('increment', { name: 'id', type: 'int', unsigned: true })
     id: number;
 
+    @Index('IDX_ACCOUNT_USERNAME', { fulltext: true })
     @Column({ name: 'username', type: 'varchar', length: 255 })
     username: string;
 

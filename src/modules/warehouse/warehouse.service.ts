@@ -19,12 +19,12 @@ export class WarehouseService {
         return { result: true, message: 'Tạo kho thành công', data: createWarehouseDto };
     }
 
-    async findAll(queries: { page: number; perPage: number; search: string; sortBy: string }) {
+    async findAll(queries: { page: number; perPage: number; search: string; sortBy: string; typeId: number }) {
         const { builder, take, pagination } = this.utilService.getQueryBuilderAndPagination(this.database.warehouse, queries);
 
-        if (!this.utilService.isEmpty(queries.search)) {
-            builder.andWhere('entity.name ILIKE :search', { search: `%${queries.search}%` });
-        }
+        if (!this.utilService.isEmpty(queries.search))
+            builder.andWhere(this.utilService.fullTextSearch({ fields: ['name'], keyword: queries.search }));
+        if (queries.typeId) builder.andWhere('entity.typeId = :typeId', { typeId: queries.typeId });
 
         builder.leftJoinAndSelect('entity.type', 'type');
         builder.select(['entity', 'type.id', 'type.name']);
@@ -62,7 +62,7 @@ export class WarehouseService {
         const { builder, take, pagination } = this.utilService.getQueryBuilderAndPagination(this.database.warehouseType, queries);
 
         if (!this.utilService.isEmpty(queries.search)) {
-            builder.andWhere('entity.name ILIKE :search', { search: `%${queries.search}%` });
+            builder.andWhere(this.utilService.fullTextSearch({ fields: ['name'], keyword: queries.search }));
         }
 
         builder.select(['entity']);

@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
+import { Column, Entity, Index, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
 import { USER_STATUS } from '~/common/enums/enum';
 import { AbstractEntity } from '~/database/typeorm/entities/abstract.entity';
 import { AccountEntity } from '~/database/typeorm/entities/account.entity';
@@ -20,9 +20,11 @@ export class UserEntity extends AbstractEntity {
     @Column({ name: 'media_id', type: 'int', unsigned: true, nullable: true })
     avatarId: number;
 
+    @Index('IDX_FULL_NAME', { fulltext: true })
     @Column({ name: 'full_name', type: 'varchar', length: 255, nullable: true })
     fullName: string;
 
+    @Index('IDX_USER_EMAIL', { fulltext: true })
     @Column({ name: 'email', type: 'varchar', length: 255, nullable: true, unique: true })
     email: string;
 

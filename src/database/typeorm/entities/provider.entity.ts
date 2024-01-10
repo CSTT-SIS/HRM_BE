@@ -1,4 +1,4 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, Index, PrimaryGeneratedColumn } from 'typeorm';
 import { AbstractEntity } from './abstract.entity';
 
 @Entity({ name: 'providers' })
@@ -6,6 +6,7 @@ export class ProviderEntity extends AbstractEntity {
     @PrimaryGeneratedColumn('increment', { name: 'id', type: 'int', unsigned: true })
     id: number;
 
+    @Index('IDX_PROVIDER_NAME', { fulltext: true })
     @Column({ name: 'name', type: 'varchar', length: 255, nullable: true })
     name: string;
 

@@ -22,7 +22,7 @@ export class DepartmentService {
         const { builder, take, pagination } = this.utilService.getQueryBuilderAndPagination(this.departmentRepository, queries);
 
         if (!this.utilService.isEmpty(queries.search)) {
-            builder.andWhere('entity.name ILIKE :search', { search: `%${queries.search}%` });
+            builder.andWhere(this.utilService.fullTextSearch({ fields: ['name'], keyword: queries.search }));
         }
 
         builder.select(['entity']);

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Column, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn, Relation } from 'typeorm';
+import { Column, Entity, Index, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn, Relation } from 'typeorm';
 import { PermissionEntity } from '~/database/typeorm/entities/permission.entity';
 import { UserEntity } from '~/database/typeorm/entities/user.entity';
 import { AbstractEntity } from './abstract.entity';
@@ -9,6 +9,7 @@ export class RoleEntity extends AbstractEntity {
     @PrimaryGeneratedColumn('increment', { name: 'id', type: 'int', unsigned: true })
     id: number;
 
+    @Index('IDX_ROLE_NAME', { fulltext: true })
     @Column({ name: 'name', type: 'varchar', length: 255, nullable: false })
     name: string;
 

@@ -36,8 +36,9 @@ export class WarehouseController {
     @Permission('warehouse:findAll')
     @Get()
     @ApiQuery({ type: FilterDto })
-    findAll(@Query() queries) {
-        return this.warehouseService.findAll({ ...queries });
+    @ApiQuery({ name: 'typeId', required: false })
+    findAll(@Query() queries, @Query('typeId') typeId: number) {
+        return this.warehouseService.findAll({ ...queries, typeId });
     }
 
     @Permission('warehouse-type:findOne')

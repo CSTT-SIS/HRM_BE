@@ -1,4 +1,4 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn, Relation } from 'typeorm';
+import { Column, Entity, Index, OneToMany, PrimaryGeneratedColumn, Relation } from 'typeorm';
 import { WarehouseEntity } from '~/database/typeorm/entities/warehouse.entity';
 import { AbstractEntity } from './abstract.entity';
 
@@ -7,6 +7,7 @@ export class WarehouseTypeEntity extends AbstractEntity {
     @PrimaryGeneratedColumn('increment', { name: 'id', type: 'int', unsigned: true })
     id: number;
 
+    @Index('IDX_WAREHOUSE_TYPE_NAME', { fulltext: true })
     @Column({ name: 'name', type: 'varchar', length: 255, nullable: true })
     name: string;
 

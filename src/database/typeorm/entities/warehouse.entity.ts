@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
+import { Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
 import { WarehouseTypeEntity } from '~/database/typeorm/entities/warehouseType.entity';
 import { AbstractEntity } from './abstract.entity';
 
@@ -13,9 +13,11 @@ export class WarehouseEntity extends AbstractEntity {
     @Column({ name: 'parent_path', type: 'varchar', length: 255, nullable: true })
     parentPath: string;
 
+    @Index('IDX_WAREHOUSE_NAME', { fulltext: true })
     @Column({ name: 'name', type: 'varchar', length: 255, nullable: true })
     name: string;
 
+    @Index('IDX_WAREHOUSE_CODE', { fulltext: true })
     @Column({ name: 'code', type: 'varchar', length: 255, nullable: true })
     code: string;
 

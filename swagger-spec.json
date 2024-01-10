@@ -1156,6 +1156,14 @@
         "operationId": "WarehouseController_findAll",
         "parameters": [
           {
+            "name": "typeId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
             "required": false,
             "name": "page",
             "in": "query",

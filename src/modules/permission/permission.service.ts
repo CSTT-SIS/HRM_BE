@@ -12,14 +12,14 @@ export class PermissionService {
         return `This action creates a permission`;
     }
 
-    async findAll(query: { page: number; perPage: number; sortBy: string; search: number }) {
+    async findAll(query: { page: number; perPage: number; sortBy: string; search: string }) {
         const { take, skip, pagination } = this.utilService.getPagination(query);
         const builder = this.permissionRespository.createQueryBuilder('entity');
-        builder.orderBy({ 'entity.name': 'ASC' });
+        builder.orderBy({ 'entity.type': 'ASC', 'entity.name': 'ASC' });
 
         if (Number(query.perPage) !== 0) builder.take(take).skip(skip);
         if (query.sortBy) builder.orderBy(this.utilService.getSortCondition('entity', query.sortBy));
-        if (query.search) builder.andWhere('entity.name ILIKE :name', { name: `%${query.search}%` });
+        if (query.search) builder.andWhere(this.utilService.fullTextSearch({ fields: ['name'], keyword: query.search }));
 
         const [result, total] = await builder.getManyAndCount();
         const totalPages = Math.ceil(total / take);

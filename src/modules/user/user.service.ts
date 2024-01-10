@@ -16,6 +16,12 @@ export class UserService {
 
     async create(createUserDto: CreateUserDto) {
         const { username, password, ...rest } = createUserDto;
+
+        const accountExist = await this.database.account.countBy({ username });
+        if (accountExist) {
+            throw new HttpException('Tài khoản đã tồn tại', 400);
+        }
+
         const { salt, hash } = this.tokenService.hashPassword(createUserDto.password);
         const account = await this.database.account.save(
             this.database.account.create({
@@ -46,7 +52,8 @@ export class UserService {
         const { builder, take, pagination } = this.utilService.getQueryBuilderAndPagination(this.database.user, queries);
 
         if (!this.utilService.isEmpty(queries.search)) {
-            builder.andWhere('(entity.fullName ILIKE :search OR entity.email ILIKE :search)', { search: `%${queries.search}%` });
+            builder.andWhere(this.utilService.fullTextSearch({ fields: ['fullName', 'email'], keyword: queries.search }));
+            // builder.andWhere(this.utilService.searchRawQuery({ fields: ['fullName', 'email'], keyword: queries.search }));
         }
 
         builder.leftJoinAndSelect('entity.role', 'role');

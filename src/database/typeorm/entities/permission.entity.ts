@@ -9,6 +9,7 @@ export class PermissionEntity extends AbstractEntity {
     @PrimaryGeneratedColumn('increment', { name: 'id', type: 'int', unsigned: true })
     id: number;
 
+    @Index('IDX_PERMISSION_NAME', { fulltext: true })
     @Column({ name: 'name', type: 'varchar', length: 255, nullable: false })
     name: string;
 
