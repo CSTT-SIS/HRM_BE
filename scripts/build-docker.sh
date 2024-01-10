@@ -1,7 +1,7 @@
 #!/bin/sh
 DOCKER_NAME="warehouse-ms-be"
-HOST_PORT="6080"
-DOCKER_PORT="6080"
+HOST_PORT="8080"
+DOCKER_PORT="8080"
 
 git pull
 docker stop $DOCKER_NAME

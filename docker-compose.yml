@@ -27,26 +27,27 @@ services:
         networks:
             - myNetwork
 
-    # project:
-    #     build:
-    #         context: .
-    #         dockerfile: Dockerfile
-    #     container_name: project
-    #     networks:
-    #         - myNetwork
-    #     ports:
-    #         - '6080:6080'
-    #     volumes:
-    #         - './public:/home/project/public'
-    #     restart: always
-    #     depends_on:
-    #         - redis
-    #         - db
-    #     environment:
-    #         - REDIS_HOST=redis
-    #         - REDIS_PORT=6379
-    #         - REDIS_PASSWORD=${REDIS_PASSWORD}
-    #         - REDIS_PREFIX=${REDIS_PREFIX}
+    project:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: project
+        networks:
+            - myNetwork
+        ports:
+            - '8080:8080'
+        volumes:
+            - './public:/home/project/public'
+        restart: always
+        depends_on:
+            - redis
+            - db
+        environment:
+            - DATABASE_HOST=db
+            - REDIS_HOST=redis
+            - REDIS_PORT=6379
+            - REDIS_PASSWORD=${REDIS_PASSWORD}
+            - REDIS_PREFIX=${REDIS_PREFIX}
 
 networks:
     myNetwork:
