@@ -51,7 +51,6 @@ services:
 
 networks:
     myNetwork:
-        external: true
 
 volumes:
     redis_data:
