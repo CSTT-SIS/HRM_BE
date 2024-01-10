@@ -12,6 +12,8 @@ WORKDIR /home/project
 COPY package*.json ./
 
 RUN npm install
+RUN npm run db:create
+RUN npm run seed:run
 
 # BUILDER
 FROM node:18-alpine AS builder
