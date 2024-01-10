@@ -43,6 +43,16 @@ export class TypeOrmFilter implements ExceptionFilter {
                 return { code: 400, message: `Thiếu trường bắt buộc` };
             case '42703':
                 return { code: 500, message: `Trường không tồn tại` };
+            case 'ER_DATA_TOO_LONG':
+                return { code: 400, message: `Dữ liệu quá dài` };
+            case 'ER_DUP_ENTRY':
+                return { code: 409, message: `Trùng ${field}` };
+            case 'ER_NO_REFERENCED_ROW_2':
+                return { code: 409, message: `Không tồn tại (${error.detail})` };
+            case 'ER_BAD_NULL_ERROR':
+                return { code: 400, message: `Thiếu trường bắt buộc` };
+            case 'ER_BAD_FIELD_ERROR':
+                return { code: 500, message: `Trường không tồn tại` };
             default:
                 return { code: 500, message: `Lỗi hệ thống` };
         }

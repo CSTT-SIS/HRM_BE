@@ -27,6 +27,8 @@ import { SharedModule } from '~/shared/shared.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { DepartmentModule } from './modules/department/department.module';
+import { ProductCategoryModule } from './modules/product-category/product-category.module';
+import { ProductModule } from './modules/product/product.module';
 import { ProviderModule } from './modules/provider/provider.module';
 import { UserModule } from './modules/user/user.module';
 import { WarehouseModule } from './modules/warehouse/warehouse.module';
@@ -58,6 +60,8 @@ import { WarehouseModule } from './modules/warehouse/warehouse.module';
         DepartmentModule,
         WarehouseModule,
         ProviderModule,
+        ProductModule,
+        ProductCategoryModule,
     ],
     controllers: [AppController],
     providers: [
@@ -121,12 +125,16 @@ export class AppModule implements OnModuleInit {
                 type: action.split(':')[0],
             });
 
-            this.permissionRepositopry
-                .insert(permissionEntity)
-                .then((res) => {
-                    console.log('LOG:: Permission inserted:', res.identifiers[0].id, permissionEntity.action);
-                })
-                .catch((err) => {});
+            this.permissionRepositopry.findOne({ where: { action } }).then((res) => {
+                if (!res) {
+                    this.permissionRepositopry
+                        .insert(permissionEntity)
+                        .then((res) => {
+                            console.log('LOG:: Permission inserted:', res.identifiers[0].id, permissionEntity.action);
+                        })
+                        .catch((err) => {});
+                }
+            });
         });
     }
 }
