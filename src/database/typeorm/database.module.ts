@@ -7,6 +7,8 @@ import { AccountEntity } from '~/database/typeorm/entities/account.entity';
 import { DepartmentEntity } from '~/database/typeorm/entities/department.entity';
 import { MediaEntity } from '~/database/typeorm/entities/media.entity';
 import { PermissionEntity } from '~/database/typeorm/entities/permission.entity';
+import { ProductEntity } from '~/database/typeorm/entities/product.entity';
+import { ProductCategoryEntity } from '~/database/typeorm/entities/productCategory.entity';
 import { ProviderEntity } from '~/database/typeorm/entities/provider.entity';
 import { RoleEntity } from '~/database/typeorm/entities/role.entity';
 import { UserEntity } from '~/database/typeorm/entities/user.entity';
@@ -17,6 +19,8 @@ import { AccountRepository } from '~/database/typeorm/repositories/account.repos
 import { DepartmentRepository } from '~/database/typeorm/repositories/department.repository';
 import { MediaRepository } from '~/database/typeorm/repositories/media.repository';
 import { PermissionRepository } from '~/database/typeorm/repositories/permission.repository';
+import { ProductRepository } from '~/database/typeorm/repositories/product.repository';
+import { ProductCategoryRepository } from '~/database/typeorm/repositories/productCategory.repository';
 import { ProviderRepository } from '~/database/typeorm/repositories/provider.repository';
 import { RoleRepository } from '~/database/typeorm/repositories/role.repository';
 import { UserRepository } from '~/database/typeorm/repositories/user.repository';
@@ -35,6 +39,8 @@ const entities = [
     UserLogEntity,
     WarehouseTypeEntity,
     ProviderEntity,
+    ProductEntity,
+    ProductCategoryEntity,
 ];
 
 const repositories = [
@@ -48,6 +54,8 @@ const repositories = [
     UserLogRepository,
     WarehouseTypeRepository,
     ProviderRepository,
+    ProductRepository,
+    ProductCategoryRepository,
 ];
 
 @Global()

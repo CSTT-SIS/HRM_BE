@@ -4,6 +4,8 @@ import { AccountRepository } from '~/database/typeorm/repositories/account.repos
 import { DepartmentRepository } from '~/database/typeorm/repositories/department.repository';
 import { MediaRepository } from '~/database/typeorm/repositories/media.repository';
 import { PermissionRepository } from '~/database/typeorm/repositories/permission.repository';
+import { ProductRepository } from '~/database/typeorm/repositories/product.repository';
+import { ProductCategoryRepository } from '~/database/typeorm/repositories/productCategory.repository';
 import { ProviderRepository } from '~/database/typeorm/repositories/provider.repository';
 import { RoleRepository } from '~/database/typeorm/repositories/role.repository';
 import { UserRepository } from '~/database/typeorm/repositories/user.repository';
@@ -25,6 +27,8 @@ export class DatabaseService {
         public readonly warehouse: WarehouseRepository,
         public readonly warehouseType: WarehouseTypeRepository,
         public readonly provider: ProviderRepository,
+        public readonly product: ProductRepository,
+        public readonly productCategory: ProductCategoryRepository,
         private readonly cacheService: CacheService,
     ) {
         // load all departments to cache

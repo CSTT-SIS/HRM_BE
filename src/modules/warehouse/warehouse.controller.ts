@@ -14,7 +14,7 @@ import { WarehouseService } from './warehouse.service';
 export class WarehouseController {
     constructor(private readonly warehouseService: WarehouseService) {}
 
-    @Permission('warehouse-type:create')
+    @Permission('warehouseType:create')
     @Post('type')
     createType(@Body() createWarehouseTypeDto: CreateWarehouseTypeDto) {
         return this.warehouseService.createType(createWarehouseTypeDto);
@@ -26,7 +26,7 @@ export class WarehouseController {
         return this.warehouseService.create(createWarehouseDto);
     }
 
-    @Permission('warehouse-type:findAll')
+    @Permission('warehouseType:findAll')
     @Get('type')
     @ApiQuery({ type: FilterDto })
     findAllType(@Query() queries) {
@@ -41,7 +41,7 @@ export class WarehouseController {
         return this.warehouseService.findAll({ ...queries, typeId });
     }
 
-    @Permission('warehouse-type:findOne')
+    @Permission('warehouseType:findOne')
     @Get('type/:id')
     findOneType(@Param('id') id: string) {
         return this.warehouseService.findOneType(+id);
@@ -53,7 +53,7 @@ export class WarehouseController {
         return this.warehouseService.findOne(+id);
     }
 
-    @Permission('warehouse-type:update')
+    @Permission('warehouseType:update')
     @Patch('type/:id')
     updateType(@Param('id') id: string, @Body() updateWarehouseTypeDto: UpdateWarehouseTypeDto) {
         return this.warehouseService.updateType(+id, updateWarehouseTypeDto);
@@ -65,7 +65,7 @@ export class WarehouseController {
         return this.warehouseService.update(+id, updateWarehouseDto);
     }
 
-    @Permission('warehouse-type:remove')
+    @Permission('warehouseType:remove')
     @Delete('type/:id')
     removeType(@Param('id') id: string) {
         return this.warehouseService.removeType(+id);

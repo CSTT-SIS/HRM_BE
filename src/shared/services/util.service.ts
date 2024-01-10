@@ -320,9 +320,29 @@ export class UtilService {
      * @param data.keyword keyword to search
      * @returns raw condition string with OR operator between fields
      */
-    public searchRawQuery(data: { entityAlias?: string; fields?: string[]; keyword: string }) {
+    public rawQuerySearch(data: { entityAlias?: string; fields?: string[]; keyword: string }) {
         const { entityAlias, keyword, fields } = data;
         const entityAliasString = entityAlias ? `${entityAlias}.` : 'entity.';
         return fields.map((field) => `${entityAliasString}${field} LIKE '%${keyword}%'`).join(' OR ');
+    }
+
+    /**
+     * Search with raw query using = statement
+     * @param data.entityAlias alias of entity, default is 'entity'
+     * @param data.any properties & keywords to search
+     * @returns raw condition string with AND operator between fields
+     */
+    public relationQuerySearch(data: { entityAlias?: string; [key: string]: any }) {
+        const { entityAlias, ...rest } = data;
+        const entityAliasString = entityAlias ? `${entityAlias}.` : 'entity.';
+        const fields = Object.keys(rest);
+        return fields
+            .map((field) => {
+                if (this.isEmpty(rest[field])) return null;
+                const searchCondition = rest[field] == 0 ? 'IS NULL' : `= '${rest[field]}'`;
+                return `${entityAliasString}${field} ${searchCondition}`;
+            })
+            .filter((el) => el !== null)
+            .join(' AND ');
     }
 }

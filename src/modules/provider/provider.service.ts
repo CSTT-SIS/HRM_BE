@@ -43,6 +43,7 @@ export class ProviderService {
     }
 
     remove(id: number) {
+        this.database.product.update({ providerId: id }, { providerId: null });
         return this.database.provider.delete(id);
     }
 }
