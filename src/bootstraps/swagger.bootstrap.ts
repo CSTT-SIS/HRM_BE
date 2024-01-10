@@ -14,6 +14,7 @@ export function bootstrapSwagger(app: INestApplication, appVersion: string): voi
                 },
                 'authorization',
             )
+            .setLicense('RSRM.dev', 'https://rsrm.dev')
             .build();
         const document = SwaggerModule.createDocument(app, config);
         SwaggerModule.setup('docs', app, document, {
