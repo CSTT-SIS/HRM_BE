@@ -12,8 +12,6 @@ WORKDIR /home/project
 COPY package*.json ./
 
 RUN npm install
-RUN npm run db:create
-RUN npm run seed:run
 
 # BUILDER
 FROM node:18-alpine AS builder
@@ -27,6 +25,8 @@ COPY --from=fulldeps /home/project/node_modules ./node_modules
 COPY . .
 
 RUN npm run build
+RUN npm run db:create
+RUN npm run seed:run
 
 # RUNNER
 FROM node:18-alpine AS runner
