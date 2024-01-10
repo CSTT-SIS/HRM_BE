@@ -37,9 +37,6 @@ COPY --from=builder /home/project/node_modules ./node_modules
 COPY --from=builder /home/project/dist ./dist
 COPY --from=builder /home/project/.env ./.env
 
-RUN npm run db:create
-RUN npm run seed:run
-
 EXPOSE 8080
 
 CMD ["node", "dist/main"]
