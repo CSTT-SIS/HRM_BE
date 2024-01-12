@@ -1,7 +1,6 @@
 import { Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, Relation, RelationId } from 'typeorm';
 import { InventoryHistoryEntity } from '~/database/typeorm/entities/inventoryHistory.entity';
 import { ProductEntity } from '~/database/typeorm/entities/product.entity';
-import { UnitEntity } from '~/database/typeorm/entities/unit.entity';
 import { UserEntity } from '~/database/typeorm/entities/user.entity';
 import { WarehouseEntity } from '~/database/typeorm/entities/warehouse.entity';
 import { AbstractEntity } from './abstract.entity';
@@ -23,9 +22,6 @@ export class InventoryEntity extends AbstractEntity {
 
     @Column({ name: 'error_quantity', type: 'int', unsigned: true, nullable: true, default: 0 })
     errorQuantity: number;
-
-    @Column({ name: 'unit_id', type: 'int', unsigned: true, nullable: true })
-    unitId: number;
 
     @Column({ name: 'note', type: 'text', nullable: true })
     note: string;
@@ -54,10 +50,6 @@ export class InventoryEntity extends AbstractEntity {
     @ManyToOne(() => UserEntity, (user) => user.inventories, { createForeignKeyConstraints: false })
     @JoinColumn({ name: 'created_by_id', referencedColumnName: 'id' })
     createdBy: Relation<UserEntity>;
-
-    @ManyToOne(() => UnitEntity, (unit) => unit.inventories, { createForeignKeyConstraints: false })
-    @JoinColumn({ name: 'unit_id', referencedColumnName: 'id' })
-    unit: Relation<UnitEntity>;
 
     @OneToMany(() => InventoryHistoryEntity, (entity) => entity.inventory, { createForeignKeyConstraints: false })
     histories: Relation<InventoryHistoryEntity>[];

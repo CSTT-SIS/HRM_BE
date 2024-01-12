@@ -13,11 +13,6 @@ export class ImportGoodDto {
     quantity: number;
 
     @ApiProperty()
-    @IsNotEmpty({ message: 'Vui lòng chọn đơn vị tính' })
-    @IsNumber({}, { message: 'Đơn vị tính phải là số' })
-    unitId: number;
-
-    @ApiProperty()
     @IsOptional()
     errorQuantity: number;
 }

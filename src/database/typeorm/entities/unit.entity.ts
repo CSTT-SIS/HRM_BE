@@ -1,5 +1,5 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn, Relation } from 'typeorm';
-import { InventoryEntity } from '~/database/typeorm/entities/inventory.entity';
+import { ProductEntity } from '~/database/typeorm/entities/product.entity';
 import { AbstractEntity } from './abstract.entity';
 
 @Entity({ name: 'units' })
@@ -14,6 +14,6 @@ export class UnitEntity extends AbstractEntity {
     description: string;
 
     /* RELATIONS */
-    @OneToMany(() => InventoryEntity, (entity) => entity.unit, { createForeignKeyConstraints: false })
-    inventories: Relation<InventoryEntity>[];
+    @OneToMany(() => ProductEntity, (entity) => entity.unit, { createForeignKeyConstraints: false })
+    products: Relation<ProductEntity>[];
 }

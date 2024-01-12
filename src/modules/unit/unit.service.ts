@@ -41,7 +41,7 @@ export class UnitService {
     }
 
     remove(id: number) {
-        this.database.inventory.update({ unitId: id }, { unitId: null });
+        this.database.product.update({ unitId: id }, { unitId: null });
         return this.database.unit.delete(id);
     }
 }

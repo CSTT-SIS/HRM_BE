@@ -4,6 +4,7 @@ import { MediaEntity } from '~/database/typeorm/entities/media.entity';
 import { ProductCategoryEntity } from '~/database/typeorm/entities/productCategory.entity';
 import { ProviderEntity } from '~/database/typeorm/entities/provider.entity';
 import { QuantityLimitEntity } from '~/database/typeorm/entities/quantityLimit.entity';
+import { UnitEntity } from '~/database/typeorm/entities/unit.entity';
 import { AbstractEntity } from './abstract.entity';
 
 @Entity({ name: 'products' })
@@ -16,6 +17,9 @@ export class ProductEntity extends AbstractEntity {
 
     @Column({ name: 'provider_id', type: 'int', unsigned: true, nullable: true })
     providerId: number;
+
+    @Column({ name: 'unit_id', type: 'int', unsigned: true, nullable: true })
+    unitId: number;
 
     @Column({ name: 'media_id', type: 'int', unsigned: true, nullable: true })
     mediaId: number;
@@ -55,4 +59,8 @@ export class ProductEntity extends AbstractEntity {
 
     @OneToOne(() => QuantityLimitEntity, (quantityLimit) => quantityLimit.product, { createForeignKeyConstraints: false })
     quantityLimit: Relation<QuantityLimitEntity>;
+
+    @ManyToOne(() => UnitEntity, (unit) => unit.products, { createForeignKeyConstraints: false })
+    @JoinColumn({ name: 'unit_id', referencedColumnName: 'id' })
+    unit: Relation<UnitEntity>;
 }

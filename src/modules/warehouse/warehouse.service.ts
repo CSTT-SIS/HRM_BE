@@ -60,7 +60,7 @@ export class WarehouseService {
 
         builder.andWhere(this.utilService.relationQuerySearch({ warehouseId: queries.warehouseId }));
         builder.leftJoinAndSelect('entity.product', 'product');
-        builder.leftJoinAndSelect('entity.unit', 'unit');
+        builder.leftJoinAndSelect('product.unit', 'unit');
         builder.select(['entity', 'product.id', 'product.name', 'unit.id', 'unit.name']);
 
         if (!this.utilService.isEmpty(queries.search)) {
@@ -83,7 +83,6 @@ export class WarehouseService {
         await this.utilService.checkRelationIdExist({
             warehouse: id,
             product: data.productId,
-            unit: data.unitId,
         });
 
         const limit = await this.database.quantityLimit.findOneBy({ productId: data.productId });
