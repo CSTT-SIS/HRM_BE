@@ -25,8 +25,9 @@ export class ProductService {
 
         builder.leftJoinAndSelect('entity.category', 'category');
         builder.leftJoinAndSelect('entity.provider', 'provider');
+        builder.leftJoinAndSelect('entity.unit', 'unit');
         builder.leftJoinAndSelect('entity.media', 'media');
-        builder.select(['entity', 'category.id', 'category.name', 'media.id', 'media.path', 'provider.id', 'provider.name']);
+        builder.select(['entity', 'category.id', 'category.name', 'media.id', 'media.path', 'provider.id', 'provider.name', 'unit.id', 'unit.name']);
 
         const [result, total] = await builder.getManyAndCount();
         const totalPages = Math.ceil(total / take);
