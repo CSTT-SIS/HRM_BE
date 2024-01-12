@@ -84,3 +84,19 @@ export class MomentTransformer implements ValueTransformer {
 function isNullOrUndefined<T>(obj: T | null | undefined): obj is null | undefined {
     return typeof obj === 'undefined' || obj === null;
 }
+
+export class ColumnBooleanTransformer implements ValueTransformer {
+    to(data?: boolean | null): boolean | null {
+        if (!isNullOrUndefined(data)) {
+            return data;
+        }
+        return null;
+    }
+
+    from(data?: number | null): boolean | null {
+        if (!isNullOrUndefined(data)) {
+            return !!data;
+        }
+        return null;
+    }
+}

@@ -31,7 +31,10 @@
         "seed:create": "ts-node -r tsconfig-paths/register ./node_modules/typeorm-extension/bin/cli.cjs seed:create -d ./migrations/configs/db.config.ts",
         "prisma:pull": "npx prisma db pull",
         "prisma:generate": "npx prisma generate",
-        "compodoc": "npx @compodoc/compodoc -p tsconfig.json -s"
+        "compodoc": "npx @compodoc/compodoc -p tsconfig.json -s",
+        "generate:module": "sh ./scripts/generate-module.sh",
+        "generate:entity": "node ./scripts/generate-and-import-entity.js",
+        "generate:reposity": "node ./scripts/generate-repository.js"
     },
     "dependencies": {
         "@golevelup/nestjs-discovery": "^4.0.0",

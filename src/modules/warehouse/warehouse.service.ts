@@ -1,7 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+import { INVENTORY_HISTORY_TYPE } from '~/common/enums/enum';
+import { UserStorage } from '~/common/storages/user.storage';
 import { DatabaseService } from '~/database/typeorm/database.service';
-import { CreateWarehouseTypeDto } from '~/modules/warehouse/dto/create-warehouse-type.dto';
-import { UpdateWarehouseTypeDto } from '~/modules/warehouse/dto/update-warehouse-type.dto';
+import { ImportGoodDto } from '~/modules/warehouse/dto/import-good.dto';
 import { UtilService } from '~/shared/services';
 import { CreateWarehouseDto } from './dto/create-warehouse.dto';
 import { UpdateWarehouseDto } from './dto/update-warehouse.dto';
@@ -10,14 +11,8 @@ import { UpdateWarehouseDto } from './dto/update-warehouse.dto';
 export class WarehouseService {
     constructor(private readonly utilService: UtilService, private readonly database: DatabaseService) {}
 
-    /* WAREHOUSE */
     async create(createWarehouseDto: CreateWarehouseDto) {
-        if (!this.utilService.isEmpty(createWarehouseDto.typeId)) {
-            const type = await this.database.warehouseType.countBy({ id: createWarehouseDto.typeId });
-            if (!type) {
-                throw new BadRequestException('Không tìm thấy loại kho');
-            }
-        }
+        await this.utilService.checkRelationIdExist({ warehouseType: createWarehouseDto.typeId });
 
         const entity = await this.database.warehouse.save(this.database.warehouse.create(createWarehouseDto));
         this.database.warehouse.update(entity.id, { parentPath: entity.id.toString() });
@@ -52,13 +47,7 @@ export class WarehouseService {
     }
 
     async update(id: number, updateWarehouseDto: UpdateWarehouseDto) {
-        if (!this.utilService.isEmpty(updateWarehouseDto.typeId)) {
-            const type = await this.database.warehouseType.countBy({ id: updateWarehouseDto.typeId });
-            if (!type) {
-                throw new BadRequestException('Không tìm thấy loại kho');
-            }
-        }
-
+        await this.utilService.checkRelationIdExist({ warehouseType: updateWarehouseDto.typeId });
         return this.database.warehouse.update(id, updateWarehouseDto);
     }
 
@@ -66,19 +55,17 @@ export class WarehouseService {
         return this.database.warehouse.delete(id);
     }
 
-    /* WAREHOUSE TYPE */
-    createType(createWarehouseTypeDto: CreateWarehouseTypeDto) {
-        return this.database.warehouseType.save(this.database.warehouseType.create(createWarehouseTypeDto));
-    }
+    async getProducts(queries: { page: number; perPage: number; search: string; sortBy: string; warehouseId: number }) {
+        const { builder, take, pagination } = this.utilService.getQueryBuilderAndPagination(this.database.inventory, queries);
 
-    async findAllType(queries: { page: number; perPage: number; search: string; sortBy: string }) {
-        const { builder, take, pagination } = this.utilService.getQueryBuilderAndPagination(this.database.warehouseType, queries);
+        builder.andWhere(this.utilService.relationQuerySearch({ warehouseId: queries.warehouseId }));
+        builder.leftJoinAndSelect('entity.product', 'product');
+        builder.leftJoinAndSelect('entity.unit', 'unit');
+        builder.select(['entity', 'product.id', 'product.name', 'unit.id', 'unit.name']);
 
         if (!this.utilService.isEmpty(queries.search)) {
-            builder.andWhere(this.utilService.fullTextSearch({ fields: ['name'], keyword: queries.search }));
+            builder.andWhere(this.utilService.fullTextSearch({ entityAlias: 'product', fields: ['name', 'code'], keyword: queries.search }));
         }
-
-        builder.select(['entity']);
 
         const [result, total] = await builder.getManyAndCount();
         const totalPages = Math.ceil(total / take);
@@ -92,16 +79,36 @@ export class WarehouseService {
         };
     }
 
-    findOneType(id: number) {
-        return this.database.warehouseType.findOne({ where: { id } });
-    }
+    async importGoods(id: number, data: ImportGoodDto) {
+        await this.utilService.checkRelationIdExist({
+            warehouse: id,
+            product: data.productId,
+            unit: data.unitId,
+        });
 
-    updateType(id: number, updateWarehouseTypeDto: UpdateWarehouseTypeDto) {
-        return this.database.warehouseType.update(id, updateWarehouseTypeDto);
-    }
+        const limit = await this.database.quantityLimit.findOneBy({ productId: data.productId });
+        const inventory = await this.database.inventory.save(
+            this.database.inventory.create({
+                ...data,
+                warehouseId: id,
+                createdById: UserStorage.get()?.id,
+                note: INVENTORY_HISTORY_TYPE.IMPORT,
+                minQuantity: limit?.minQuantity || 0,
+                maxQuantity: limit?.maxQuantity,
+            }),
+        );
+        this.database.inventoryHistory.save(
+            this.database.inventoryHistory.create({
+                inventoryId: inventory.id,
+                from: 0,
+                to: data.quantity,
+                change: data.quantity,
+                updatedById: UserStorage.get()?.id,
+                type: INVENTORY_HISTORY_TYPE.IMPORT,
+                note: INVENTORY_HISTORY_TYPE.IMPORT,
+            }),
+        );
 
-    removeType(id: number) {
-        this.database.warehouse.update({ typeId: id }, { typeId: null });
-        return this.database.warehouseType.delete(id);
+        return inventory;
     }
 }

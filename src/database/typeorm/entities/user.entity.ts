@@ -1,8 +1,10 @@
-import { Column, Entity, Index, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
+import { Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
 import { USER_STATUS } from '~/common/enums/enum';
 import { AbstractEntity } from '~/database/typeorm/entities/abstract.entity';
 import { AccountEntity } from '~/database/typeorm/entities/account.entity';
 import { DepartmentEntity } from '~/database/typeorm/entities/department.entity';
+import { InventoryEntity } from '~/database/typeorm/entities/inventory.entity';
+import { InventoryHistoryEntity } from '~/database/typeorm/entities/inventoryHistory.entity';
 import { MediaEntity } from '~/database/typeorm/entities/media.entity';
 import { RoleEntity } from '~/database/typeorm/entities/role.entity';
 
@@ -77,4 +79,10 @@ export class UserEntity extends AbstractEntity {
     })
     @JoinColumn({ name: 'department_id', referencedColumnName: 'id' })
     department: Relation<DepartmentEntity>;
+
+    @OneToMany(() => InventoryEntity, (entity: InventoryEntity) => entity.createdBy, { createForeignKeyConstraints: false })
+    inventories: Relation<InventoryEntity>[];
+
+    @OneToMany(() => InventoryHistoryEntity, (entity: InventoryHistoryEntity) => entity.updatedBy, { createForeignKeyConstraints: false })
+    invetoryHistories: Relation<InventoryHistoryEntity>[];
 }

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Column, Entity, Index, JoinTable, ManyToMany, PrimaryGeneratedColumn, Relation } from 'typeorm';
+import { Column, Entity, Index, JoinTable, ManyToMany, PrimaryGeneratedColumn, Relation, RelationId } from 'typeorm';
 import { RoleEntity } from '~/database/typeorm/entities/role.entity';
 import { AbstractEntity } from './abstract.entity';
 
@@ -30,5 +30,8 @@ export class PermissionEntity extends AbstractEntity {
         joinColumn: { name: 'permission_id', referencedColumnName: 'id' },
         inverseJoinColumn: { name: 'role_id', referencedColumnName: 'id' },
     })
-    role: Relation<RoleEntity>[];
+    roles: Relation<RoleEntity>[];
+
+    @RelationId((permission: PermissionEntity) => permission.roles)
+    roleIds: number[];
 }

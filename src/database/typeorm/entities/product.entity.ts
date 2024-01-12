@@ -1,7 +1,9 @@
-import { Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
+import { Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
+import { InventoryEntity } from '~/database/typeorm/entities/inventory.entity';
 import { MediaEntity } from '~/database/typeorm/entities/media.entity';
 import { ProductCategoryEntity } from '~/database/typeorm/entities/productCategory.entity';
 import { ProviderEntity } from '~/database/typeorm/entities/provider.entity';
+import { QuantityLimitEntity } from '~/database/typeorm/entities/quantityLimit.entity';
 import { AbstractEntity } from './abstract.entity';
 
 @Entity({ name: 'products' })
@@ -47,4 +49,10 @@ export class ProductEntity extends AbstractEntity {
     @ManyToOne(() => MediaEntity, (media) => media.products, { createForeignKeyConstraints: false })
     @JoinColumn({ name: 'media_id', referencedColumnName: 'id' })
     media: Relation<MediaEntity>;
+
+    @OneToMany(() => InventoryEntity, (inventory) => inventory.product, { createForeignKeyConstraints: false })
+    inventories: Relation<InventoryEntity>[];
+
+    @OneToOne(() => QuantityLimitEntity, (quantityLimit) => quantityLimit.product, { createForeignKeyConstraints: false })
+    quantityLimit: Relation<QuantityLimitEntity>;
 }

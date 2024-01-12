@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Column, Entity, Index, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn, Relation } from 'typeorm';
+import { Column, Entity, Index, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn, Relation, RelationId } from 'typeorm';
 import { PermissionEntity } from '~/database/typeorm/entities/permission.entity';
 import { UserEntity } from '~/database/typeorm/entities/user.entity';
 import { AbstractEntity } from './abstract.entity';
@@ -17,7 +17,7 @@ export class RoleEntity extends AbstractEntity {
     description: string;
 
     /* RELATION */
-    @ManyToMany(() => PermissionEntity, (permissions) => permissions.role, {
+    @ManyToMany(() => PermissionEntity, (permissions) => permissions.roles, {
         onDelete: 'NO ACTION',
         onUpdate: 'CASCADE',
         createForeignKeyConstraints: false,
@@ -28,6 +28,9 @@ export class RoleEntity extends AbstractEntity {
         inverseJoinColumn: { name: 'permission_id', referencedColumnName: 'id' },
     })
     permissions: Relation<PermissionEntity>[];
+
+    @RelationId((role: RoleEntity) => role.permissions)
+    permissionIds: number[];
 
     @OneToMany(() => UserEntity, (users) => users.role, { createForeignKeyConstraints: false })
     users: Relation<UserEntity>[];

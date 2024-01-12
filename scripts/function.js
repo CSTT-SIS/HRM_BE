@@ -48,7 +48,8 @@ function importToModule(name) {
     const entities = moduleContent
         .match(/const entities = \[(.*?)\]/s)[1]
         .split(',')
-        .map((e) => e.trim());
+        .map((e) => e.trim())
+        .filter((e) => e !== '');
     if (entities instanceof Array) entities.push(`${nameCapitalized}Entity`);
 
     // find all imports in moduleContent

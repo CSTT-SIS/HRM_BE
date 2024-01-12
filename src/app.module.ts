@@ -31,7 +31,9 @@ import { ProductCategoryModule } from './modules/product-category/product-catego
 import { ProductModule } from './modules/product/product.module';
 import { ProviderModule } from './modules/provider/provider.module';
 import { UserModule } from './modules/user/user.module';
+import { WarehouseTypeModule } from './modules/warehouse-type/warehouse-type.module';
 import { WarehouseModule } from './modules/warehouse/warehouse.module';
+import { UnitModule } from './modules/unit/unit.module';
 
 @Module({
     imports: [
@@ -62,6 +64,8 @@ import { WarehouseModule } from './modules/warehouse/warehouse.module';
         ProviderModule,
         ProductModule,
         ProductCategoryModule,
+        WarehouseTypeModule,
+        UnitModule,
     ],
     controllers: [AppController],
     providers: [

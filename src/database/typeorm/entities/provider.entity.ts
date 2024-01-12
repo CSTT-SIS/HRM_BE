@@ -20,7 +20,7 @@ export class ProviderEntity extends AbstractEntity {
     @Column({ name: 'email', type: 'varchar', length: 255, nullable: true })
     email: string;
 
-    @Column({ name: 'description', type: 'varchar', length: 255, nullable: true })
+    @Column({ name: 'description', type: 'text', nullable: true })
     description: string;
 
     /* RELATIONS */
