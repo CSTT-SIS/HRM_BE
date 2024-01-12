@@ -21,6 +21,11 @@ export class CreateProductDto {
     tax: number;
 
     @ApiProperty()
+    @IsNotEmpty({ message: 'Đơn vị sản phẩm không được để trống' })
+    @IsNumber({}, { message: 'Đơn vị sản phẩm phải là số' })
+    unitId: number;
+
+    @ApiProperty()
     @IsOptional()
     description: string;
 
