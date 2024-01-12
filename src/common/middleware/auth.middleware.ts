@@ -1,5 +1,6 @@
 import { Injectable, NestMiddleware, UnauthorizedException } from '@nestjs/common';
 import { Request, Response } from 'express';
+import { UserStorage } from '~/common/storages/user.storage';
 import { UtilService } from '~/shared/services';
 import { TokenService } from '../../shared/services/token.service';
 
@@ -23,6 +24,9 @@ export class AuthMiddleware implements NestMiddleware {
             req.headers['_accountId'] = authData?.id;
             req.headers['_userId'] = authData?.user?.id?.toString();
             req['user'] = authData?.user;
+
+            UserStorage.set(authData?.user);
+
             next();
         } catch (err) {
             throw new UnauthorizedException('Error: Request Forbidden [Token Invalid]');

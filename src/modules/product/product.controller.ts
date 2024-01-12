@@ -2,6 +2,7 @@ import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestj
 import { ApiBasicAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Permission } from '~/common/decorators/permission.decorator';
 import { FilterDto } from '~/common/dtos/filter.dto';
+import { UpdateProductLimitDto } from '~/modules/product/dto/update-product-limit.dto';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { ProductService } from './product.service';
@@ -43,5 +44,11 @@ export class ProductController {
     @Delete(':id')
     remove(@Param('id') id: string) {
         return this.productService.remove(+id);
+    }
+
+    @Permission('product:updateLimit')
+    @Patch(':id/limit')
+    updateLimit(@Param('id') id: string, @Body() data: UpdateProductLimitDto) {
+        return this.productService.updateLimit(+id, data);
     }
 }

@@ -1,4 +1,5 @@
-import { Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
+import { Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, Relation } from 'typeorm';
+import { InventoryEntity } from '~/database/typeorm/entities/inventory.entity';
 import { WarehouseTypeEntity } from '~/database/typeorm/entities/warehouseType.entity';
 import { AbstractEntity } from './abstract.entity';
 
@@ -34,4 +35,7 @@ export class WarehouseEntity extends AbstractEntity {
     @ManyToOne(() => WarehouseTypeEntity, (type) => type.warehouses, { nullable: true, createForeignKeyConstraints: false })
     @JoinColumn({ name: 'type_id', referencedColumnName: 'id' })
     type: Relation<WarehouseTypeEntity>;
+
+    @OneToMany(() => InventoryEntity, (inventory) => inventory.warehouse, { createForeignKeyConstraints: false })
+    inventories: Relation<InventoryEntity>[];
 }

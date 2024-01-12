@@ -1,5 +1,7 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+import { UserStorage } from '~/common/storages/user.storage';
 import { DatabaseService } from '~/database/typeorm/database.service';
+import { UpdateProductLimitDto } from '~/modules/product/dto/update-product-limit.dto';
 import { UtilService } from '~/shared/services';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
@@ -9,20 +11,7 @@ export class ProductService {
     constructor(private readonly database: DatabaseService, private readonly utilService: UtilService) {}
 
     async create(createProductDto: CreateProductDto) {
-        if (!this.utilService.isEmpty(createProductDto.categoryId)) {
-            const category = await this.database.productCategory.countBy({ id: createProductDto.categoryId });
-            if (!category) {
-                throw new BadRequestException('Không tìm thấy danh mục sản phẩm');
-            }
-        }
-
-        if (!this.utilService.isEmpty(createProductDto.providerId)) {
-            const provider = await this.database.provider.countBy({ id: createProductDto.providerId });
-            if (!provider) {
-                throw new BadRequestException('Không tìm thấy nhà cung cấp');
-            }
-        }
-
+        await this.utilService.checkRelationIdExist({ productCategory: createProductDto.categoryId, provider: createProductDto.providerId });
         return this.database.product.save(this.database.product.create(createProductDto));
     }
 
@@ -56,24 +45,22 @@ export class ProductService {
     }
 
     async update(id: number, updateProductDto: UpdateProductDto) {
-        if (!this.utilService.isEmpty(updateProductDto.categoryId)) {
-            const category = await this.database.productCategory.countBy({ id: updateProductDto.categoryId });
-            if (!category) {
-                throw new BadRequestException('Không tìm thấy danh mục sản phẩm');
-            }
-        }
-
-        if (!this.utilService.isEmpty(updateProductDto.providerId)) {
-            const provider = await this.database.provider.countBy({ id: updateProductDto.providerId });
-            if (!provider) {
-                throw new BadRequestException('Không tìm thấy nhà cung cấp');
-            }
-        }
-
+        await this.utilService.checkRelationIdExist({ productCategory: updateProductDto.categoryId, provider: updateProductDto.providerId });
         return this.database.product.update(id, updateProductDto);
     }
 
     remove(id: number) {
         return this.database.product.delete(id);
+    }
+
+    async updateLimit(id: number, data: UpdateProductLimitDto) {
+        const limit = await this.database.quantityLimit.findOne({ where: { productId: id } });
+        if (limit) {
+            return this.database.quantityLimit.update(limit.id, { updatedById: UserStorage.get()?.id, ...data });
+        } else {
+            return this.database.quantityLimit.save(
+                this.database.quantityLimit.create({ productId: id, createdById: UserStorage.get()?.id, ...data }),
+            );
+        }
     }
 }

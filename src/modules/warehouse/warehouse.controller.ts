@@ -2,8 +2,7 @@ import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestj
 import { ApiBasicAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Permission } from '~/common/decorators/permission.decorator';
 import { FilterDto } from '~/common/dtos/filter.dto';
-import { CreateWarehouseTypeDto } from '~/modules/warehouse/dto/create-warehouse-type.dto';
-import { UpdateWarehouseTypeDto } from '~/modules/warehouse/dto/update-warehouse-type.dto';
+import { ImportGoodDto } from '~/modules/warehouse/dto/import-good.dto';
 import { CreateWarehouseDto } from './dto/create-warehouse.dto';
 import { UpdateWarehouseDto } from './dto/update-warehouse.dto';
 import { WarehouseService } from './warehouse.service';
@@ -14,23 +13,10 @@ import { WarehouseService } from './warehouse.service';
 export class WarehouseController {
     constructor(private readonly warehouseService: WarehouseService) {}
 
-    @Permission('warehouseType:create')
-    @Post('type')
-    createType(@Body() createWarehouseTypeDto: CreateWarehouseTypeDto) {
-        return this.warehouseService.createType(createWarehouseTypeDto);
-    }
-
     @Permission('warehouse:create')
     @Post()
     create(@Body() createWarehouseDto: CreateWarehouseDto) {
         return this.warehouseService.create(createWarehouseDto);
-    }
-
-    @Permission('warehouseType:findAll')
-    @Get('type')
-    @ApiQuery({ type: FilterDto })
-    findAllType(@Query() queries) {
-        return this.warehouseService.findAllType({ ...queries });
     }
 
     @Permission('warehouse:findAll')
@@ -41,22 +27,10 @@ export class WarehouseController {
         return this.warehouseService.findAll({ ...queries, typeId });
     }
 
-    @Permission('warehouseType:findOne')
-    @Get('type/:id')
-    findOneType(@Param('id') id: string) {
-        return this.warehouseService.findOneType(+id);
-    }
-
     @Permission('warehouse:findOne')
     @Get(':id')
     findOne(@Param('id') id: string) {
         return this.warehouseService.findOne(+id);
-    }
-
-    @Permission('warehouseType:update')
-    @Patch('type/:id')
-    updateType(@Param('id') id: string, @Body() updateWarehouseTypeDto: UpdateWarehouseTypeDto) {
-        return this.warehouseService.updateType(+id, updateWarehouseTypeDto);
     }
 
     @Permission('warehouse:update')
@@ -65,15 +39,21 @@ export class WarehouseController {
         return this.warehouseService.update(+id, updateWarehouseDto);
     }
 
-    @Permission('warehouseType:remove')
-    @Delete('type/:id')
-    removeType(@Param('id') id: string) {
-        return this.warehouseService.removeType(+id);
-    }
-
     @Permission('warehouse:remove')
     @Delete(':id')
     remove(@Param('id') id: string) {
         return this.warehouseService.remove(+id);
+    }
+    @Permission('warehouse:get-products')
+    @Get(':id/products')
+    @ApiQuery({ type: FilterDto })
+    getProducts(@Param('id') id: string, @Query() queries) {
+        return this.warehouseService.getProducts({ ...queries, warehouseId: +id });
+    }
+
+    @Permission('warehouse:import')
+    @Post(':id/import')
+    import(@Param('id') id: string, @Body() importGoodDto: ImportGoodDto) {
+        return this.warehouseService.importGoods(+id, importGoodDto);
     }
 }

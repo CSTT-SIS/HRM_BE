@@ -46,9 +46,9 @@ export class TypeOrmFilter implements ExceptionFilter {
             case 'ER_DATA_TOO_LONG':
                 return { code: 400, message: `Dữ liệu quá dài` };
             case 'ER_DUP_ENTRY':
-                return { code: 409, message: `Trùng ${field}` };
+                return { code: 409, message: `Trùng dữ liệu` };
             case 'ER_NO_REFERENCED_ROW_2':
-                return { code: 409, message: `Không tồn tại (${error.detail})` };
+                return { code: 409, message: `Không tồn tại các dữ liệu liên quan` };
             case 'ER_BAD_NULL_ERROR':
                 return { code: 400, message: `Thiếu trường bắt buộc` };
             case 'ER_BAD_FIELD_ERROR':

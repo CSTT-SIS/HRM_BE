@@ -1,16 +1,16 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { createCipheriv, createDecipheriv } from 'crypto';
 import fs from 'fs';
 import moment from 'moment';
 import path from 'path';
-import { DataSource, Repository, SelectQueryBuilder } from 'typeorm';
+import { Repository, SelectQueryBuilder } from 'typeorm';
 import { DEFAULT_PAGE, DEFAULT_PER_PAGE } from '~/common/constants/constant';
 import { MEDIA_TYPE } from '~/common/enums/enum';
-import { MediaEntity } from '~/database/typeorm/entities/media.entity';
+import { DatabaseService } from '~/database/typeorm/database.service';
 
 @Injectable()
 export class UtilService {
-    constructor(private readonly dataSource: DataSource) {}
+    constructor(private readonly database: DatabaseService) {}
 
     public capitalizeFirstLetter(str: string) {
         if (!str) return null;
@@ -211,10 +211,8 @@ export class UtilService {
             // move file
             if (!this.moveFile(oldFilePath, `.${imagePath}`)) return false;
 
-            const manager = this.dataSource.manager;
-            const media = await manager.save(
-                MediaEntity,
-                manager.create(MediaEntity, {
+            const media = await this.database.media.save(
+                this.database.media.create({
                     name: file.originalname,
                     path: imagePath,
                     type: this.checkFileType(file),
@@ -344,5 +342,16 @@ export class UtilService {
             })
             .filter((el) => el !== null)
             .join(' AND ');
+    }
+
+    public async checkRelationIdExist(data: { [key: string]: any }) {
+        const fields = Object.keys(data);
+        for (const field of fields) {
+            if (this.isEmpty(data[field])) continue;
+            const count = await this.database[field].countBy({ id: data[field] });
+            if (!count) throw new BadRequestException(`Không tìm thấy ${field} (id: ${data[field]})`);
+        }
+
+        return true;
     }
 }
