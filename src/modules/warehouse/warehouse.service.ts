@@ -61,7 +61,22 @@ export class WarehouseService {
         builder.andWhere(this.utilService.relationQuerySearch({ warehouseId: queries.warehouseId }));
         builder.leftJoinAndSelect('entity.product', 'product');
         builder.leftJoinAndSelect('product.unit', 'unit');
-        builder.select(['entity', 'product.id', 'product.name', 'unit.id', 'unit.name']);
+        builder.leftJoinAndSelect('product.category', 'category');
+        builder.leftJoinAndSelect('product.provider', 'provider');
+        builder.select([
+            'entity',
+            'product.id',
+            'product.name',
+            'product.code',
+            'product.price',
+            'product.tax',
+            'unit.id',
+            'unit.name',
+            'category.id',
+            'category.name',
+            'provider.id',
+            'provider.name',
+        ]);
 
         if (!this.utilService.isEmpty(queries.search)) {
             builder.andWhere(this.utilService.fullTextSearch({ entityAlias: 'product', fields: ['name', 'code'], keyword: queries.search }));
