@@ -4,6 +4,7 @@ import { MediaEntity } from '~/database/typeorm/entities/media.entity';
 import { ProductCategoryEntity } from '~/database/typeorm/entities/productCategory.entity';
 import { ProviderEntity } from '~/database/typeorm/entities/provider.entity';
 import { QuantityLimitEntity } from '~/database/typeorm/entities/quantityLimit.entity';
+import { ColumnNumericTransformer } from '~/database/typeorm/entities/transformer.entity';
 import { UnitEntity } from '~/database/typeorm/entities/unit.entity';
 import { AbstractEntity } from './abstract.entity';
 
@@ -35,10 +36,10 @@ export class ProductEntity extends AbstractEntity {
     @Column({ name: 'description', type: 'text', nullable: true })
     description: string;
 
-    @Column({ name: 'price', type: 'decimal', precision: 10, scale: 0, nullable: true })
+    @Column({ name: 'price', type: 'decimal', precision: 10, scale: 0, nullable: true, transformer: new ColumnNumericTransformer() })
     price: number;
 
-    @Column({ name: 'tax', type: 'decimal', precision: 5, scale: 2, nullable: true, default: 0 })
+    @Column({ name: 'tax', type: 'decimal', precision: 5, scale: 2, nullable: true, default: 0, transformer: new ColumnNumericTransformer() })
     tax: number;
 
     /* RELATIONS */
