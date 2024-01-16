@@ -63,6 +63,7 @@ export class WarehouseService {
         builder.leftJoinAndSelect('product.unit', 'unit');
         builder.leftJoinAndSelect('product.category', 'category');
         builder.leftJoinAndSelect('product.provider', 'provider');
+        builder.leftJoinAndSelect('product.quantityLimit', 'limit');
         builder.select([
             'entity',
             'product.id',
@@ -76,6 +77,9 @@ export class WarehouseService {
             'category.name',
             'provider.id',
             'provider.name',
+            'limit.id',
+            'limit.minQuantity',
+            'limit.maxQuantity',
         ]);
 
         if (!this.utilService.isEmpty(queries.search)) {
@@ -100,15 +104,12 @@ export class WarehouseService {
             product: data.productId,
         });
 
-        const limit = await this.database.quantityLimit.findOneBy({ productId: data.productId });
         const inventory = await this.database.inventory.save(
             this.database.inventory.create({
                 ...data,
                 warehouseId: id,
                 createdById: UserStorage.get()?.id,
                 note: INVENTORY_HISTORY_TYPE.IMPORT,
-                minQuantity: limit?.minQuantity || 0,
-                maxQuantity: limit?.maxQuantity,
             }),
         );
         this.database.inventoryHistory.save(

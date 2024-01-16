@@ -29,12 +29,6 @@ export class InventoryEntity extends AbstractEntity {
     @Column({ name: 'created_by_id', type: 'int', unsigned: true, nullable: true })
     createdById: number;
 
-    @Column({ name: 'min_quantity', type: 'int', unsigned: true, nullable: true, default: 0 })
-    minQuantity: number;
-
-    @Column({ name: 'max_quantity', type: 'int', unsigned: true, nullable: true })
-    maxQuantity: number;
-
     @Column({ name: 'is_active', type: 'tinyint', unsigned: true, default: true })
     isActive: boolean;
 
