@@ -1,0 +1,46 @@
+import { Injectable } from '@nestjs/common';
+import { DatabaseService } from '~/database/typeorm/database.service';
+import { UtilService } from '~/shared/services';
+import { Create{{nameCapitalized}}Dto } from './dto/create-{{moduleName}}.dto';
+import { Update{{nameCapitalized}}Dto } from './dto/update-{{moduleName}}.dto';
+
+@Injectable()
+export class {{nameCapitalized}}Service {
+    constructor(private readonly utilService: UtilService, private readonly database: DatabaseService) {}
+
+    create(create{{nameCapitalized}}Dto: Create{{nameCapitalized}}Dto) {
+        return this.database.{{name}}.save(this.database.{{name}}.create(create{{nameCapitalized}}Dto));
+    }
+
+    async findAll(queries: { page: number; perPage: number; search: string; sortBy: string; typeId: number }) {
+        const { builder, take, pagination } = this.utilService.getQueryBuilderAndPagination(this.database.{{name}}, queries);
+
+        if (!this.utilService.isEmpty(queries.search))
+            builder.andWhere(this.utilService.fullTextSearch({ fields: ['name'], keyword: queries.search }));
+
+        builder.select(['entity']);
+
+        const [result, total] = await builder.getManyAndCount();
+        const totalPages = Math.ceil(total / take);
+        return {
+            data: result,
+            pagination: {
+                ...pagination,
+                totalRecords: total,
+                totalPages: totalPages,
+            },
+        };
+    }
+
+    findOne(id: number) {
+        return this.database.{{name}}.findOne({ where: { id } });
+    }
+
+    update(id: number, update{{nameCapitalized}}Dto: Update{{nameCapitalized}}Dto) {
+        return this.database.{{name}}.update(id, update{{nameCapitalized}}Dto);
+    }
+
+    remove(id: number) {
+        return this.database.{{name}}.delete(id);
+    }
+}

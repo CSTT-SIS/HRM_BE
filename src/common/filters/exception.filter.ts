@@ -37,6 +37,8 @@ export class AllExceptionsFilter implements ExceptionFilter {
         }
 
         Logger.error(`[${status}] {${request.url}, ${response?.req?.route?.path}, ${request.method}}: ${exception?.message}`, 'ExceptionFilter');
+        // console.error(exception.stack);
+
         response.status(status).json({
             result: false,
             message: message,

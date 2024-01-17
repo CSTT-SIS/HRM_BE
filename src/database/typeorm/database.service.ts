@@ -8,6 +8,10 @@ import { MediaRepository } from '~/database/typeorm/repositories/media.repositor
 import { PermissionRepository } from '~/database/typeorm/repositories/permission.repository';
 import { ProductRepository } from '~/database/typeorm/repositories/product.repository';
 import { ProductCategoryRepository } from '~/database/typeorm/repositories/productCategory.repository';
+import { ProductMetaRepository } from '~/database/typeorm/repositories/productMeta.repository';
+import { ProposalRepository } from '~/database/typeorm/repositories/proposal.repository';
+import { ProposalDetailRepository } from '~/database/typeorm/repositories/proposalDetail.repository';
+import { ProposalTypeRepository } from '~/database/typeorm/repositories/proposalType.repository';
 import { ProviderRepository } from '~/database/typeorm/repositories/provider.repository';
 import { QuantityLimitRepository } from '~/database/typeorm/repositories/quantityLimit.repository';
 import { RoleRepository } from '~/database/typeorm/repositories/role.repository';
@@ -21,6 +25,7 @@ import { CacheService } from '~/shared/services/cache.service';
 @Injectable()
 export class DatabaseService {
     constructor(
+        private readonly cacheService: CacheService,
         public readonly department: DepartmentRepository,
         public readonly user: UserRepository,
         public readonly account: AccountRepository,
@@ -37,7 +42,10 @@ export class DatabaseService {
         public readonly unit: UnitRepository,
         public readonly inventoryHistory: InventoryHistoryRepository,
         public readonly quantityLimit: QuantityLimitRepository,
-        private readonly cacheService: CacheService,
+        public readonly proposal: ProposalRepository,
+        public readonly proposalType: ProposalTypeRepository,
+        public readonly proposalDetail: ProposalDetailRepository,
+        public readonly productMeta: ProductMetaRepository,
     ) {
         // load all departments to cache
         // this.loadDepartmentsToCache();

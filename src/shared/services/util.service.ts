@@ -344,6 +344,12 @@ export class UtilService {
             .join(' AND ');
     }
 
+    /**
+     * Check if relation id exist in database
+     * @param data.key name of repository in database service
+     * @param data.value id of relation
+     * @returns true if exist, throw error if not
+     */
     public async checkRelationIdExist(data: { [key: string]: any }) {
         const fields = Object.keys(data);
         for (const field of fields) {

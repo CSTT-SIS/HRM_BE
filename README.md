@@ -89,24 +89,8 @@ Read more about [RESTful API naming convention](https://restfulapi.net/resource-
 
 Open terminal, go to project folder and run this command:
 
-MacOS/Linux:
-
 ```bash
-$ sh scripts/generate-module.sh
-```
-
-Windows:
-
--   With CMD:
-
-```bash
-bash scripts/generate-module.sh
-```
-
--   With Git Bash:
-
-```bash
-scripts/generate-module.sh
+$ node scripts/generate-module.js
 ```
 
 Then, input module name and it will generate module for you.
@@ -196,7 +180,7 @@ Read more about [Relation](https://typeorm.io/#/relations)
 Entity:
 
 ```bash
-$ node scripts/generate-and-import-entity.js
+$ node scripts/generate-entity.js
 ```
 
 **Note:**
@@ -368,7 +352,7 @@ src
 
 When you create a new module, you need to follow the structure above.
 
-Use `generate-module.sh` script to generate module and it will create files follow the structure for you.
+Use `generate-module.js` script to generate module and it will create files follow the structure for you.
 
 ## Module Naming Convention
 

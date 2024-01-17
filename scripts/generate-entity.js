@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-const { camelize, generateEntity, importToModule } = require('./function');
+const { camelize, generateEntity, importEntityToModule } = require('./function');
 
 const readline = require('readline').createInterface({
     input: process.stdin,
@@ -10,7 +10,7 @@ readline.question(`Input Entity name: `, (name) => {
     readline.question(`Input Table name: `, (table) => {
         name = camelize(name.toLowerCase());
         generateEntity(table.toLowerCase(), name);
-        importToModule(name);
+        importEntityToModule(name);
         console.log(`Done!`);
         readline.close();
     });

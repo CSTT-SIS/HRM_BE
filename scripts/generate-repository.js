@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-const { camelize, generateRepo } = require('./function');
+const { camelize, generateRepo, importRepositoryToModule, importRepositoryToService } = require('./function');
 
 const readline = require('readline').createInterface({
     input: process.stdin,
@@ -9,6 +9,8 @@ const readline = require('readline').createInterface({
 readline.question(`Input repository name: `, (name) => {
     name = camelize(name.toLowerCase());
     generateRepo(name);
+    importRepositoryToModule(name);
+    importRepositoryToService(name);
     console.log(`Done!`);
     readline.close();
 });

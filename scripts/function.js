@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 const fs = require('fs');
 const path = require('path');
 
@@ -39,39 +40,73 @@ export class ${nameCapitalized}Repository extends Repository<${nameCapitalized}E
     fs.writeFileSync(repositoryFilePath, repositoryTemplate);
 }
 
-function importToModule(name) {
-    console.log(`Importing repository to module...`);
+function importRepositoryToModule(name) {
+    console.log(`Importing ${name} repository to module...`);
     const nameCapitalized = name.capitalize();
     const modulePath = path.join(__dirname, `../src/database/typeorm/database.module.ts`);
     const moduleContent = fs.readFileSync(modulePath, 'utf8');
-    // find const entities array in moduleContent
-    const entities = moduleContent
-        .match(/const entities = \[(.*?)\]/s)[1]
+    // find const repositories array in moduleContent
+    const repositories = moduleContent
+        .match(/const repositories = \[(.*?)\]/s)[1]
         .split(',')
         .map((e) => e.trim())
         .filter((e) => e !== '');
-    if (entities instanceof Array) entities.push(`${nameCapitalized}Entity`);
+    if (repositories instanceof Array) repositories.push(`${nameCapitalized}Repository`);
 
     // find all imports in moduleContent
     const imports = moduleContent.match(/import \{.*?\} from .*/g);
-    if (imports instanceof Array) imports.push(`import { ${nameCapitalized}Entity } from '~/database/typeorm/entities/${name}.entity';`);
-    console.log('LOG:: imports:', imports);
+    if (imports instanceof Array) imports.push(`import { ${nameCapitalized}Repository } from '~/database/typeorm/repositories/${name}.repository';`);
 
     let newModuleContent = moduleContent;
-    // delete all imports from moduleContent and remove empty lines
+    // delete all imports from moduleContent and remove empty lines above entities
     newModuleContent = newModuleContent.replace(/import \{.*?\} from .*/g, '');
     newModuleContent = newModuleContent.replace(/^\s*[\r\n]const entities/gm, 'const entities');
+    newModuleContent = newModuleContent.replace(/^\s*[\r\n]const repositories/gm, 'const repositories');
 
     // add new imports to first line
     newModuleContent = `${imports.join('\n')}\r\n\r\n${newModuleContent}`;
 
-    // write entities to moduleContent
-    newModuleContent = newModuleContent.replace(/const entities = \[(.*?)\]/s, `const entities = [\n    ${entities.join(',\n    ')}\n]`);
-
-    console.log('LOG:: newModuleContent:', newModuleContent);
+    // write repositories to moduleContent
+    newModuleContent = newModuleContent.replace(
+        /const repositories = \[(.*?)\]/s,
+        `\r\nconst repositories = [\n    ${repositories.join(',\n    ')},\n]`,
+    );
 
     // write moduleContent to modulePath
     fs.writeFileSync(modulePath, newModuleContent);
+}
+
+function importRepositoryToService(name) {
+    console.log(`Importing ${name} repository to service...`);
+    const nameCapitalized = name.capitalize();
+    const servicePath = path.join(__dirname, `../src/database/typeorm/database.service.ts`);
+    const serviceContent = fs.readFileSync(servicePath, 'utf8');
+
+    // find all constructors in serviceContent
+    const constructors = serviceContent
+        .match(/constructor\((.*?)\)/s)[1]
+        .split(',')
+        .map((e) => e.trim())
+        .filter((e) => e !== '');
+    if (constructors instanceof Array) constructors.push(`public readonly ${name}: ${nameCapitalized}Repository`);
+
+    // find all imports in serviceContent
+    const imports = serviceContent.match(/import \{.*?\} from .*/g);
+    if (imports instanceof Array) imports.push(`import { ${nameCapitalized}Repository } from '~/database/typeorm/repositories/${name}.repository';`);
+
+    let newServiceContent = serviceContent;
+    // delete all imports from moduleContent and remove empty lines
+    newServiceContent = newServiceContent.replace(/import \{.*?\} from .*/g, '');
+    newServiceContent = newServiceContent.replace(/^\s*[\r\n]@Injectable/gm, '@Injectable');
+
+    // add new imports to first line
+    newServiceContent = `${imports.join('\n')}\r\n\r\n${newServiceContent}`;
+
+    // write repositories to newServiceContent's constructor
+    newServiceContent = newServiceContent.replace(/constructor\((.*?)\)/s, `constructor(\n        ${constructors.join(',\n        ')},\n    )`);
+
+    // write newServiceContent to servicePath
+    fs.writeFileSync(servicePath, newServiceContent);
 }
 
 function generateEntity(tableName, entityName) {
@@ -97,237 +132,131 @@ export class ${nameCapitalized}Entity extends AbstractEntity {
     fs.writeFileSync(entityFilePath, entityTemplate);
 }
 
-function generateCommand(moduleName, commandName) {
-    console.info(`Creating command ${commandName}...`);
-    const commandHandlerPath = path.join(__dirname, `../src/modules/${moduleName}/commands/handlers`);
-    const commandImplPath = path.join(__dirname, `../src/modules/${moduleName}/commands/impl`);
-
-    if (!fs.existsSync(commandHandlerPath)) {
-        fs.mkdirSync(commandHandlerPath, { recursive: true });
-    }
-
-    if (!fs.existsSync(commandImplPath)) {
-        fs.mkdirSync(commandImplPath, { recursive: true });
-    }
-
-    const commandHandlerCapitalized = `${camelize(commandName)}Handler`.capitalize();
-    const commandHandlerFilePath = path.join(commandHandlerPath, `${commandName}.handler.ts`);
-
-    const commandImplCapitalized = `${camelize(commandName)}Command`.capitalize();
-    const commandImplFilePath = path.join(commandImplPath, `${commandName}.command.ts`);
-
-    // load template from file
-    const commandHandlerTemplate = fs.readFileSync(path.join(__dirname, `../scripts/templates/command.handler.template`), 'utf8');
-    const commandImplTemplate = fs.readFileSync(path.join(__dirname, `../scripts/templates/impl.template`), 'utf8');
-
-    // replace placeholders
-    const commandHandlerTemplateReplaced = commandHandlerTemplate
-        .replace(/{{commandName}}/g, commandName)
-        .replace(/{{commandImplCapitalized}}/g, commandImplCapitalized)
-        .replace(/{{commandHandlerCapitalized}}/g, commandHandlerCapitalized);
-
-    const commandImplTemplateReplaced = commandImplTemplate.replace(/{{implNameCapitalized}}/g, commandImplCapitalized);
-
-    // write files
-    fs.writeFileSync(commandHandlerFilePath, commandHandlerTemplateReplaced);
-    fs.writeFileSync(commandImplFilePath, commandImplTemplateReplaced);
-
-    // import to index.ts in commands/handlers folder
-    importToCommandHandlerIndex(commandHandlerPath, commandHandlerCapitalized, commandName);
-}
-
-function importToCommandHandlerIndex(commandHandlerPath, commandHandlerCapitalized, commandName) {
-    const commandHandlerIndexFilePath = path.join(commandHandlerPath, `index.ts`);
-    if (!fs.existsSync(commandHandlerIndexFilePath)) {
-        fs.writeFileSync(commandHandlerIndexFilePath, '');
-    }
-
-    const handlerIndexContent = fs.readFileSync(commandHandlerIndexFilePath, 'utf8');
-    const handlers = handlerIndexContent
-        .match(/export const CommandHandlers = \[(.*?)\]/s)[1]
+function importEntityToModule(name) {
+    console.log(`Importing ${name} entity to module...`);
+    const nameCapitalized = name.capitalize();
+    const modulePath = path.join(__dirname, `../src/database/typeorm/database.module.ts`);
+    const moduleContent = fs.readFileSync(modulePath, 'utf8');
+    // find const entities array in moduleContent
+    const entities = moduleContent
+        .match(/const entities = \[(.*?)\]/s)[1]
         .split(',')
-        .map((e) => e.trim());
-    if (handlers instanceof Array) handlers.push(`${commandHandlerCapitalized}`);
+        .map((e) => e.trim())
+        .filter((e) => e !== '');
+    if (entities instanceof Array) entities.push(`${nameCapitalized}Entity`);
 
-    // find all imports in handlerIndexContent
-    const imports = handlerIndexContent.match(/import \{.*?\} from .*/g);
-    if (imports instanceof Array) imports.push(`import { ${commandHandlerCapitalized} } from './${commandName}.handler';`);
+    // find all imports in moduleContent
+    const imports = moduleContent.match(/import \{.*?\} from .*/g);
+    if (imports instanceof Array) imports.push(`import { ${nameCapitalized}Entity } from '~/database/typeorm/entities/${name}.entity';`);
 
-    let newHandlerIndexContent = handlerIndexContent;
-
+    let newModuleContent = moduleContent;
     // delete all imports from moduleContent and remove empty lines
-    newHandlerIndexContent = newHandlerIndexContent.replace(/import \{.*?\} from .*/g, '');
-    newHandlerIndexContent = newHandlerIndexContent.replace(/^\s*[\r\n]export const CommandHandlers/gm, 'export const CommandHandlers');
+    newModuleContent = newModuleContent.replace(/import \{.*?\} from .*/g, '');
+    newModuleContent = newModuleContent.replace(/^\s*[\r\n]const entities/gm, 'const entities');
 
     // add new imports to first line
-    newHandlerIndexContent = `${imports.join('\n')}\r\n\r\n${newHandlerIndexContent}`;
+    newModuleContent = `${imports.join('\n')}\r\n\r\n${newModuleContent}`;
 
     // write entities to moduleContent
-    newHandlerIndexContent = newHandlerIndexContent.replace(
-        /export const CommandHandlers = \[(.*?)\]/s,
-        `export const CommandHandlers = [\n    ${handlers.join(',\n    ')}\n]`,
-    );
+    newModuleContent = newModuleContent.replace(/const entities = \[(.*?)\]/s, `const entities = [\n    ${entities.join(',\n    ')},\n]`);
 
     // write moduleContent to modulePath
-    fs.writeFileSync(commandHandlerIndexFilePath, newHandlerIndexContent);
+    fs.writeFileSync(modulePath, newModuleContent);
 }
 
-function generateQuery(moduleName, queryName) {
-    console.info(`Creating query ${queryName}...`);
-    const queryHandlerPath = path.join(__dirname, `../src/modules/${moduleName}/queries/handlers`);
-    const queryImplPath = path.join(__dirname, `../src/modules/${moduleName}/queries/impl`);
+function generateModule(moduleName) {
+    console.log(`Creating module ${moduleName}...`);
+    const pascalName = camelize(moduleName).charAt(0).toUpperCase() + camelize(moduleName).slice(1);
+    const camelName = camelize(moduleName);
+    const modulePath = path.join(__dirname, `../src/modules`, moduleName);
+    const moduleFilePath = path.join(__dirname, `../src/modules`, moduleName, `${moduleName}.module.ts`);
+    const controllerFilePath = path.join(__dirname, `../src/modules`, moduleName, `${moduleName}.controller.ts`);
+    const serviceFilePath = path.join(__dirname, `../src/modules`, moduleName, `${moduleName}.service.ts`);
+    const createDtoFilePath = path.join(__dirname, `../src/modules`, moduleName, `dto/create-${moduleName}.dto.ts`);
+    const updateDtoFilePath = path.join(__dirname, `../src/modules`, moduleName, `dto/update-${moduleName}.dto.ts`);
 
-    if (!fs.existsSync(queryHandlerPath)) {
-        fs.mkdirSync(queryHandlerPath, { recursive: true });
+    // create module folder
+    if (!fs.existsSync(modulePath)) {
+        fs.mkdirSync(modulePath, { recursive: true });
+
+        // create dto folder
+        fs.mkdirSync(path.join(modulePath, 'dto'), { recursive: true });
     }
 
-    if (!fs.existsSync(queryImplPath)) {
-        fs.mkdirSync(queryImplPath, { recursive: true });
-    }
+    // create module file
+    const moduleTemplate = fs.readFileSync(path.join(__dirname, `../scripts/templates/module.template`), 'utf8');
+    const moduleContent = moduleTemplate
+        .replace(/{{moduleName}}/g, moduleName)
+        .replace(/{{name}}/g, camelName)
+        .replace(/{{nameCapitalized}}/g, pascalName);
+    fs.writeFileSync(moduleFilePath, moduleContent);
 
-    const queryHandlerCapitalized = `${camelize(queryName)}Handler`.capitalize();
-    const queryHandlerFilePath = path.join(queryHandlerPath, `${queryName}.handler.ts`);
+    const controllerTemplate = fs.readFileSync(path.join(__dirname, `../scripts/templates/controller.template`), 'utf8');
+    const controllerContent = controllerTemplate
+        .replace(/{{moduleName}}/g, moduleName)
+        .replace(/{{name}}/g, camelName)
+        .replace(/{{nameCapitalized}}/g, pascalName);
+    fs.writeFileSync(controllerFilePath, controllerContent);
 
-    const queryImplCapitalized = `${camelize(queryName)}Query`.capitalize();
-    const queryImplFilePath = path.join(queryImplPath, `${queryName}.query.ts`);
+    const serviceTemplate = fs.readFileSync(path.join(__dirname, `../scripts/templates/service.template`), 'utf8');
+    const serviceContent = serviceTemplate
+        .replace(/{{moduleName}}/g, moduleName)
+        .replace(/{{name}}/g, camelName)
+        .replace(/{{nameCapitalized}}/g, pascalName);
+    fs.writeFileSync(serviceFilePath, serviceContent);
 
-    // load template from file
-    const queryHandlerTemplate = fs.readFileSync(path.join(__dirname, `../scripts/templates/query.handler.template`), 'utf8');
-    const queryImplTemplate = fs.readFileSync(path.join(__dirname, `../scripts/templates/impl.template`), 'utf8');
+    const createDtoTemplate = fs.readFileSync(path.join(__dirname, `../scripts/templates/create-dto.template`), 'utf8');
+    const createDtoContent = createDtoTemplate
+        .replace(/{{moduleName}}/g, moduleName)
+        .replace(/{{name}}/g, camelName)
+        .replace(/{{nameCapitalized}}/g, pascalName);
+    fs.writeFileSync(createDtoFilePath, createDtoContent);
 
-    // replace placeholders
-    const queryHandlerTemplateReplaced = queryHandlerTemplate
-        .replace(/{{queryName}}/g, queryName)
-        .replace(/{{queryImplCapitalized}}/g, queryImplCapitalized)
-        .replace(/{{queryHandlerCapitalized}}/g, queryHandlerCapitalized);
+    const updateDtoTemplate = fs.readFileSync(path.join(__dirname, `../scripts/templates/update-dto.template`), 'utf8');
+    const updateDtoContent = updateDtoTemplate
+        .replace(/{{moduleName}}/g, moduleName)
+        .replace(/{{name}}/g, camelName)
+        .replace(/{{nameCapitalized}}/g, pascalName);
+    fs.writeFileSync(updateDtoFilePath, updateDtoContent);
 
-    const queryImplTemplateReplaced = queryImplTemplate.replace(/{{implNameCapitalized}}/g, queryImplCapitalized);
-
-    // write files
-    fs.writeFileSync(queryHandlerFilePath, queryHandlerTemplateReplaced);
-    fs.writeFileSync(queryImplFilePath, queryImplTemplateReplaced);
-
-    // import to index.ts in queries/handlers folder
-    importToQueryHandlerIndex(queryHandlerPath, queryHandlerCapitalized, queryName);
+    importToAppModule(moduleName, pascalName);
 }
 
-function importToQueryHandlerIndex(queryHandlerPath, queryHandlerCapitalized, queryName) {
-    const queryHandlerIndexFilePath = path.join(queryHandlerPath, `index.ts`);
-    if (!fs.existsSync(queryHandlerIndexFilePath)) {
-        fs.writeFileSync(queryHandlerIndexFilePath, '');
-    }
+function importToAppModule(moduleName, pascalName) {
+    // import module to app.module.ts
+    const appModulePath = path.join(__dirname, `../src/app.module.ts`);
+    const appModuleContent = fs.readFileSync(appModulePath, 'utf8');
 
-    const handlerIndexContent = fs.readFileSync(queryHandlerIndexFilePath, 'utf8');
-    const handlers = handlerIndexContent
-        .match(/export const QueryHandlers = \[(.*?)\]/s)[1]
-        .split(',')
-        .map((e) => e.trim());
-    if (handlers instanceof Array) handlers.push(`${queryHandlerCapitalized}`);
+    // find all imports in appModuleContent
+    const imports = appModuleContent.match(/import .*? from .*/g);
+    if (imports instanceof Array) imports.push(`import { ${pascalName}Module } from '~/modules/${moduleName}/${moduleName}.module';`);
 
-    // find all imports in handlerIndexContent
-    const imports = handlerIndexContent.match(/import \{.*?\} from .*/g);
-    if (imports instanceof Array) imports.push(`import { ${queryHandlerCapitalized} } from './${queryName}.handler';`);
-
-    let newHandlerIndexContent = handlerIndexContent;
-
-    // delete all imports from moduleContent and remove empty lines
-    newHandlerIndexContent = newHandlerIndexContent.replace(/import \{.*?\} from .*/g, '');
-    newHandlerIndexContent = newHandlerIndexContent.replace(/^\s*[\r\n]export const QueryHandlers/gm, 'export const QueryHandlers');
+    let newAppModuleContent = appModuleContent;
+    // delete all imports from appModuleContent and remove empty lines
+    newAppModuleContent = newAppModuleContent.replace(/import .*? from .*/g, '');
+    newAppModuleContent = newAppModuleContent.replace(/^\s*[\r\n]@Module/gm, '@Module');
 
     // add new imports to first line
-    newHandlerIndexContent = `${imports.join('\n')}\r\n\r\n${newHandlerIndexContent}`;
+    newAppModuleContent = `${imports.join('\n')}\r\n\r\n${newAppModuleContent}`;
 
-    // write entities to moduleContent
-    newHandlerIndexContent = newHandlerIndexContent.replace(
-        /export const QueryHandlers = \[(.*?)\]/s,
-        `export const QueryHandlers = [\n    ${handlers.join(',\n    ')}\n]`,
-    );
+    // write modules to appModuleContent
+    newAppModuleContent = newAppModuleContent.replace(/(imports:\s*\[)([^]*?)(    \])/m, (_, start, imports, end) => {
+        const importArray = imports.split(',');
+        importArray.splice(importArray.length - 1, 0, `\n        ${pascalName}Module`);
+        const updatedImports = importArray.join(',').trim();
+        return `${start}\n        ${updatedImports}\n${end}`;
+    });
 
-    // write moduleContent to modulePath
-    fs.writeFileSync(queryHandlerIndexFilePath, newHandlerIndexContent);
-}
-
-function generateEvent(moduleName, eventName) {
-    console.info(`Creating event ${eventName}...`);
-    const eventHandlerPath = path.join(__dirname, `../src/modules/${moduleName}/events/handlers`);
-    const eventImplPath = path.join(__dirname, `../src/modules/${moduleName}/events/impl`);
-
-    if (!fs.existsSync(eventHandlerPath)) {
-        fs.mkdirSync(eventHandlerPath, { recursive: true });
-    }
-
-    if (!fs.existsSync(eventImplPath)) {
-        fs.mkdirSync(eventImplPath, { recursive: true });
-    }
-
-    const eventHandlerCapitalized = `${camelize(eventName)}Handler`.capitalize();
-    const eventHandlerFilePath = path.join(eventHandlerPath, `${eventName}.handler.ts`);
-
-    const eventImplCapitalized = `${camelize(eventName)}Event`.capitalize();
-    const eventImplFilePath = path.join(eventImplPath, `${eventName}.event.ts`);
-
-    // load template from file
-    const eventHandlerTemplate = fs.readFileSync(path.join(__dirname, `../scripts/templates/event.handler.template`), 'utf8');
-    const eventImplTemplate = fs.readFileSync(path.join(__dirname, `../scripts/templates/impl.template`), 'utf8');
-
-    // replace placeholders
-    const eventHandlerTemplateReplaced = eventHandlerTemplate
-        .replace(/{{eventName}}/g, eventName)
-        .replace(/{{eventImplCapitalized}}/g, eventImplCapitalized)
-        .replace(/{{eventHandlerCapitalized}}/g, eventHandlerCapitalized);
-
-    const eventImplTemplateReplaced = eventImplTemplate.replace(/{{implNameCapitalized}}/g, eventImplCapitalized);
-
-    // write files
-    fs.writeFileSync(eventHandlerFilePath, eventHandlerTemplateReplaced);
-    fs.writeFileSync(eventImplFilePath, eventImplTemplateReplaced);
-
-    // import to index.ts in events/handlers folder
-    importToEventHandlerIndex(eventHandlerPath, eventHandlerCapitalized, eventName);
-}
-
-function importToEventHandlerIndex(eventHandlerPath, eventHandlerCapitalized, eventName) {
-    const eventHandlerIndexFilePath = path.join(eventHandlerPath, `index.ts`);
-    if (!fs.existsSync(eventHandlerIndexFilePath)) {
-        fs.writeFileSync(eventHandlerIndexFilePath, '');
-    }
-
-    const handlerIndexContent = fs.readFileSync(eventHandlerIndexFilePath, 'utf8');
-    const handlers = handlerIndexContent
-        .match(/export const EventHandlers = \[(.*?)\]/s)[1]
-        .split(',')
-        .map((e) => e.trim());
-    if (handlers instanceof Array) handlers.push(`${eventHandlerCapitalized}`);
-
-    // find all imports in handlerIndexContent
-    const imports = handlerIndexContent.match(/import \{.*?\} from .*/g);
-    if (imports instanceof Array) imports.push(`import { ${eventHandlerCapitalized} } from './${eventName}.handler';`);
-
-    let newHandlerIndexContent = handlerIndexContent;
-
-    // delete all imports from moduleContent and remove empty lines
-    newHandlerIndexContent = newHandlerIndexContent.replace(/import \{.*?\} from .*/g, '');
-    newHandlerIndexContent = newHandlerIndexContent.replace(/^\s*[\r\n]export const EventHandlers/gm, 'export const EventHandlers');
-
-    // add new imports to first line
-    newHandlerIndexContent = `${imports.join('\n')}\r\n\r\n${newHandlerIndexContent}`;
-
-    // write entities to moduleContent
-    newHandlerIndexContent = newHandlerIndexContent.replace(
-        /export const EventHandlers = \[(.*?)\]/s,
-        `export const EventHandlers = [\n    ${handlers.join(',\n    ')}\n]`,
-    );
-
-    // write moduleContent to modulePath
-    fs.writeFileSync(eventHandlerIndexFilePath, newHandlerIndexContent);
+    // write newAppModuleContent to appModulePath
+    fs.writeFileSync(appModulePath, newAppModuleContent);
 }
 
 module.exports = {
     camelize,
     generateRepo,
-    importToModule,
+    importRepositoryToModule,
+    importRepositoryToService,
     generateEntity,
-    generateCommand,
-    generateQuery,
-    generateEvent,
+    importEntityToModule,
+    generateModule,
 };

@@ -19,6 +19,8 @@ import { MailModule } from '~/modules/mail/mail.module';
 import { MediaModule } from '~/modules/media/media.module';
 import { PermissionModule } from '~/modules/permission/permission.module';
 import { ProfileModule } from '~/modules/profile/profile.module';
+import { ProposalTypeModule } from '~/modules/proposal-type/proposal-type.module';
+import { ProposalModule } from '~/modules/proposal/proposal.module';
 import { RoleModule } from '~/modules/role/role.module';
 import { SocketModule } from '~/modules/socket/socket.module';
 import { UtilService } from '~/shared/services';
@@ -30,10 +32,10 @@ import { DepartmentModule } from './modules/department/department.module';
 import { ProductCategoryModule } from './modules/product-category/product-category.module';
 import { ProductModule } from './modules/product/product.module';
 import { ProviderModule } from './modules/provider/provider.module';
+import { UnitModule } from './modules/unit/unit.module';
 import { UserModule } from './modules/user/user.module';
 import { WarehouseTypeModule } from './modules/warehouse-type/warehouse-type.module';
 import { WarehouseModule } from './modules/warehouse/warehouse.module';
-import { UnitModule } from './modules/unit/unit.module';
 
 @Module({
     imports: [
@@ -66,6 +68,8 @@ import { UnitModule } from './modules/unit/unit.module';
         ProductCategoryModule,
         WarehouseTypeModule,
         UnitModule,
+        ProposalModule,
+        ProposalTypeModule,
     ],
     controllers: [AppController],
     providers: [

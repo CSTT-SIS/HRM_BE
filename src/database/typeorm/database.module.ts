@@ -11,6 +11,7 @@ import { MediaEntity } from '~/database/typeorm/entities/media.entity';
 import { PermissionEntity } from '~/database/typeorm/entities/permission.entity';
 import { ProductEntity } from '~/database/typeorm/entities/product.entity';
 import { ProductCategoryEntity } from '~/database/typeorm/entities/productCategory.entity';
+import { ProposalEntity } from '~/database/typeorm/entities/proposal.entity';
 import { ProviderEntity } from '~/database/typeorm/entities/provider.entity';
 import { QuantityLimitEntity } from '~/database/typeorm/entities/quantityLimit.entity';
 import { RoleEntity } from '~/database/typeorm/entities/role.entity';
@@ -35,6 +36,13 @@ import { UserRepository } from '~/database/typeorm/repositories/user.repository'
 import { UserLogRepository } from '~/database/typeorm/repositories/userLog.repository';
 import { WarehouseRepository } from '~/database/typeorm/repositories/warehouse.repository';
 import { WarehouseTypeRepository } from '~/database/typeorm/repositories/warehouseType.repository';
+import { ProposalRepository } from '~/database/typeorm/repositories/proposal.repository';
+import { ProposalTypeEntity } from '~/database/typeorm/entities/proposalType.entity';
+import { ProposalTypeRepository } from '~/database/typeorm/repositories/proposalType.repository';
+import { ProposalDetailEntity } from '~/database/typeorm/entities/proposalDetail.entity';
+import { ProposalDetailRepository } from '~/database/typeorm/repositories/proposalDetail.repository';
+import { ProductMetaEntity } from '~/database/typeorm/entities/productMeta.entity';
+import { ProductMetaRepository } from '~/database/typeorm/repositories/productMeta.repository';
 
 const entities = [
     RoleEntity,
@@ -53,6 +61,10 @@ const entities = [
     UnitEntity,
     InventoryHistoryEntity,
     QuantityLimitEntity,
+    ProposalEntity,
+    ProposalTypeEntity,
+    ProposalDetailEntity,
+    ProductMetaEntity,
 ];
 
 const repositories = [
@@ -72,6 +84,10 @@ const repositories = [
     UnitRepository,
     InventoryHistoryRepository,
     QuantityLimitRepository,
+    ProposalRepository,
+    ProposalTypeRepository,
+    ProposalDetailRepository,
+    ProductMetaRepository,
 ];
 
 @Global()
