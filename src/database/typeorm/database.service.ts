@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CACHE_TIME } from '~/common/enums/enum';
 import { AccountRepository } from '~/database/typeorm/repositories/account.repository';
+import { ApprovalProcessRepository } from '~/database/typeorm/repositories/approvalProcess.repository';
 import { DepartmentRepository } from '~/database/typeorm/repositories/department.repository';
 import { InventoryRepository } from '~/database/typeorm/repositories/inventory.repository';
 import { InventoryHistoryRepository } from '~/database/typeorm/repositories/inventoryHistory.repository';
@@ -21,7 +22,6 @@ import { UserLogRepository } from '~/database/typeorm/repositories/userLog.repos
 import { WarehouseRepository } from '~/database/typeorm/repositories/warehouse.repository';
 import { WarehouseTypeRepository } from '~/database/typeorm/repositories/warehouseType.repository';
 import { CacheService } from '~/shared/services/cache.service';
-import { ApprovalProcessRepository } from '~/database/typeorm/repositories/approvalProcess.repository';
 
 @Injectable()
 export class DatabaseService {
@@ -51,7 +51,7 @@ export class DatabaseService {
     ) {
         // load all departments to cache
         // this.loadDepartmentsToCache();
-        // this.loadPermissionsByRoleToCache();
+        this.loadPermissionsByRoleToCache();
     }
 
     private loadDepartmentsToCache() {
