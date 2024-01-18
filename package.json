@@ -61,6 +61,7 @@
         "moment": "^2.29.4",
         "moment-timezone": "^0.5.43",
         "mysql2": "^3.6.5",
+        "nestjs-i18n": "^10.4.0",
         "nestjs-pino": "^3.5.0",
         "nestjs-redis": "github:skunight/nestjs-redis",
         "pino-pretty": "^10.3.1",

@@ -2,7 +2,9 @@ import { DiscoveryModule, DiscoveryService } from '@golevelup/nestjs-discovery';
 import { MiddlewareConsumer, Module, OnModuleInit, RequestMethod } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_FILTER, APP_GUARD } from '@nestjs/core';
+import { I18nModule } from 'nestjs-i18n';
 import { RedisModule } from 'nestjs-redis';
+import path from 'path';
 import { BYPASS_PERMISSION, ONLY_ADMIN } from '~/common/constants/constant';
 import { AllExceptionsFilter } from '~/common/filters/exception.filter';
 import { TypeOrmFilter } from '~/common/filters/typeorm.filter';
@@ -49,6 +51,13 @@ import { WarehouseModule } from './modules/warehouse/warehouse.module';
             imports: [ConfigModule],
             useFactory: (configService: ConfigService) => configService.get('redis') || {},
             inject: [ConfigService],
+        }),
+        I18nModule.forRoot({
+            fallbackLanguage: 'en',
+            loaderOptions: {
+                path: path.join(__dirname, '/i18n/'),
+                watch: true,
+            },
         }),
         DatabaseModule,
         SharedModule,
