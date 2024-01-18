@@ -42,4 +42,16 @@ export class ProposalController {
     remove(@Param('id') id: string) {
         return this.proposalService.remove(+id);
     }
+
+    @Permission('proposal:approve')
+    @Patch(':id/approve')
+    approve(@Param('id') id: string) {
+        return this.proposalService.approve(+id);
+    }
+
+    @Permission('proposal:reject')
+    @Patch(':id/reject')
+    reject(@Param('id') id: string) {
+        return this.proposalService.reject(+id);
+    }
 }

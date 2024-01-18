@@ -43,6 +43,8 @@ import { ProposalDetailEntity } from '~/database/typeorm/entities/proposalDetail
 import { ProposalDetailRepository } from '~/database/typeorm/repositories/proposalDetail.repository';
 import { ProductMetaEntity } from '~/database/typeorm/entities/productMeta.entity';
 import { ProductMetaRepository } from '~/database/typeorm/repositories/productMeta.repository';
+import { ApprovalProcessEntity } from '~/database/typeorm/entities/approvalProcess.entity';
+import { ApprovalProcessRepository } from '~/database/typeorm/repositories/approvalProcess.repository';
 
 const entities = [
     RoleEntity,
@@ -65,6 +67,7 @@ const entities = [
     ProposalTypeEntity,
     ProposalDetailEntity,
     ProductMetaEntity,
+    ApprovalProcessEntity,
 ];
 
 const repositories = [
@@ -88,6 +91,7 @@ const repositories = [
     ProposalTypeRepository,
     ProposalDetailRepository,
     ProductMetaRepository,
+    ApprovalProcessRepository,
 ];
 
 @Global()

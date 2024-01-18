@@ -12,18 +12,18 @@ import { DatabaseService } from '~/database/typeorm/database.service';
 export class UtilService {
     constructor(private readonly database: DatabaseService) {}
 
-    public capitalizeFirstLetter(str: string) {
+    capitalizeFirstLetter(str: string) {
         if (!str) return null;
         str = str.toLowerCase();
         return str.charAt(0).toUpperCase() + str.slice(1);
     }
 
-    public validateEmail(email) {
+    validateEmail(email) {
         const re = /\S+@\S+\.\S+/;
         return re.test(email);
     }
 
-    public generateString(length = 16) {
+    generateString(length = 16) {
         let result = '';
         const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
         const charactersLength = characters.length;
@@ -33,7 +33,7 @@ export class UtilService {
         return result;
     }
 
-    public getSortCondition(
+    getSortCondition(
         entityAlias: string,
         sortBy: string,
     ): { [key: string]: 'ASC' | 'DESC' | { order: 'ASC' | 'DESC'; nulls?: 'NULLS FIRST' | 'NULLS LAST' } } {
@@ -49,7 +49,7 @@ export class UtilService {
         return sortObj;
     }
 
-    public getRawSortCondition(entityAlias: string, sortBy: string) {
+    getRawSortCondition(entityAlias: string, sortBy: string) {
         if (!sortBy) return null;
 
         const sortQuery = [];
@@ -62,7 +62,7 @@ export class UtilService {
         return sortQuery.join(', ');
     }
 
-    public getSearchCondition(builder: SelectQueryBuilder<any>, entityAlias: string, search: string) {
+    getSearchCondition(builder: SelectQueryBuilder<any>, entityAlias: string, search: string) {
         if (!search) return null;
 
         entityAlias = entityAlias ? `${entityAlias}.` : '';
@@ -75,7 +75,7 @@ export class UtilService {
         return builder;
     }
 
-    public getQueriesSearchCondition(builder: SelectQueryBuilder<any>, entityAlias: string, searchQueries: { [key: string]: any }) {
+    getQueriesSearchCondition(builder: SelectQueryBuilder<any>, entityAlias: string, searchQueries: { [key: string]: any }) {
         entityAlias = entityAlias ? `${entityAlias}.` : '';
         Object.keys(searchQueries).forEach((key) => {
             const value = searchQueries[key];
@@ -87,7 +87,7 @@ export class UtilService {
         return builder;
     }
 
-    public getSearchQueries(queries: { [key: string]: any }) {
+    getSearchQueries(queries: { [key: string]: any }) {
         return Object.keys(queries)
             .filter((key) => key.startsWith('search_'))
             .reduce((obj, key) => {
@@ -96,7 +96,7 @@ export class UtilService {
             }, {});
     }
 
-    public getPagination(queries: { page: number; perPage: number }) {
+    getPagination(queries: { page: number; perPage: number }) {
         const take = Number(queries.perPage) || DEFAULT_PER_PAGE;
         return {
             take: take,
@@ -108,7 +108,12 @@ export class UtilService {
         };
     }
 
-    public getQueryBuilderAndPagination(
+    /**
+     * Get query builder, take, skip and pagination
+     * @param repository - Repository
+     * @param queries - { page: number; perPage: number; sortBy: string; [key: string]: any }
+     */
+    getQueryBuilderAndPagination(
         repository: Repository<any>,
         queries: { page: number; perPage: number; sortBy: string; [key: string]: any },
     ): { builder: SelectQueryBuilder<any>; take: number; pagination: { page: number; perPage: number } } {
@@ -122,7 +127,7 @@ export class UtilService {
         return { builder, take, pagination };
     }
 
-    public isEmpty(value) {
+    isEmpty(value) {
         return (
             value === undefined ||
             value === null ||
@@ -132,7 +137,7 @@ export class UtilService {
         );
     }
 
-    public moveFile(oldPath, newPath) {
+    moveFile(oldPath, newPath) {
         try {
             // create directory if not exist
             const dir = path.dirname(newPath);
@@ -147,7 +152,7 @@ export class UtilService {
         }
     }
 
-    public removeFile(filePath) {
+    removeFile(filePath) {
         try {
             fs.unlinkSync(filePath);
             return true;
@@ -156,7 +161,7 @@ export class UtilService {
         }
     }
 
-    public checkFileType(file: Express.Multer.File) {
+    checkFileType(file: Express.Multer.File) {
         // Read the file's MIME type
         // const mimeType = mime.getType(filePath);
         const mimeType = file.mimetype;
@@ -181,7 +186,7 @@ export class UtilService {
         }
     }
 
-    public getFilePathByType(type: MEDIA_TYPE) {
+    getFilePathByType(type: MEDIA_TYPE) {
         switch (type) {
             case MEDIA_TYPE.IMAGE:
                 return 'image';
@@ -196,11 +201,11 @@ export class UtilService {
         }
     }
 
-    public async handleUploadedFile(file: Express.Multer.File, userId: string | string[], customPath: string) {
+    async handleUploadedFile(file: Express.Multer.File, userId: string | string[], customPath: string) {
         try {
             if (!file) return false;
 
-            // move file to public folder
+            // move file to folder
             const ymdPath = `${moment().format('YYYYMMDD')}`;
             const oldFilePath = `${file.destination}/${file.filename}`;
             const fileTypePath = this.getFilePathByType(this.checkFileType(file));
@@ -225,7 +230,12 @@ export class UtilService {
         }
     }
 
-    public slugify(str) {
+    /**
+     * Slugify Vietnamese string from 'Nguyễn Văn A@' to 'nguyen-van-a'
+     * @param str - Vietnamese string
+     * @returns slugified string
+     */
+    slugify(str) {
         if (!str) return '';
         str = str.toLowerCase();
         str = str.replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g, 'a');
@@ -251,11 +261,12 @@ export class UtilService {
     }
 
     /**
+     * Encrypt message with AES-256-CBC
      * @param message to encrypt in JSON format
      * @param ttl (in miliseconds, optional)
      * @returns encrypted message
      */
-    public aesEncrypt(message: any, ttl = 900000) {
+    aesEncrypt(message: object, ttl = 900000): string {
         const algorithm = 'aes-256-cbc';
         const initVector = process.env.INITVECTOR;
         const Securitykey = process.env.SECRETKEY;
@@ -273,11 +284,11 @@ export class UtilService {
     }
 
     /**
-     *
+     * Decrypt AES-256-CBC encrypted message
      * @param encrypted message to decrypt
      * @returns decrypted message in JSON format or null if ttl is expired
      */
-    public aesDecrypt(encryptedMessage: string) {
+    aesDecrypt(encryptedMessage: string) {
         try {
             const algorithm = 'aes-256-cbc';
             const initVector = process.env.INITVECTOR;
@@ -305,7 +316,7 @@ export class UtilService {
      * @param data.keyword keyword to search
      * @returns raw fulltext condition string with OR operator between fields
      */
-    public fullTextSearch(data: { entityAlias?: string; fields?: string[]; keyword: string }) {
+    fullTextSearch(data: { entityAlias?: string; fields?: string[]; keyword: string }) {
         const { entityAlias, keyword, fields } = data;
         const entityAliasString = entityAlias ? `${entityAlias}.` : 'entity.';
         return fields.map((field) => `MATCH (${entityAliasString}${field}) AGAINST ('${keyword}*' IN BOOLEAN MODE)`).join(' OR ');
@@ -318,7 +329,7 @@ export class UtilService {
      * @param data.keyword keyword to search
      * @returns raw condition string with OR operator between fields
      */
-    public rawQuerySearch(data: { entityAlias?: string; fields?: string[]; keyword: string }) {
+    rawQuerySearch(data: { entityAlias?: string; fields?: string[]; keyword: string }) {
         const { entityAlias, keyword, fields } = data;
         const entityAliasString = entityAlias ? `${entityAlias}.` : 'entity.';
         return fields.map((field) => `${entityAliasString}${field} LIKE '%${keyword}%'`).join(' OR ');
@@ -330,7 +341,7 @@ export class UtilService {
      * @param data.any properties & keywords to search
      * @returns raw condition string with AND operator between fields
      */
-    public relationQuerySearch(data: { entityAlias?: string; [key: string]: any }) {
+    relationQuerySearch(data: { entityAlias?: string; [key: string]: any }) {
         const { entityAlias, ...rest } = data;
         const entityAliasString = entityAlias ? `${entityAlias}.` : 'entity.';
         const fields = Object.keys(rest);
@@ -350,7 +361,7 @@ export class UtilService {
      * @param data.value id of relation
      * @returns true if exist, throw error if not
      */
-    public async checkRelationIdExist(data: { [key: string]: any }) {
+    async checkRelationIdExist(data: { [key: string]: any }) {
         const fields = Object.keys(data);
         for (const field of fields) {
             if (this.isEmpty(data[field])) continue;

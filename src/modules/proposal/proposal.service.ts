@@ -3,6 +3,7 @@ import { In } from 'typeorm';
 import { PROPOSAL_STATUS } from '~/common/enums/enum';
 import { UserStorage } from '~/common/storages/user.storage';
 import { DatabaseService } from '~/database/typeorm/database.service';
+import { ProposalEntity } from '~/database/typeorm/entities/proposal.entity';
 import { UtilService } from '~/shared/services';
 import { CreateProposalDto } from './dto/create-proposal.dto';
 import { UpdateProposalDto } from './dto/update-proposal.dto';
@@ -89,25 +90,68 @@ export class ProposalService {
     }
 
     async update(id: number, updateProposalDto: UpdateProposalDto) {
-        await this.canProposalBeModified(id);
+        await this.isProposalValid(id, [PROPOSAL_STATUS.PENDING, PROPOSAL_STATUS.REJECTED], UserStorage.get()?.id);
         const { details, ...rest } = updateProposalDto;
         await this.utilService.checkRelationIdExist({ proposalType: updateProposalDto.typeId });
         await this.verifyDetails(details);
         await this.updateDetails(id, details);
-        return this.database.proposal.update(id, rest);
+        return this.database.proposal.update(id, {
+            ...rest,
+            updatedById: UserStorage.get()?.id,
+            status: PROPOSAL_STATUS.PENDING,
+        });
     }
 
     async remove(id: number) {
-        await this.canProposalBeModified(id);
+        await this.isProposalValid(id, [PROPOSAL_STATUS.PENDING, PROPOSAL_STATUS.REJECTED], UserStorage.get()?.id);
         await this.database.proposalDetail.delete({ proposalId: id });
         return this.database.proposal.delete(id);
     }
 
-    private async canProposalBeModified(id: number) {
+    async approve(id: number) {
+        // TODO: check if user have permission to approve
+        // maybe use a table to store who can approve which proposal is created by who
+
+        await this.isProposalValid(id, [PROPOSAL_STATUS.PENDING]);
+        await this.database.proposal.update(id, { status: PROPOSAL_STATUS.APPROVED });
+        await this.database.approvalProcess.save(
+            this.database.approvalProcess.create({
+                proposalId: id,
+                from: PROPOSAL_STATUS.PENDING,
+                to: PROPOSAL_STATUS.APPROVED,
+            }),
+        );
+        return { message: 'Đã duyệt đề xuất' };
+    }
+
+    async reject(id: number) {
+        // TODO: check if user have permission to reject
+
+        await this.isProposalValid(id, [PROPOSAL_STATUS.PENDING]);
+        await this.database.proposal.update(id, { status: PROPOSAL_STATUS.REJECTED });
+        await this.database.approvalProcess.save(
+            this.database.approvalProcess.create({
+                proposalId: id,
+                from: PROPOSAL_STATUS.PENDING,
+                to: PROPOSAL_STATUS.REJECTED,
+            }),
+        );
+        return { message: 'Đã từ chối đề xuất' };
+    }
+
+    /**
+     * Check if user can update or delete proposal \
+     * User must be the creator of the proposal and the status must be the same as the one in the statuses array
+     * @param id proposal id
+     * @param statuses array of valid statuses
+     * @param userId (optional) creator id
+     * @returns proposal entity
+     */
+    private async isProposalValid(id: number, statuses: any[], userId?: number): Promise<ProposalEntity> {
         const entity = await this.database.proposal.findOneBy({ id });
         if (!entity) throw new HttpException('Không tìm thấy đề xuất', 404);
-        if (![PROPOSAL_STATUS.PENDING, PROPOSAL_STATUS.REJECTED].includes(entity.status))
-            throw new HttpException('Không thể chỉnh sửa đề xuất đã duyệt', 400);
+        if (!statuses.includes(entity.status)) throw new HttpException('Không thể chỉnh sửa đề xuất do trạng thái không hợp lệ', 400);
+        if (userId && entity.createdById !== userId) throw new HttpException('Bạn không có quyền chỉnh sửa đề xuất này', 403);
         return entity;
     }
 
