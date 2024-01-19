@@ -6,8 +6,8 @@ const readline = require('readline').createInterface({
     output: process.stdout,
 });
 
-readline.question(`Input Entity name: `, (name) => {
-    readline.question(`Input Table name: `, (table) => {
+readline.question(`Input Entity name (entity name): `, (name) => {
+    readline.question(`Input Table name (table_name): `, (table) => {
         name = camelize(name.toLowerCase());
         generateEntity(table.toLowerCase(), name);
         importEntityToModule(name);

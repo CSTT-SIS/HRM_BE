@@ -6,7 +6,7 @@ const readline = require('readline').createInterface({
     output: process.stdout,
 });
 
-readline.question(`Input module name: `, (name) => {
+readline.question(`Input module name (module-name): `, (name) => {
     // name must be in this-format-with-dashes
     generateModule(name.toLowerCase());
     console.log(`Done!`);

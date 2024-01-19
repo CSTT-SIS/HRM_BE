@@ -6,7 +6,7 @@ const readline = require('readline').createInterface({
     output: process.stdout,
 });
 
-readline.question(`Input repository name: `, (name) => {
+readline.question(`Input repository name (repo name): `, (name) => {
     name = camelize(name.toLowerCase());
     generateRepo(name);
     importRepositoryToModule(name);

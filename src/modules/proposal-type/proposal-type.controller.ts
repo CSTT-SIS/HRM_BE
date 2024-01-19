@@ -6,7 +6,7 @@ import { CreateProposalTypeDto } from './dto/create-proposal-type.dto';
 import { UpdateProposalTypeDto } from './dto/update-proposal-type.dto';
 import { ProposalTypeService } from './proposal-type.service';
 
-@ApiTags('ProposalType')
+@ApiTags('Proposal Type')
 @ApiBasicAuth('authorization')
 @Controller('proposal-type')
 export class ProposalTypeController {

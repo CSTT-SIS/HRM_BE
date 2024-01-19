@@ -25,11 +25,6 @@ export class CreateProposalDto {
     typeId: number;
 
     @ApiProperty()
-    @IsNotEmpty({ message: 'Kho thực hiện đề xuất không được để trống' })
-    @IsNumber({}, { message: 'Kho thực hiện đề xuất phải là số' })
-    warehouseId: number;
-
-    @ApiProperty()
     @IsNotEmpty({ message: 'Tên đề xuất không được để trống' })
     @IsString({ message: 'Tên đề xuất phải là dạng chuỗi' })
     name: string;

@@ -53,6 +53,8 @@ export class TypeOrmFilter implements ExceptionFilter {
                 return { code: 400, message: `Thiếu trường bắt buộc` };
             case 'ER_BAD_FIELD_ERROR':
                 return { code: 500, message: `Trường không tồn tại` };
+            case 'ER_NO_DEFAULT_FOR_FIELD':
+                return { code: 400, message: `Thiếu trường bắt buộc` };
             default:
                 return { code: 500, message: `Lỗi hệ thống` };
         }

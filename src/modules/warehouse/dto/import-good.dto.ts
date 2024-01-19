@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsNumber, IsOptional, Min } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsOptional, IsString, Min } from 'class-validator';
 
 export class ImportGoodDto {
     @ApiProperty()
@@ -14,5 +14,11 @@ export class ImportGoodDto {
 
     @ApiProperty()
     @IsOptional()
-    errorQuantity: number;
+    @IsNumber({}, { message: 'Số lượng sai số phải là số' })
+    errorQuantity?: number;
+
+    @ApiProperty()
+    @IsOptional()
+    @IsString({ message: 'Ghi chú phải là chuỗi' })
+    note?: string;
 }

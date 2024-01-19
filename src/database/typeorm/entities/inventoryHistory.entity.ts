@@ -17,7 +17,7 @@ export class InventoryHistoryEntity extends AbstractEntity {
     @Column({ name: 'to', type: 'int', unsigned: true, nullable: true })
     to: number;
 
-    @Column({ name: 'change', type: 'int', unsigned: true, nullable: true })
+    @Column({ name: 'change', type: 'int', nullable: true })
     change: number;
 
     @Column({ name: 'note', type: 'text', nullable: true })

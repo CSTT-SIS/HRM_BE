@@ -12,7 +12,7 @@ export class {{nameCapitalized}}Service {
         return this.database.{{name}}.save(this.database.{{name}}.create(create{{nameCapitalized}}Dto));
     }
 
-    async findAll(queries: { page: number; perPage: number; search: string; sortBy: string; typeId: number }) {
+    async findAll(queries: { page: number; perPage: number; search: string; sortBy: string }) {
         const { builder, take, pagination } = this.utilService.getQueryBuilderAndPagination(this.database.{{name}}, queries);
 
         if (!this.utilService.isEmpty(queries.search))

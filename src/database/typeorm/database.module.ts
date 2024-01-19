@@ -45,6 +45,10 @@ import { ProductMetaEntity } from '~/database/typeorm/entities/productMeta.entit
 import { ProductMetaRepository } from '~/database/typeorm/repositories/productMeta.repository';
 import { ApprovalProcessEntity } from '~/database/typeorm/entities/approvalProcess.entity';
 import { ApprovalProcessRepository } from '~/database/typeorm/repositories/approvalProcess.repository';
+import { WarehousingBillEntity } from '~/database/typeorm/entities/warehousingBill.entity';
+import { WarehousingBillRepository } from '~/database/typeorm/repositories/warehousingBill.repository';
+import { WarehousingBillDetailEntity } from '~/database/typeorm/entities/warehousingBillDetail.entity';
+import { WarehousingBillDetailRepository } from '~/database/typeorm/repositories/warehousingBillDetail.repository';
 
 const entities = [
     RoleEntity,
@@ -68,6 +72,8 @@ const entities = [
     ProposalDetailEntity,
     ProductMetaEntity,
     ApprovalProcessEntity,
+    WarehousingBillEntity,
+    WarehousingBillDetailEntity,
 ];
 
 const repositories = [
@@ -92,6 +98,8 @@ const repositories = [
     ProposalDetailRepository,
     ProductMetaRepository,
     ApprovalProcessRepository,
+    WarehousingBillRepository,
+    WarehousingBillDetailRepository,
 ];
 
 @Global()

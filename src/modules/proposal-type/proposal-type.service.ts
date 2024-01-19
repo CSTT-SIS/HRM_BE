@@ -12,7 +12,7 @@ export class ProposalTypeService {
         return this.database.proposalType.save(this.database.proposalType.create(createProposalTypeDto));
     }
 
-    async findAll(queries: { page: number; perPage: number; search: string; sortBy: string; typeId: number }) {
+    async findAll(queries: { page: number; perPage: number; search: string; sortBy: string }) {
         const { builder, take, pagination } = this.utilService.getQueryBuilderAndPagination(this.database.proposalType, queries);
 
         if (!this.utilService.isEmpty(queries.search))

@@ -2,6 +2,7 @@ import { DiscoveryModule, DiscoveryService } from '@golevelup/nestjs-discovery';
 import { MiddlewareConsumer, Module, OnModuleInit, RequestMethod } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_FILTER, APP_GUARD } from '@nestjs/core';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 import { I18nModule } from 'nestjs-i18n';
 import { RedisModule } from 'nestjs-redis';
 import path from 'path';
@@ -25,6 +26,7 @@ import { ProposalTypeModule } from '~/modules/proposal-type/proposal-type.module
 import { ProposalModule } from '~/modules/proposal/proposal.module';
 import { RoleModule } from '~/modules/role/role.module';
 import { SocketModule } from '~/modules/socket/socket.module';
+import { WarehousingBillModule } from '~/modules/warehousing-bill/warehousing-bill.module';
 import { UtilService } from '~/shared/services';
 import { CacheService } from '~/shared/services/cache.service';
 import { SharedModule } from '~/shared/shared.module';
@@ -59,6 +61,7 @@ import { WarehouseModule } from './modules/warehouse/warehouse.module';
                 watch: true,
             },
         }),
+        EventEmitterModule.forRoot(),
         DatabaseModule,
         SharedModule,
         AuthModule,
@@ -79,6 +82,7 @@ import { WarehouseModule } from './modules/warehouse/warehouse.module';
         UnitModule,
         ProposalModule,
         ProposalTypeModule,
+        WarehousingBillModule,
     ],
     controllers: [AppController],
     providers: [

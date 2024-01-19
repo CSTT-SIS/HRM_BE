@@ -8,6 +8,7 @@ import { InventoryHistoryEntity } from '~/database/typeorm/entities/inventoryHis
 import { MediaEntity } from '~/database/typeorm/entities/media.entity';
 import { ProposalEntity } from '~/database/typeorm/entities/proposal.entity';
 import { RoleEntity } from '~/database/typeorm/entities/role.entity';
+import { WarehousingBillEntity } from '~/database/typeorm/entities/warehousingBill.entity';
 
 @Entity({ name: 'users' })
 export class UserEntity extends AbstractEntity {
@@ -89,4 +90,7 @@ export class UserEntity extends AbstractEntity {
 
     @OneToMany(() => ProposalEntity, (entity: ProposalEntity) => entity.createdBy, { createForeignKeyConstraints: false })
     proposals: Relation<ProposalEntity>[];
+
+    @OneToMany(() => WarehousingBillEntity, (entity: WarehousingBillEntity) => entity.createdBy, { createForeignKeyConstraints: false })
+    warehousingBills: Relation<WarehousingBillEntity>[];
 }

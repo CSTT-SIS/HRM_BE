@@ -57,11 +57,9 @@ export class ProductService {
     async updateLimit(id: number, data: UpdateProductLimitDto) {
         const limit = await this.database.quantityLimit.findOne({ where: { productId: id } });
         if (limit) {
-            return this.database.quantityLimit.update(limit.id, { updatedById: UserStorage.get()?.id, ...data });
+            return this.database.quantityLimit.update(limit.id, { updatedById: UserStorage.getId(), ...data });
         } else {
-            return this.database.quantityLimit.save(
-                this.database.quantityLimit.create({ productId: id, createdById: UserStorage.get()?.id, ...data }),
-            );
+            return this.database.quantityLimit.save(this.database.quantityLimit.create({ productId: id, createdById: UserStorage.getId(), ...data }));
         }
     }
 }

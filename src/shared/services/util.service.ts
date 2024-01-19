@@ -319,7 +319,9 @@ export class UtilService {
     fullTextSearch(data: { entityAlias?: string; fields?: string[]; keyword: string }) {
         const { entityAlias, keyword, fields } = data;
         const entityAliasString = entityAlias ? `${entityAlias}.` : 'entity.';
-        return fields.map((field) => `MATCH (${entityAliasString}${field}) AGAINST ('${keyword}*' IN BOOLEAN MODE)`).join(' OR ');
+        return fields
+            .map((field) => `MATCH (${field.indexOf('.') === -1 ? entityAliasString : ''}${field}) AGAINST ('${keyword}*' IN BOOLEAN MODE)`)
+            .join(' OR ');
     }
 
     /**
@@ -332,7 +334,7 @@ export class UtilService {
     rawQuerySearch(data: { entityAlias?: string; fields?: string[]; keyword: string }) {
         const { entityAlias, keyword, fields } = data;
         const entityAliasString = entityAlias ? `${entityAlias}.` : 'entity.';
-        return fields.map((field) => `${entityAliasString}${field} LIKE '%${keyword}%'`).join(' OR ');
+        return fields.map((field) => `${field.indexOf('.') === -1 ? entityAliasString : ''}${field} LIKE '%${keyword}%'`).join(' OR ');
     }
 
     /**
@@ -349,7 +351,7 @@ export class UtilService {
             .map((field) => {
                 if (this.isEmpty(rest[field])) return null;
                 const searchCondition = rest[field] == 0 ? 'IS NULL' : `= '${rest[field]}'`;
-                return `${entityAliasString}${field} ${searchCondition}`;
+                return `${field.indexOf('.') === -1 ? entityAliasString : ''}${field} ${searchCondition}`;
             })
             .filter((el) => el !== null)
             .join(' AND ');
@@ -358,17 +360,42 @@ export class UtilService {
     /**
      * Check if relation id exist in database
      * @param data.key name of repository in database service
-     * @param data.value id of relation
+     * @param data.value id of relation or object with id, other fields are optional (ex: { id: 1, name?: 'abc', errorMessage?: 'error message' })
      * @returns true if exist, throw error if not
      */
-    async checkRelationIdExist(data: { [key: string]: any }) {
+    async checkRelationIdExist(data: { [key: string]: { [key: string]: any; errorMessage?: string } | number }) {
         const fields = Object.keys(data);
         for (const field of fields) {
             if (this.isEmpty(data[field])) continue;
-            const count = await this.database[field].countBy({ id: data[field] });
-            if (!count) throw new BadRequestException(`Không tìm thấy ${field} (id: ${data[field]})`);
+            let where = {};
+            let errorMessage = `Không tìm thấy ${field} (id: ${data[field]['id']})`;
+            if (typeof data[field] === 'object') {
+                if (this.isEmpty(data[field]['id'])) continue;
+                errorMessage = data[field]['errorMessage'] || errorMessage;
+                delete data[field]['errorMessage'];
+                where = data[field];
+            } else {
+                where = { id: data[field] };
+            }
+
+            const count = await this.database[field].countBy(where);
+            if (!count) throw new BadRequestException(errorMessage);
         }
 
         return true;
+    }
+
+    /**
+     * Get conditions object from queries for query builder
+     * @param queries - Queries from request
+     * @param keys - Keys in queries to get conditions
+     * @returns conditions object
+     */
+    getConditionsFromQuery(queries: { [key: string]: any }, keys: string[] = []) {
+        const result = {};
+        for (const key of keys) {
+            if (!this.isEmpty(queries[key])) result[key] = queries[key];
+        }
+        return result;
     }
 }

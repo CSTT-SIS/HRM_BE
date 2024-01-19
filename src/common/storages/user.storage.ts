@@ -20,4 +20,12 @@ export const UserStorage = {
     set(user: UserEntity) {
         return this.storage.enterWith(user);
     },
+
+    /**
+     * Get user id from storage
+     * @returns number
+     */
+    getId(): number | undefined {
+        return this.storage.getStore()?.id;
+    },
 };
