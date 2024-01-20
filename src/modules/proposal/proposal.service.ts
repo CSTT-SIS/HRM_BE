@@ -77,7 +77,7 @@ export class ProposalService {
     }
 
     async update(id: number, updateProposalDto: UpdateProposalDto) {
-        await this.isProposalStatusValid({ id, statuses: [PROPOSAL_STATUS.PENDING, PROPOSAL_STATUS.REJECTED], userId: UserStorage.getId() });
+        await this.isProposalStatusValid({ id, statuses: [PROPOSAL_STATUS.PENDING], userId: UserStorage.getId() });
         const { details, ...rest } = updateProposalDto;
         await this.utilService.checkRelationIdExist({ proposalType: updateProposalDto.typeId });
         await this.verifyDetails(details);

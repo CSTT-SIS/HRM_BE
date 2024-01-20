@@ -1,5 +1,6 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { IsNull, Not } from 'typeorm';
 import { PROPOSAL_STATUS, WAREHOUSING_BILL_STATUS, WAREHOUSING_BILL_TYPE } from '~/common/enums/enum';
 import { UserStorage } from '~/common/storages/user.storage';
 import { DatabaseService } from '~/database/typeorm/database.service';
@@ -116,7 +117,7 @@ export class WarehousingBillService {
     }
 
     async update(id: number, updateWarehousingBillDto: UpdateWarehousingBillDto) {
-        await this.isStatusValid({ id, statuses: [WAREHOUSING_BILL_STATUS.PENDING, WAREHOUSING_BILL_STATUS.REJECTED] });
+        await this.isStatusValid({ id, statuses: [WAREHOUSING_BILL_STATUS.PENDING] });
         await this.utilService.checkRelationIdExist({ warehouse: updateWarehousingBillDto.warehouseId });
         return this.database.warehousingBill.update(id, updateWarehousingBillDto);
     }
@@ -125,30 +126,6 @@ export class WarehousingBillService {
         await this.isStatusValid({ id, statuses: [WAREHOUSING_BILL_STATUS.PENDING, WAREHOUSING_BILL_STATUS.REJECTED] });
         await this.database.warehousingBillDetail.delete({ warehousingBillId: id });
         return this.database.warehousingBill.delete(id);
-    }
-
-    /**
-     * Only update the actual quantity of the warehousing bill detail \
-     * If the status of the warehousing bill is not approved, throw an error \
-     * After updating the actual quantity, check if all details are tallied \
-     * If all details are tallied, update the status of the warehousing bill and the proposal to completed \
-     * If the warehousing bill is completed, create an approval process for the warehousing bill and the proposal \
-     */
-    async tally(billId: number, detailId: number, actualQuantity: number) {
-        if (isNaN(actualQuantity)) throw new HttpException('Số lượng thực tế không hợp lệ', 400);
-        const detail = await this.database.warehousingBillDetail.findOneBy({ id: detailId, warehousingBillId: billId });
-        if (!detail) throw new HttpException('Không tìm thấy chi tiết phiếu kho', 404);
-        // if (detail.actualQuantity) throw new HttpException('Chi tiết phiếu kho đã được nhập kho', 400);
-        // if (actualQuantity > detail.proposalQuantity) throw new HttpException('Số lượng thực tế không được lớn hơn số lượng đề xuất', 400);
-
-        const bill = await this.database.warehousingBill.findOneBy({ id: detail.warehousingBillId });
-        if (!bill) throw new HttpException('Không tìm thấy phiếu kho', 404);
-        if (bill.status !== WAREHOUSING_BILL_STATUS.APPROVED) throw new HttpException('Phiếu kho chưa được duyệt hoặc đã được kiểm đếm', 400);
-
-        await this.database.warehousingBillDetail.update(detail.id, { actualQuantity });
-        await this.isAllDetailsTallied(detail.warehousingBillId, detail.proposalId);
-
-        return { message: 'Kiểm đếm phiếu kho thành công', data: { ...detail, actualQuantity } };
     }
 
     async approve(id: number) {
@@ -186,7 +163,7 @@ export class WarehousingBillService {
 
     async return(id: number) {
         // TODO: check if user have permission to return
-        await this.isStatusValid({ id, statuses: [WAREHOUSING_BILL_STATUS.APPROVED] });
+        await this.isStatusValid({ id, statuses: [WAREHOUSING_BILL_STATUS.APPROVED], isTallied: true });
         await this.database.warehousingBill.update(id, { status: WAREHOUSING_BILL_STATUS.PENDING });
         await this.database.approvalProcess.save(
             this.database.approvalProcess.create({
@@ -198,6 +175,30 @@ export class WarehousingBillService {
         );
 
         return { message: 'Trả phiếu kho thành công', data: { id } };
+    }
+
+    /**
+     * Only update the actual quantity of the warehousing bill detail \
+     * If the status of the warehousing bill is not approved, throw an error \
+     * After updating the actual quantity, check if all details are tallied \
+     * If all details are tallied, update the status of the warehousing bill and the proposal to completed \
+     * If the warehousing bill is completed, create an approval process for the warehousing bill and the proposal \
+     */
+    async tally(billId: number, detailId: number, actualQuantity: number) {
+        if (isNaN(actualQuantity)) throw new HttpException('Số lượng thực tế không hợp lệ', 400);
+        const detail = await this.database.warehousingBillDetail.findOneBy({ id: detailId, warehousingBillId: billId });
+        if (!detail) throw new HttpException('Không tìm thấy chi tiết phiếu kho', 404);
+        // if (detail.actualQuantity) throw new HttpException('Chi tiết phiếu kho đã được nhập kho', 400);
+        // if (actualQuantity > detail.proposalQuantity) throw new HttpException('Số lượng thực tế không được lớn hơn số lượng đề xuất', 400);
+
+        const bill = await this.database.warehousingBill.findOneBy({ id: detail.warehousingBillId });
+        if (!bill) throw new HttpException('Không tìm thấy phiếu kho', 404);
+        if (bill.status !== WAREHOUSING_BILL_STATUS.APPROVED) throw new HttpException('Phiếu kho chưa được duyệt hoặc đã được kiểm đếm', 400);
+
+        await this.database.warehousingBillDetail.update(detail.id, { actualQuantity });
+        await this.isAllDetailsTallied(detail.warehousingBillId, detail.proposalId);
+
+        return { message: 'Kiểm đếm phiếu kho thành công', data: { ...detail, actualQuantity } };
     }
 
     /**
@@ -224,12 +225,15 @@ export class WarehousingBillService {
      * @param userId (optional) Creator id
      * @returns Warehousing bill  entity
      */
-    private async isStatusValid(data: { id: number; statuses: any[]; userId?: number }): Promise<WarehousingBillEntity> {
+    private async isStatusValid(data: { id: number; statuses: any[]; userId?: number; isTallied?: boolean }): Promise<WarehousingBillEntity> {
         const entity = await this.database.warehousingBill.findOneBy({ id: data.id });
         if (!entity) throw new HttpException('Không tìm thấy phiếu kho', 404);
         if (!data.statuses.includes(entity.status)) throw new HttpException('Không thể chỉnh sửa phiếu kho do trạng thái không hợp lệ', 400);
         if (data.userId && entity.createdById !== data.userId) throw new HttpException('Bạn không có quyền chỉnh sửa đề xuất này', 403);
-
+        if (data.isTallied) {
+            const details = await this.database.warehousingBillDetail.countBy({ warehousingBillId: data.id, actualQuantity: Not(IsNull()) });
+            if (details > 0) throw new HttpException('Không thể chỉnh sửa phiếu kho do đã kiểm đếm', 400);
+        }
         return entity;
     }
 
