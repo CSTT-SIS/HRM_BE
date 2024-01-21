@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { DatabaseService } from '~/database/typeorm/database.service';
 import { AccountEntity } from '~/database/typeorm/entities/account.entity';
+import { ApprovalProcessEntity } from '~/database/typeorm/entities/approvalProcess.entity';
 import { DepartmentEntity } from '~/database/typeorm/entities/department.entity';
 import { InventoryEntity } from '~/database/typeorm/entities/inventory.entity';
 import { InventoryHistoryEntity } from '~/database/typeorm/entities/inventoryHistory.entity';
@@ -11,7 +12,10 @@ import { MediaEntity } from '~/database/typeorm/entities/media.entity';
 import { PermissionEntity } from '~/database/typeorm/entities/permission.entity';
 import { ProductEntity } from '~/database/typeorm/entities/product.entity';
 import { ProductCategoryEntity } from '~/database/typeorm/entities/productCategory.entity';
+import { ProductMetaEntity } from '~/database/typeorm/entities/productMeta.entity';
 import { ProposalEntity } from '~/database/typeorm/entities/proposal.entity';
+import { ProposalDetailEntity } from '~/database/typeorm/entities/proposalDetail.entity';
+import { ProposalTypeEntity } from '~/database/typeorm/entities/proposalType.entity';
 import { ProviderEntity } from '~/database/typeorm/entities/provider.entity';
 import { QuantityLimitEntity } from '~/database/typeorm/entities/quantityLimit.entity';
 import { RoleEntity } from '~/database/typeorm/entities/role.entity';
@@ -20,7 +24,10 @@ import { UserEntity } from '~/database/typeorm/entities/user.entity';
 import { UserLogEntity } from '~/database/typeorm/entities/userLog.entity';
 import { WarehouseEntity } from '~/database/typeorm/entities/warehouse.entity';
 import { WarehouseTypeEntity } from '~/database/typeorm/entities/warehouseType.entity';
+import { WarehousingBillEntity } from '~/database/typeorm/entities/warehousingBill.entity';
+import { WarehousingBillDetailEntity } from '~/database/typeorm/entities/warehousingBillDetail.entity';
 import { AccountRepository } from '~/database/typeorm/repositories/account.repository';
+import { ApprovalProcessRepository } from '~/database/typeorm/repositories/approvalProcess.repository';
 import { DepartmentRepository } from '~/database/typeorm/repositories/department.repository';
 import { InventoryRepository } from '~/database/typeorm/repositories/inventory.repository';
 import { InventoryHistoryRepository } from '~/database/typeorm/repositories/inventoryHistory.repository';
@@ -28,6 +35,10 @@ import { MediaRepository } from '~/database/typeorm/repositories/media.repositor
 import { PermissionRepository } from '~/database/typeorm/repositories/permission.repository';
 import { ProductRepository } from '~/database/typeorm/repositories/product.repository';
 import { ProductCategoryRepository } from '~/database/typeorm/repositories/productCategory.repository';
+import { ProductMetaRepository } from '~/database/typeorm/repositories/productMeta.repository';
+import { ProposalRepository } from '~/database/typeorm/repositories/proposal.repository';
+import { ProposalDetailRepository } from '~/database/typeorm/repositories/proposalDetail.repository';
+import { ProposalTypeRepository } from '~/database/typeorm/repositories/proposalType.repository';
 import { ProviderRepository } from '~/database/typeorm/repositories/provider.repository';
 import { QuantityLimitRepository } from '~/database/typeorm/repositories/quantityLimit.repository';
 import { RoleRepository } from '~/database/typeorm/repositories/role.repository';
@@ -36,18 +47,7 @@ import { UserRepository } from '~/database/typeorm/repositories/user.repository'
 import { UserLogRepository } from '~/database/typeorm/repositories/userLog.repository';
 import { WarehouseRepository } from '~/database/typeorm/repositories/warehouse.repository';
 import { WarehouseTypeRepository } from '~/database/typeorm/repositories/warehouseType.repository';
-import { ProposalRepository } from '~/database/typeorm/repositories/proposal.repository';
-import { ProposalTypeEntity } from '~/database/typeorm/entities/proposalType.entity';
-import { ProposalTypeRepository } from '~/database/typeorm/repositories/proposalType.repository';
-import { ProposalDetailEntity } from '~/database/typeorm/entities/proposalDetail.entity';
-import { ProposalDetailRepository } from '~/database/typeorm/repositories/proposalDetail.repository';
-import { ProductMetaEntity } from '~/database/typeorm/entities/productMeta.entity';
-import { ProductMetaRepository } from '~/database/typeorm/repositories/productMeta.repository';
-import { ApprovalProcessEntity } from '~/database/typeorm/entities/approvalProcess.entity';
-import { ApprovalProcessRepository } from '~/database/typeorm/repositories/approvalProcess.repository';
-import { WarehousingBillEntity } from '~/database/typeorm/entities/warehousingBill.entity';
 import { WarehousingBillRepository } from '~/database/typeorm/repositories/warehousingBill.repository';
-import { WarehousingBillDetailEntity } from '~/database/typeorm/entities/warehousingBillDetail.entity';
 import { WarehousingBillDetailRepository } from '~/database/typeorm/repositories/warehousingBillDetail.repository';
 
 const entities = [
@@ -106,6 +106,7 @@ const repositories = [
 @Module({
     imports: [
         TypeOrmModule.forRootAsync({
+            name: 'default', // HERE
             useFactory: (configService: ConfigService) => ({
                 ...configService.get('database'),
                 entities,
