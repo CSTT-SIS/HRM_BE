@@ -26,7 +26,7 @@ export class ProposalEntity extends AbstractEntity {
     @Column({ name: 'updated_by_id', type: 'int', unsigned: true, nullable: true })
     updatedById: number;
 
-    @Column({ name: 'status', type: 'varchar', length: 255, default: PROPOSAL_STATUS.PENDING })
+    @Column({ name: 'status', type: 'varchar', length: 255, default: PROPOSAL_STATUS.DRAFT })
     status: PROPOSAL_STATUS;
 
     /* RELATIONS */

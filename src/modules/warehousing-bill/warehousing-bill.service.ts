@@ -28,8 +28,8 @@ export class WarehousingBillService {
             warehouse: createWarehousingBillDto.warehouseId,
         });
 
-        const check = await this.database.warehousingBill.findOneBy({ proposalId: createWarehousingBillDto.proposalId });
-        if (check) {
+        const check = await this.database.warehousingBill.countBy({ proposalId: createWarehousingBillDto.proposalId });
+        if (check > 0) {
             throw new HttpException('Phiếu đề xuất đã được tạo phiếu nhập kho', 400);
         }
 

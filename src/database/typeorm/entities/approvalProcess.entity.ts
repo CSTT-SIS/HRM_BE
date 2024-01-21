@@ -25,7 +25,7 @@ export class ApprovalProcessEntity extends AbstractEntity {
     @Column({ name: 'to', type: 'varchar', length: 50 })
     to: PROPOSAL_STATUS;
 
-    @Column({ name: 'comment', type: 'varchar', length: 255, nullable: true })
+    @Column({ name: 'comment', type: 'text', nullable: true })
     comment: string;
 
     /* RELATIONS */

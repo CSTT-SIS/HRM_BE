@@ -1,8 +1,10 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
-import { ApiBasicAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiBasicAuth, ApiBody, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Permission } from '~/common/decorators/permission.decorator';
 import { FilterDto } from '~/common/dtos/filter.dto';
 import { PROPOSAL_STATUS } from '~/common/enums/enum';
+import { CreateProposalDetailDto } from '~/modules/proposal/dto/create-proposal-detail.dto';
+import { UpdateProposalDetailDto } from '~/modules/proposal/dto/update-proposal-detail.dto';
 import { CreateProposalDto } from './dto/create-proposal.dto';
 import { UpdateProposalDto } from './dto/update-proposal.dto';
 import { ProposalService } from './proposal.service';
@@ -46,21 +48,65 @@ export class ProposalController {
         return this.proposalService.remove(+id);
     }
 
+    @Permission('proposal:pending')
+    @Patch(':id/pending')
+    pending(@Param('id') id: string) {
+        return this.proposalService.pending(+id);
+    }
+
     @Permission('proposal:approve')
     @Patch(':id/approve')
     approve(@Param('id') id: string) {
         return this.proposalService.approve(+id);
     }
 
+    @ApiBody({
+        schema: {
+            type: 'object',
+            properties: {
+                comment: {
+                    type: 'string',
+                },
+            },
+        },
+    })
     @Permission('proposal:reject')
     @Patch(':id/reject')
-    reject(@Param('id') id: string) {
-        return this.proposalService.reject(+id);
+    reject(@Param('id') id: string, @Body() body: { comment: string }) {
+        return this.proposalService.reject(+id, body?.comment);
     }
 
+    @ApiBody({
+        schema: {
+            type: 'object',
+            properties: {
+                comment: {
+                    type: 'string',
+                },
+            },
+        },
+    })
     @Permission('proposal:return')
     @Patch(':id/return')
-    return(@Param('id') id: string) {
-        return this.proposalService.return(+id);
+    return(@Param('id') id: string, @Body() body: { comment: string }) {
+        return this.proposalService.return(+id, body?.comment);
+    }
+
+    @Permission('proposal:addDetail')
+    @Post(':id/add-detail')
+    addDetail(@Param('id') id: string, @Body() body: CreateProposalDetailDto) {
+        return this.proposalService.addDetail(+id, body);
+    }
+
+    @Permission('proposal:updateDetail')
+    @Patch(':id/update-detail/:detailId')
+    updateDetail(@Param('id') id: string, @Param('detailId') detailId: string, @Body() body: UpdateProposalDetailDto) {
+        return this.proposalService.updateDetail(+id, +detailId, body);
+    }
+
+    @Permission('proposal:removeDetail')
+    @Delete(':id/remove-detail/:detailId')
+    removeDetail(@Param('id') id: string, @Param('detailId') detailId: string) {
+        return this.proposalService.removeDetail(+id, +detailId);
     }
 }

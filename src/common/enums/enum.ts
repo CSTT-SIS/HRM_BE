@@ -42,6 +42,7 @@ export enum INVENTORY_HISTORY_TYPE {
 }
 
 export enum PROPOSAL_STATUS {
+    DRAFT = 'DRAFT',
     PENDING = 'PENDING',
     APPROVED = 'APPROVED',
     REJECTED = 'REJECTED',
