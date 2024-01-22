@@ -1,6 +1,7 @@
 import { Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, Relation, RelationId } from 'typeorm';
 import { InventoryHistoryEntity } from '~/database/typeorm/entities/inventoryHistory.entity';
 import { ProductEntity } from '~/database/typeorm/entities/product.entity';
+import { ColumnNumericTransformer } from '~/database/typeorm/entities/transformer.entity';
 import { UserEntity } from '~/database/typeorm/entities/user.entity';
 import { WarehouseEntity } from '~/database/typeorm/entities/warehouse.entity';
 import { AbstractEntity } from './abstract.entity';
@@ -17,7 +18,16 @@ export class InventoryEntity extends AbstractEntity {
     @Column({ name: 'product_id', type: 'int', unsigned: true, nullable: true })
     productId: number;
 
-    @Column({ name: 'quantity', type: 'int', unsigned: true, nullable: true })
+    // 9999999999.99
+    @Column({
+        name: 'quantity',
+        type: 'decimal',
+        precision: 12,
+        scale: 2,
+        unsigned: true,
+        nullable: true,
+        transformer: new ColumnNumericTransformer(),
+    })
     quantity: number;
 
     @Column({ name: 'error_quantity', type: 'int', unsigned: true, nullable: true, default: 0 })

@@ -22,8 +22,9 @@ export class PermissionController {
     @Permission('permission:findAll')
     @Get()
     @ApiQuery({ type: FilterDto })
-    findAll(@Query() queries) {
-        return this.permissionService.findAll({ ...queries });
+    @ApiQuery({ name: 'isGroup', required: false })
+    findAll(@Query() queries, @Query('isGroup') isGroup: boolean) {
+        return this.permissionService.findAll({ ...queries, isGroup });
     }
 
     @Permission('permission:findOne')

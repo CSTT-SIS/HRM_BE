@@ -18,6 +18,9 @@ const options: DataSourceOptions & SeederOptions = {
     synchronize: !!process.env.DATABASE_SYNCHRONIZE,
     seeds: ['src/database/typeorm/seeds/**/*{.ts,.js}'],
     factories: ['src/database/typeorm/factories/**/*{.ts,.js}'],
+    extra: {
+        charset: 'utf8mb4_unicode_ci',
+    },
 };
 
 export default new DataSource(options);

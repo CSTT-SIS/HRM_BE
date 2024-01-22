@@ -1,5 +1,6 @@
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
 import { InventoryEntity } from '~/database/typeorm/entities/inventory.entity';
+import { ColumnNumericTransformer } from '~/database/typeorm/entities/transformer.entity';
 import { UserEntity } from '~/database/typeorm/entities/user.entity';
 import { AbstractEntity } from './abstract.entity';
 
@@ -11,13 +12,13 @@ export class InventoryHistoryEntity extends AbstractEntity {
     @Column({ name: 'inventory_id', type: 'int', unsigned: true, nullable: true })
     inventoryId: number;
 
-    @Column({ name: 'from', type: 'int', unsigned: true, nullable: true })
+    @Column({ name: 'from', type: 'decimal', precision: 12, scale: 2, unsigned: true, nullable: true, transformer: new ColumnNumericTransformer() })
     from: number;
 
-    @Column({ name: 'to', type: 'int', unsigned: true, nullable: true })
+    @Column({ name: 'to', type: 'decimal', precision: 12, scale: 2, unsigned: true, nullable: true, transformer: new ColumnNumericTransformer() })
     to: number;
 
-    @Column({ name: 'change', type: 'int', nullable: true })
+    @Column({ name: 'change', type: 'decimal', precision: 12, scale: 2, unsigned: true, nullable: true, transformer: new ColumnNumericTransformer() })
     change: number;
 
     @Column({ name: 'note', type: 'text', nullable: true })

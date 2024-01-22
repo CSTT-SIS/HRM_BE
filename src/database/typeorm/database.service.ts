@@ -25,6 +25,8 @@ import { WarehouseTypeRepository } from '~/database/typeorm/repositories/warehou
 import { WarehousingBillRepository } from '~/database/typeorm/repositories/warehousingBill.repository';
 import { WarehousingBillDetailRepository } from '~/database/typeorm/repositories/warehousingBillDetail.repository';
 import { CacheService } from '~/shared/services/cache.service';
+import { StocktakeRepository } from '~/database/typeorm/repositories/stocktake.repository';
+import { StocktakeDetailRepository } from '~/database/typeorm/repositories/stocktakeDetail.repository';
 
 @Injectable()
 export class DatabaseService {
@@ -54,6 +56,8 @@ export class DatabaseService {
         public readonly approvalProcess: ApprovalProcessRepository,
         public readonly warehousingBill: WarehousingBillRepository,
         public readonly warehousingBillDetail: WarehousingBillDetailRepository,
+        public readonly stocktake: StocktakeRepository,
+        public readonly stocktakeDetail: StocktakeDetailRepository,
     ) {
         // load all departments to cache
         // this.loadDepartmentsToCache();

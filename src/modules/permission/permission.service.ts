@@ -12,7 +12,7 @@ export class PermissionService {
         return `This action creates a permission`;
     }
 
-    async findAll(query: { page: number; perPage: number; sortBy: string; search: string }) {
+    async findAll(query: { page: number; perPage: number; sortBy: string; search: string; isGroup: string }) {
         const { take, skip, pagination } = this.utilService.getPagination(query);
         const builder = this.permissionRespository.createQueryBuilder('entity');
         builder.orderBy({ 'entity.type': 'ASC', 'entity.name': 'ASC' });
@@ -25,7 +25,14 @@ export class PermissionService {
         const totalPages = Math.ceil(total / take);
 
         return {
-            data: result,
+            data:
+                query.isGroup === 'true'
+                    ? result.reduce((acc, cur) => {
+                          if (!acc[cur.type]) acc[cur.type] = [];
+                          acc[cur.type].push(cur);
+                          return acc;
+                      }, {})
+                    : result,
             pagination: {
                 ...pagination,
                 totalRecords: total,

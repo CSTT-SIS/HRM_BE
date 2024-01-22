@@ -40,6 +40,7 @@ import { UnitModule } from './modules/unit/unit.module';
 import { UserModule } from './modules/user/user.module';
 import { WarehouseTypeModule } from './modules/warehouse-type/warehouse-type.module';
 import { WarehouseModule } from './modules/warehouse/warehouse.module';
+import { StocktakeModule } from '~/modules/stocktake/stocktake.module';
 
 @Module({
     imports: [
@@ -83,6 +84,7 @@ import { WarehouseModule } from './modules/warehouse/warehouse.module';
         ProposalModule,
         ProposalTypeModule,
         WarehousingBillModule,
+        StocktakeModule,
     ],
     controllers: [AppController],
     providers: [

@@ -124,7 +124,7 @@ The second way to generate table is using `migration` feature of TypeORM.
 -   You have to write entity then write migration file with SQL query to generate table.
 -   Then follow the steps in [Migration](#migration) section to run migration file.
 
-The third way to generate table is using `schema:sync` command of TypeORM.
+The third way to generate table is using `schema:sync` command of TypeORM. **(Recommended)**
 
 -   First, you need to write entity file in **`src/database/typeorm/entities`** folder.
 -   Then, run this command to generate table:

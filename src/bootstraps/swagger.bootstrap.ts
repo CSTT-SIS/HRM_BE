@@ -20,7 +20,7 @@ export function bootstrapSwagger(app: INestApplication, appVersion: string): voi
         SwaggerModule.setup('docs', app, document, {
             swaggerOptions: {
                 tagsSorter: 'alpha',
-                operationsSorter: 'alpha',
+                // operationsSorter: 'alpha',
                 persistAuthorization: true,
             },
         });

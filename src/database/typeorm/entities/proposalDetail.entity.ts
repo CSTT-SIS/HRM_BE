@@ -1,6 +1,7 @@
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
 import { ProductEntity } from '~/database/typeorm/entities/product.entity';
 import { ProposalEntity } from '~/database/typeorm/entities/proposal.entity';
+import { ColumnNumericTransformer } from '~/database/typeorm/entities/transformer.entity';
 import { AbstractEntity } from './abstract.entity';
 
 @Entity({ name: 'proposal_details' })
@@ -14,7 +15,16 @@ export class ProposalDetailEntity extends AbstractEntity {
     @Column({ name: 'product_id', type: 'int', unsigned: true, nullable: true })
     productId: number;
 
-    @Column({ name: 'quantity', type: 'int', unsigned: true, nullable: true, default: 0 })
+    @Column({
+        name: 'quantity',
+        type: 'decimal',
+        precision: 12,
+        scale: 2,
+        unsigned: true,
+        nullable: true,
+        default: 0,
+        transformer: new ColumnNumericTransformer(),
+    })
     quantity: number;
 
     @Column({ name: 'note', type: 'text', nullable: true })

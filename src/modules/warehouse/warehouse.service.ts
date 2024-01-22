@@ -146,12 +146,12 @@ export class WarehouseService {
         }));
 
         const inventories = await this.database.inventory.findBy({ productId: In(billProducts.map((product) => product.productId)) });
-        const inventoryHistory = [];
-        const newInventories = billProducts.map((billProduct) => {
-            const change = bill.type === WAREHOUSING_BILL_TYPE.IMPORT ? billProduct.actualQuantity : -billProduct.actualQuantity;
+        const inventoryHistories = [];
+        const updatedInventories = billProducts.map((billProduct) => {
+            const change = this.getChangeQuantity(bill.type, billProduct.actualQuantity);
             const inventory = inventories.find((inventory) => inventory.productId === billProduct.productId);
             if (inventory) {
-                inventoryHistory.push(
+                inventoryHistories.push(
                     this.database.inventoryHistory.create({
                         inventoryId: inventory.id,
                         from: inventory.quantity,
@@ -168,7 +168,7 @@ export class WarehouseService {
                 };
             }
 
-            inventoryHistory.push(
+            inventoryHistories.push(
                 this.database.inventoryHistory.create({
                     inventoryId: inventory.id,
                     from: 0,
@@ -187,7 +187,16 @@ export class WarehouseService {
             };
         });
 
-        this.database.inventory.save(newInventories);
-        this.database.inventoryHistory.save(inventoryHistory);
+        this.database.inventory.save(updatedInventories);
+        this.database.inventoryHistory.save(inventoryHistories);
+    }
+
+    private getChangeQuantity(billType: WAREHOUSING_BILL_TYPE, actualQuantity: number) {
+        switch (billType) {
+            case WAREHOUSING_BILL_TYPE.IMPORT:
+                return actualQuantity;
+            case WAREHOUSING_BILL_TYPE.EXPORT:
+                return -actualQuantity;
+        }
     }
 }

@@ -19,6 +19,8 @@ import { ProposalTypeEntity } from '~/database/typeorm/entities/proposalType.ent
 import { ProviderEntity } from '~/database/typeorm/entities/provider.entity';
 import { QuantityLimitEntity } from '~/database/typeorm/entities/quantityLimit.entity';
 import { RoleEntity } from '~/database/typeorm/entities/role.entity';
+import { StocktakeEntity } from '~/database/typeorm/entities/stocktake.entity';
+import { StocktakeDetailEntity } from '~/database/typeorm/entities/stocktakeDetail.entity';
 import { UnitEntity } from '~/database/typeorm/entities/unit.entity';
 import { UserEntity } from '~/database/typeorm/entities/user.entity';
 import { UserLogEntity } from '~/database/typeorm/entities/userLog.entity';
@@ -42,6 +44,8 @@ import { ProposalTypeRepository } from '~/database/typeorm/repositories/proposal
 import { ProviderRepository } from '~/database/typeorm/repositories/provider.repository';
 import { QuantityLimitRepository } from '~/database/typeorm/repositories/quantityLimit.repository';
 import { RoleRepository } from '~/database/typeorm/repositories/role.repository';
+import { StocktakeRepository } from '~/database/typeorm/repositories/stocktake.repository';
+import { StocktakeDetailRepository } from '~/database/typeorm/repositories/stocktakeDetail.repository';
 import { UnitRepository } from '~/database/typeorm/repositories/unit.repository';
 import { UserRepository } from '~/database/typeorm/repositories/user.repository';
 import { UserLogRepository } from '~/database/typeorm/repositories/userLog.repository';
@@ -74,6 +78,8 @@ const entities = [
     ApprovalProcessEntity,
     WarehousingBillEntity,
     WarehousingBillDetailEntity,
+    StocktakeEntity,
+    StocktakeDetailEntity,
 ];
 
 const repositories = [
@@ -100,6 +106,8 @@ const repositories = [
     ApprovalProcessRepository,
     WarehousingBillRepository,
     WarehousingBillDetailRepository,
+    StocktakeRepository,
+    StocktakeDetailRepository,
 ];
 
 @Global()
