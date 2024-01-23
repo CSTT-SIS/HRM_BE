@@ -17,6 +17,17 @@ export class StocktakeDetailEntity extends AbstractEntity {
     productId: number;
 
     @Column({
+        name: 'opening_quantity',
+        type: 'decimal',
+        precision: 12,
+        scale: 2,
+        unsigned: true,
+        nullable: true,
+        transformer: new ColumnNumericTransformer(),
+    })
+    openingQuantity: number; // tồn đầu kỳ
+
+    @Column({
         name: 'counted_quantity',
         type: 'decimal',
         precision: 12,
@@ -32,7 +43,6 @@ export class StocktakeDetailEntity extends AbstractEntity {
         type: 'decimal',
         precision: 12,
         scale: 2,
-        unsigned: true,
         nullable: true,
         transformer: new ColumnNumericTransformer(),
     })
@@ -49,9 +59,11 @@ export class StocktakeDetailEntity extends AbstractEntity {
 
     /* RELATIONS */
     @ManyToOne(() => StocktakeEntity, (entity) => entity.details, { createForeignKeyConstraints: false })
+    @JoinColumn({ name: 'stocktake_id', referencedColumnName: 'id' })
     stocktake: Relation<StocktakeEntity>;
 
     @ManyToOne(() => ProductEntity, { createForeignKeyConstraints: false })
+    @JoinColumn({ name: 'product_id', referencedColumnName: 'id' })
     product: Relation<ProductEntity>;
 
     @ManyToOne(() => UserEntity, { createForeignKeyConstraints: false })

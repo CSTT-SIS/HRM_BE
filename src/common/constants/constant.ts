@@ -16,3 +16,5 @@ export const DEFAULT_PER_PAGE = 10;
 
 export const BYPASS_PERMISSION = 'BYPASS_PERMISSION';
 export const ONLY_ADMIN = 'ONLY_ADMIN';
+
+export const DEFAULT_TIMESTAMP_FORMAT = 'YYYY-MM-DD HH:mm:ss';

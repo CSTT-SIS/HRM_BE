@@ -18,7 +18,7 @@ export class InventoryHistoryEntity extends AbstractEntity {
     @Column({ name: 'to', type: 'decimal', precision: 12, scale: 2, unsigned: true, nullable: true, transformer: new ColumnNumericTransformer() })
     to: number;
 
-    @Column({ name: 'change', type: 'decimal', precision: 12, scale: 2, unsigned: true, nullable: true, transformer: new ColumnNumericTransformer() })
+    @Column({ name: 'change', type: 'decimal', precision: 12, scale: 2, nullable: true, transformer: new ColumnNumericTransformer() })
     change: number;
 
     @Column({ name: 'note', type: 'text', nullable: true })

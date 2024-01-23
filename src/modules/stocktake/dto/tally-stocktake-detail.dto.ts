@@ -8,11 +8,6 @@ export class TallyStocktakeDetailDto {
     countedQuantity: number;
 
     @ApiProperty()
-    @IsNotEmpty({ message: 'Số lượng chênh lệch không được để trống' })
-    @IsNumber({}, { message: 'Số lượng chênh lệch phải là số' })
-    quantityDifference: number;
-
-    @ApiProperty()
     @IsOptional()
     @IsString({ message: 'Ghi chú phải là chuỗi' })
     note: string;

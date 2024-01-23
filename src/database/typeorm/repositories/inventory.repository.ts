@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
 import { Injectable } from '@nestjs/common';
+import moment from 'moment';
 import { DataSource, Repository } from 'typeorm';
 import { InventoryEntity } from '~/database/typeorm/entities/inventory.entity';
 
@@ -42,5 +43,31 @@ export class InventoryRepository extends Repository<InventoryEntity> {
             .getRawOne();
 
         return Number(result.quantity) || 0;
+    }
+
+    getOpeningQuantities(warehouseId: number, startDate: Date, endDate: Date): Promise<{ productId: number; current: string; opening: string }[]> {
+        const builder = this.createQueryBuilder('entity')
+            .leftJoin('entity.histories', 'histories', 'histories.createdAt BETWEEN :startDate AND :endDate', {
+                startDate: moment(startDate).format('YYYY-MM-DD'),
+                endDate: moment(endDate).format('YYYY-MM-DD'),
+            })
+            .where('entity.warehouseId = :warehouseId', { warehouseId })
+            .select(['entity.productId as productId', 'entity.quantity as current', 'histories.from as opening'])
+            .groupBy('entity.productId');
+
+        return builder.getRawMany();
+    }
+
+    getOpeningQuantity(warehouseId: number, productId: number, startDate: Date, endDate: Date): Promise<{ current: string; opening: string }> {
+        const builder = this.createQueryBuilder('entity')
+            .leftJoin('entity.histories', 'histories', 'histories.createdAt BETWEEN :startDate AND :endDate', {
+                startDate: moment(startDate).format('YYYY-MM-DD'),
+                endDate: moment(endDate).format('YYYY-MM-DD'),
+            })
+            .where('entity.warehouseId = :warehouseId', { warehouseId })
+            .andWhere('entity.productId = :productId', { productId })
+            .select(['entity.quantity as current', 'histories.from as opening']);
+
+        return builder.getRawOne();
     }
 }

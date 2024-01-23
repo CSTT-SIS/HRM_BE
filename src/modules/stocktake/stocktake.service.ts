@@ -73,6 +73,7 @@ export class StocktakeService {
             'participants',
             'details.id',
             'details.productId',
+            'details.openingQuantity',
             'details.countedQuantity',
             'details.quantityDifference',
             'details.note',
@@ -107,31 +108,81 @@ export class StocktakeService {
         return this.database.stocktake.delete(id);
     }
 
-    async addDetail(id: number, createStocktakeDetailDto: CreateStocktakeDetailDto) {
-        await this.utilService.checkRelationIdExist({
-            stocktake: {
-                id,
-                status: STOCKTAKE_STATUS.DRAFT,
-                errorMessage: 'Phiếu kiểm kê không tồn tại hoặc không ở trạng thái nháp',
-            },
-            product: createStocktakeDetailDto.productId,
-        });
+    async autoAddDetail(id: number) {
+        const entity = await this.database.stocktake.findOne({ where: { id, status: STOCKTAKE_STATUS.DRAFT } });
+        if (!entity) throw new HttpException('Phiếu kiểm kê không tồn tại hoặc không ở trạng thái nháp', 400);
 
-        return this.database.stocktakeDetail.save(this.database.stocktakeDetail.create(createStocktakeDetailDto));
+        const products = await this.database.inventory.getOpeningQuantities(entity.warehouseId, entity.startDate, entity.endDate);
+        const details = products.map((product) => ({
+            stocktakeId: id,
+            productId: product.productId,
+            openingQuantity: parseFloat(product.opening || product.current),
+            createdById: UserStorage.getId(),
+        }));
+
+        return this.database.stocktakeDetail.save(this.database.stocktakeDetail.create(details));
+    }
+
+    async getDetails(queries: { page: number; perPage: number; search: string; sortBy: string; stocktakeId: number; productId: number }) {
+        const { builder, take, pagination } = this.utilService.getQueryBuilderAndPagination(this.database.stocktakeDetail, queries);
+        if (!this.utilService.isEmpty(queries.search))
+            builder.andWhere(this.utilService.fullTextSearch({ fields: ['product.name'], keyword: queries.search }));
+
+        builder.leftJoinAndSelect('entity.product', 'product');
+        builder.leftJoinAndSelect('product.unit', 'unit');
+        builder.andWhere('entity.stocktakeId = :id', { id: queries.stocktakeId });
+        builder.andWhere(this.utilService.getConditionsFromQuery(queries, ['productId']));
+        builder.select(['entity', 'product.id', 'product.name', 'product.code', 'product.price', 'product.tax', 'unit.id', 'unit.name']);
+
+        const [result, total] = await builder.getManyAndCount();
+        const totalPages = Math.ceil(total / take);
+        return {
+            data: result,
+            pagination: {
+                ...pagination,
+                totalRecords: total,
+                totalPages: totalPages,
+            },
+        };
+    }
+
+    async addDetail(id: number, createStocktakeDetailDto: CreateStocktakeDetailDto) {
+        const entity = await this.database.stocktake.findOne({ where: { id, status: STOCKTAKE_STATUS.DRAFT } });
+        if (!entity) throw new HttpException('Phiếu kiểm kê không tồn tại hoặc không ở trạng thái nháp', 400);
+        const product = await this.database.inventory.getOpeningQuantity(
+            entity.warehouseId,
+            createStocktakeDetailDto.productId,
+            entity.startDate,
+            entity.endDate,
+        );
+        if (!product) throw new HttpException('Sản phẩm không tồn tại trong kho', 400);
+
+        return this.database.stocktakeDetail.save(
+            this.database.stocktakeDetail.create({
+                ...createStocktakeDetailDto,
+                stocktakeId: id,
+                openingQuantity: parseFloat(product.opening || product.current),
+                createdById: UserStorage.getId(),
+            }),
+        );
     }
 
     async updateDetail(id: number, detailId: number, updateStocktakeDetailDto: UpdateStocktakeDetailDto) {
-        await this.utilService.checkRelationIdExist({
-            stocktake: {
-                id,
-                status: STOCKTAKE_STATUS.DRAFT,
-                errorMessage: 'Phiếu kiểm kê không tồn tại hoặc không ở trạng thái nháp',
-            },
-            product: updateStocktakeDetailDto.productId,
-            stocktakeDetail: detailId,
-        });
+        const entity = await this.database.stocktake.findOne({ where: { id, status: STOCKTAKE_STATUS.DRAFT } });
+        if (!entity) throw new HttpException('Phiếu kiểm kê không tồn tại hoặc không ở trạng thái nháp', 400);
+        const product = await this.database.inventory.getOpeningQuantity(
+            entity.warehouseId,
+            updateStocktakeDetailDto.productId,
+            entity.startDate,
+            entity.endDate,
+        );
+        if (!product) throw new HttpException('Sản phẩm không tồn tại trong kho', 400);
 
-        return this.database.stocktakeDetail.update(detailId, updateStocktakeDetailDto);
+        return this.database.stocktakeDetail.update(detailId, {
+            ...updateStocktakeDetailDto,
+            openingQuantity: parseFloat(product.opening || product.current),
+            updatedById: UserStorage.getId(),
+        });
     }
 
     async removeDetail(id: number, detailId: number) {
@@ -146,28 +197,55 @@ export class StocktakeService {
         return this.database.stocktakeDetail.delete({ id: detailId, stocktakeId: id });
     }
 
-    async start(id: number) {
+    start(id: number) {
         return this.updateStatus({ id, from: STOCKTAKE_STATUS.DRAFT, to: STOCKTAKE_STATUS.IN_PROGRESS });
     }
 
-    async cancel(id: number) {
+    cancel(id: number) {
         return this.updateStatus({ id, from: STOCKTAKE_STATUS.IN_PROGRESS, to: STOCKTAKE_STATUS.DRAFT });
     }
 
     async finish(id: number) {
+        const details = await this.database.stocktakeDetail.find({ where: { stocktakeId: id } });
+        const notTallied = details.filter((detail) => detail.countedQuantity === null);
+        if (notTallied.length)
+            throw new HttpException('Có sản phẩm chưa được kiểm kê: ' + notTallied.map((detail) => detail.productId).join(', '), 400);
+
         return this.updateStatus({ id, from: STOCKTAKE_STATUS.IN_PROGRESS, to: STOCKTAKE_STATUS.FINISHED });
     }
 
     async approve(id: number) {
-        return this.updateStatus({ id, from: STOCKTAKE_STATUS.FINISHED, to: STOCKTAKE_STATUS.APPROVED });
+        const res = await this.updateStatus({ id, from: STOCKTAKE_STATUS.FINISHED, to: STOCKTAKE_STATUS.APPROVED });
+        // update inventory based on stocktake details
+        this.updateInventory(id);
+        return res;
     }
 
-    async reject(id: number) {
+    reject(id: number) {
         return this.updateStatus({ id, from: STOCKTAKE_STATUS.FINISHED, to: STOCKTAKE_STATUS.REJECTED });
     }
 
     async tally(id: number, detailId: number, tallyDto: TallyStocktakeDetailDto) {
-        return this.database.stocktakeDetail.update({ id: detailId, stocktakeId: id }, { ...tallyDto, updatedById: UserStorage.getId() });
+        const detail = await this.database.stocktakeDetail.findOne({
+            where: {
+                id: detailId,
+                stocktakeId: id,
+                stocktake: { status: STOCKTAKE_STATUS.IN_PROGRESS },
+            },
+            relations: ['stocktake'],
+        });
+
+        if (!detail) throw new HttpException('Chi tiết kiểm kê không tồn tại hoặc không ở trạng thái phù hợp', 400);
+        if (detail.countedQuantity !== null) throw new HttpException('Chi tiết kiểm kê đã được kiểm kê', 400);
+
+        return this.database.stocktakeDetail.update(
+            { id: detailId, stocktakeId: id },
+            {
+                ...tallyDto,
+                quantityDifference: tallyDto.countedQuantity - detail.openingQuantity,
+                updatedById: UserStorage.getId(),
+            },
+        );
     }
 
     private async updateStatus(data: { id: number; from: STOCKTAKE_STATUS; to: STOCKTAKE_STATUS }) {
@@ -187,5 +265,60 @@ export class StocktakeService {
             }),
         );
         return this.database.stocktake.update(data.id, { status: data.to, updatedById: UserStorage.getId() });
+    }
+
+    private async updateInventory(id) {
+        const entity = await this.database.stocktake.findOne({ where: { id } });
+        const details = await this.database.stocktakeDetail.find({ where: { stocktakeId: id } });
+        const products = details.map((detail) => ({
+            detailId: detail.id,
+            productId: detail.productId,
+            actualQuantity: detail.countedQuantity,
+        }));
+        const inventories = await this.database.inventory.findBy({ productId: In(products.map((product) => product.productId)) });
+
+        const inventoryHistories = [];
+        const updatedInventories = products.map((product) => {
+            const inventory = inventories.find((inventory) => inventory.productId === product.productId);
+            const change = product.actualQuantity - (inventory?.quantity || 0);
+            if (inventory) {
+                inventoryHistories.push(
+                    this.database.inventoryHistory.create({
+                        inventoryId: inventory.id,
+                        from: inventory.quantity,
+                        to: inventory.quantity + change,
+                        change: change,
+                        updatedById: UserStorage.getId(),
+                        type: 'STOCKTAKE',
+                        note: JSON.stringify({ stocktakeId: id, stocktakeDetailId: product.detailId }),
+                    }),
+                );
+                return {
+                    ...inventory,
+                    quantity: inventory.quantity + change,
+                };
+            }
+
+            inventoryHistories.push(
+                this.database.inventoryHistory.create({
+                    inventoryId: inventory.id,
+                    from: 0,
+                    to: change,
+                    change: change,
+                    updatedById: UserStorage.getId(),
+                    type: 'STOCKTAKE',
+                    note: JSON.stringify({ stocktakeId: id, stocktakeDetailId: product.detailId }),
+                }),
+            );
+            return {
+                productId: product.productId,
+                warehouseId: entity.warehouseId,
+                quantity: change,
+                createdById: UserStorage.getId(),
+            };
+        });
+
+        this.database.inventory.save(updatedInventories);
+        this.database.inventoryHistory.save(inventoryHistories);
     }
 }

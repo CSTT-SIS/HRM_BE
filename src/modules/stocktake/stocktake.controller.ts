@@ -46,6 +46,20 @@ export class StocktakeController {
         return this.stocktakeService.remove(+id);
     }
 
+    @Permission('stocktake:autoAddDetail')
+    @Post(':id/auto-add-detail')
+    autoAddDetail(@Param('id') id: string) {
+        return this.stocktakeService.autoAddDetail(+id);
+    }
+
+    @Permission('stocktake:getDetails')
+    @Get(':id/get-details')
+    @ApiQuery({ type: FilterDto })
+    @ApiQuery({ name: 'productId', required: false })
+    getDetails(@Param('id') id: string, @Query() queries, @Query('productId') productId: string) {
+        return this.stocktakeService.getDetails({ ...queries, stocktakeId: +id, productId });
+    }
+
     @Permission('stocktake:addDetail')
     @Post(':id/add-detail')
     addDetail(@Param('id') id: string, @Body() createStocktakeDetailDto: CreateStocktakeDetailDto) {

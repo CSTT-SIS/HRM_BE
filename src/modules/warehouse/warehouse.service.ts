@@ -105,24 +105,41 @@ export class WarehouseService {
             product: data.productId,
         });
 
-        const inventory = await this.database.inventory.save(
-            this.database.inventory.create({
-                ...data,
-                warehouseId: id,
-                createdById: UserStorage.getId(),
-                note: INVENTORY_HISTORY_TYPE.IMPORT,
-            }),
-        );
-        this.database.inventoryHistory.save(
-            this.database.inventoryHistory.create({
-                inventoryId: inventory.id,
-                from: 0,
-                to: data.quantity,
-                change: data.quantity,
-                updatedById: UserStorage.getId(),
-                type: INVENTORY_HISTORY_TYPE.IMPORT,
-            }),
-        );
+        let inventory = await this.database.inventory.findOne({ where: { warehouseId: id, productId: data.productId } });
+        if (inventory) {
+            this.database.inventory.update(inventory.id, {
+                quantity: inventory.quantity + data.quantity,
+            });
+            this.database.inventoryHistory.save(
+                this.database.inventoryHistory.create({
+                    inventoryId: inventory.id,
+                    from: inventory.quantity,
+                    to: inventory.quantity + data.quantity,
+                    change: data.quantity,
+                    updatedById: UserStorage.getId(),
+                    type: INVENTORY_HISTORY_TYPE.IMPORT,
+                }),
+            );
+        } else {
+            inventory = await this.database.inventory.save(
+                this.database.inventory.create({
+                    ...data,
+                    warehouseId: id,
+                    createdById: UserStorage.getId(),
+                    note: INVENTORY_HISTORY_TYPE.IMPORT,
+                }),
+            );
+            this.database.inventoryHistory.save(
+                this.database.inventoryHistory.create({
+                    inventoryId: inventory.id,
+                    from: 0,
+                    to: data.quantity,
+                    change: data.quantity,
+                    updatedById: UserStorage.getId(),
+                    type: INVENTORY_HISTORY_TYPE.IMPORT,
+                }),
+            );
+        }
 
         return inventory;
     }
