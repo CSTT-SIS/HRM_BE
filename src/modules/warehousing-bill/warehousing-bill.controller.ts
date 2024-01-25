@@ -66,16 +66,16 @@ export class WarehousingBillController {
         return this.warehousingBillService.reject(+id);
     }
 
+    @Permission('warehousingBill:finish')
+    @Patch(':id/finish')
+    finish(@Param('id') id: string) {
+        return this.warehousingBillService.finish(+id);
+    }
+
     @Permission('warehousingBill:tally')
     @Patch(':id/tally/:detailId')
     @ApiQuery({ name: 'quantity', required: true, type: Number })
     tally(@Param('id') id: string, @Param('detailId') detailId: string, @Query('quantity') quantity: string) {
         return this.warehousingBillService.tally(+id, +detailId, +quantity);
-    }
-
-    @Permission('warehousingBill:finish')
-    @Patch(':id/finish')
-    finish(@Param('id') id: string) {
-        return this.warehousingBillService.finish(+id);
     }
 }

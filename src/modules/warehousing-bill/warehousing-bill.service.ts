@@ -181,7 +181,7 @@ export class WarehousingBillService {
         const { result, nonTalliedProducts } = await this.isAllDetailsTallied(bill.id);
         if (!result) throw new HttpException('Còn sản phẩm chưa được kiểm đếm: ' + nonTalliedProducts.join(', '), 400);
 
-        this.allDetailsTallied(bill.id, bill.proposalId);
+        await this.allDetailsTallied(bill.id, bill.proposalId);
 
         return { message: 'Kiểm phiếu kho hoàn tất', data: { id } };
     }
