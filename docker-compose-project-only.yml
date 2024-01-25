@@ -1,0 +1,27 @@
+version: '3.3'
+services:
+    project:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        image: project
+        container_name: project
+        networks:
+            - myNetwork
+        ports:
+            - '8080:8080'
+        volumes:
+            - './public:/home/project/public'
+        restart: always
+        depends_on:
+            - redis
+            - db
+        environment:
+            - DATABASE_HOST=db
+            - REDIS_HOST=redis
+            - REDIS_PORT=6379
+            - REDIS_PASSWORD=${REDIS_PASSWORD}
+            - REDIS_PREFIX=${REDIS_PREFIX}
+
+networks:
+    myNetwork:
