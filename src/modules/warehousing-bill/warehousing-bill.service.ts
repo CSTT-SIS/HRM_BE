@@ -1,11 +1,10 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { IsNull, Not } from 'typeorm';
+import { In, IsNull, Not } from 'typeorm';
 import { PROPOSAL_STATUS, WAREHOUSING_BILL_STATUS, WAREHOUSING_BILL_TYPE } from '~/common/enums/enum';
 import { UserStorage } from '~/common/storages/user.storage';
 import { DatabaseService } from '~/database/typeorm/database.service';
 import { WarehousingBillEntity } from '~/database/typeorm/entities/warehousingBill.entity';
-import { TallyingCompletedEvent } from '~/modules/warehousing-bill/events/tallying-completed.event';
 import { UtilService } from '~/shared/services';
 import { CreateWarehousingBillDto } from './dto/create-warehousing-bill.dto';
 import { UpdateWarehousingBillDto } from './dto/update-warehousing-bill.dto';
@@ -177,12 +176,19 @@ export class WarehousingBillService {
         return { message: 'Trả phiếu kho thành công', data: { id } };
     }
 
+    async finish(id: number) {
+        const bill = await this.isStatusValid({ id, statuses: [WAREHOUSING_BILL_STATUS.APPROVED] });
+        const { result, nonTalliedProducts } = await this.isAllDetailsTallied(bill.id);
+        if (!result) throw new HttpException('Còn sản phẩm chưa được kiểm đếm: ' + nonTalliedProducts.join(', '), 400);
+
+        this.allDetailsTallied(bill.id, bill.proposalId);
+
+        return { message: 'Kiểm phiếu kho hoàn tất', data: { id } };
+    }
+
     /**
      * Only update the actual quantity of the warehousing bill detail \
      * If the status of the warehousing bill is not approved, throw an error \
-     * After updating the actual quantity, check if all details are tallied \
-     * If all details are tallied, update the status of the warehousing bill and the proposal to completed \
-     * If the warehousing bill is completed, create an approval process for the warehousing bill and the proposal \
      */
     async tally(billId: number, detailId: number, actualQuantity: number) {
         if (isNaN(actualQuantity)) throw new HttpException('Số lượng thực tế không hợp lệ', 400);
@@ -196,7 +202,6 @@ export class WarehousingBillService {
         if (bill.status !== WAREHOUSING_BILL_STATUS.APPROVED) throw new HttpException('Phiếu kho chưa được duyệt hoặc đã được kiểm đếm', 400);
 
         await this.database.warehousingBillDetail.update(detail.id, { actualQuantity });
-        await this.isAllDetailsTallied(detail.warehousingBillId, detail.proposalId);
 
         return { message: 'Kiểm đếm phiếu kho thành công', data: { ...detail, actualQuantity } };
     }
@@ -238,41 +243,13 @@ export class WarehousingBillService {
     }
 
     /**
-     * Check if all details of a warehousing bill are tallied \
-     * If all details are tallied, update the status of the warehousing bill and the proposal to completed \
-     * When the warehousing bill is completed, create an approval process for the warehousing bill and the proposal \
-     * And emit an event to update inventory
+     * Check if all details of a warehousing bill are tallied
      * @param billId Warehousing bill id
-     * @param proposalId Proposal id
      */
-    private async isAllDetailsTallied(billId: number, proposalId: number) {
+    private async isAllDetailsTallied(billId: number) {
         const details = await this.database.warehousingBillDetail.findBy({ warehousingBillId: billId });
-        const isAllTallied = details.every((detail) => detail.actualQuantity !== null);
-        if (isAllTallied) {
-            await this.database.warehousingBill.update(billId, { status: WAREHOUSING_BILL_STATUS.COMPLETED });
-            await this.database.approvalProcess.save(
-                this.database.approvalProcess.create({
-                    warehousingBillId: billId,
-                    userId: UserStorage.getId(),
-                    from: PROPOSAL_STATUS.APPROVED,
-                    to: PROPOSAL_STATUS.COMPLETED,
-                }),
-            );
-
-            await this.database.proposal.update(proposalId, { status: PROPOSAL_STATUS.COMPLETED });
-            await this.database.approvalProcess.save(
-                this.database.approvalProcess.create({
-                    proposalId: proposalId,
-                    userId: UserStorage.getId(),
-                    from: PROPOSAL_STATUS.APPROVED,
-                    to: PROPOSAL_STATUS.COMPLETED,
-                }),
-            );
-
-            const tallyingCompletedEvent = new TallyingCompletedEvent();
-            tallyingCompletedEvent.billId = billId;
-            this.eventEmitter.emit('tallying.completed', tallyingCompletedEvent);
-        }
+        const nonTalliedDetails = details.filter((detail) => detail.actualQuantity === null);
+        return { result: nonTalliedDetails.length === 0, nonTalliedProducts: nonTalliedDetails.map((detail) => detail?.productId) };
     }
 
     /**
@@ -305,6 +282,111 @@ export class WarehousingBillService {
                     400,
                 );
             }
+        }
+    }
+
+    /**
+     * Update the status of the warehousing bill and the proposal to completed \
+     * Emit an event to notify that the tallying process is completed
+     * @param billId Warehousing bill id
+     * @param proposalId Proposal id
+     * @returns Promise<void>
+     * @emits tallying.completed
+     */
+    private async allDetailsTallied(billId: number, proposalId: number) {
+        await this.database.warehousingBill.update(billId, { status: WAREHOUSING_BILL_STATUS.COMPLETED });
+        await this.database.approvalProcess.save(
+            this.database.approvalProcess.create({
+                warehousingBillId: billId,
+                userId: UserStorage.getId(),
+                from: PROPOSAL_STATUS.APPROVED,
+                to: PROPOSAL_STATUS.COMPLETED,
+            }),
+        );
+
+        await this.database.proposal.update(proposalId, { status: PROPOSAL_STATUS.COMPLETED });
+        await this.database.approvalProcess.save(
+            this.database.approvalProcess.create({
+                proposalId: proposalId,
+                userId: UserStorage.getId(),
+                from: PROPOSAL_STATUS.APPROVED,
+                to: PROPOSAL_STATUS.COMPLETED,
+            }),
+        );
+
+        this.updateInventory(billId);
+    }
+
+    /**
+     * Update inventory when tallying completed \
+     * It's not a good practice to call this function directly from controller, it will cause a lot of problems
+     * @param warehousingBillId - Warehousing bill id
+     * @returns void
+     */
+    private async updateInventory(warehousingBillId: number): Promise<void> {
+        const bill = await this.database.warehousingBill.findOne({
+            where: { id: warehousingBillId, status: WAREHOUSING_BILL_STATUS.COMPLETED },
+            relations: ['details'],
+        });
+        if (!bill) return;
+
+        const billProducts = bill.details.map((detail) => ({
+            productId: detail.productId,
+            actualQuantity: detail.actualQuantity,
+        }));
+
+        const inventories = await this.database.inventory.findBy({ productId: In(billProducts.map((product) => product.productId)) });
+        const inventoryHistories = [];
+        const updatedInventories = billProducts.map((billProduct) => {
+            const change = this.getChangeQuantity(bill.type, billProduct.actualQuantity);
+            const inventory = inventories.find((inventory) => inventory.productId === billProduct.productId);
+            if (inventory) {
+                inventoryHistories.push(
+                    this.database.inventoryHistory.create({
+                        inventoryId: inventory.id,
+                        from: inventory.quantity,
+                        to: inventory.quantity + change,
+                        change: change,
+                        updatedById: UserStorage.getId(),
+                        type: bill.type,
+                        note: JSON.stringify({ proposalId: bill.proposalId, warehousingBillId: bill.id }),
+                    }),
+                );
+                return {
+                    ...inventory,
+                    quantity: inventory.quantity + change,
+                };
+            }
+
+            inventoryHistories.push(
+                this.database.inventoryHistory.create({
+                    inventoryId: inventory.id,
+                    from: 0,
+                    to: change,
+                    change: change,
+                    updatedById: UserStorage.getId(),
+                    type: bill.type,
+                    note: JSON.stringify({ proposalId: bill.proposalId, warehousingBillId: bill.id }),
+                }),
+            );
+            return {
+                productId: billProduct.productId,
+                warehouseId: bill.warehouseId,
+                quantity: change,
+                createdById: UserStorage.getId(),
+            };
+        });
+
+        this.database.inventory.save(updatedInventories);
+        this.database.inventoryHistory.save(inventoryHistories);
+    }
+
+    private getChangeQuantity(billType: WAREHOUSING_BILL_TYPE, actualQuantity: number) {
+        switch (billType) {
+            case WAREHOUSING_BILL_TYPE.IMPORT:
+                return actualQuantity;
+            case WAREHOUSING_BILL_TYPE.EXPORT:
+                return -actualQuantity;
         }
     }
 }

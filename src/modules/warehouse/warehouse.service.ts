@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { In } from 'typeorm';
-import { INVENTORY_HISTORY_TYPE, WAREHOUSING_BILL_STATUS, WAREHOUSING_BILL_TYPE } from '~/common/enums/enum';
+import { INVENTORY_HISTORY_TYPE } from '~/common/enums/enum';
 import { UserStorage } from '~/common/storages/user.storage';
 import { DatabaseService } from '~/database/typeorm/database.service';
 import { ImportGoodDto } from '~/modules/warehouse/dto/import-good.dto';
@@ -142,78 +141,5 @@ export class WarehouseService {
         }
 
         return inventory;
-    }
-
-    /**
-     * Update inventory when tallying completed, only called by tallying-completed.listener.ts \
-     * It's not a good practice to call this function directly from controller, it will cause a lot of problems
-     * @param warehousingBillId - Warehousing bill id
-     * @returns void
-     */
-    async updateInventory(warehousingBillId: number): Promise<void> {
-        const bill = await this.database.warehousingBill.findOne({
-            where: { id: warehousingBillId, status: WAREHOUSING_BILL_STATUS.COMPLETED },
-            relations: ['details'],
-        });
-        if (!bill) return;
-
-        const billProducts = bill.details.map((detail) => ({
-            productId: detail.productId,
-            actualQuantity: detail.actualQuantity,
-        }));
-
-        const inventories = await this.database.inventory.findBy({ productId: In(billProducts.map((product) => product.productId)) });
-        const inventoryHistories = [];
-        const updatedInventories = billProducts.map((billProduct) => {
-            const change = this.getChangeQuantity(bill.type, billProduct.actualQuantity);
-            const inventory = inventories.find((inventory) => inventory.productId === billProduct.productId);
-            if (inventory) {
-                inventoryHistories.push(
-                    this.database.inventoryHistory.create({
-                        inventoryId: inventory.id,
-                        from: inventory.quantity,
-                        to: inventory.quantity + change,
-                        change: change,
-                        updatedById: UserStorage.getId(),
-                        type: bill.type,
-                        note: JSON.stringify({ proposalId: bill.proposalId, warehousingBillId: bill.id }),
-                    }),
-                );
-                return {
-                    ...inventory,
-                    quantity: inventory.quantity + change,
-                };
-            }
-
-            inventoryHistories.push(
-                this.database.inventoryHistory.create({
-                    inventoryId: inventory.id,
-                    from: 0,
-                    to: change,
-                    change: change,
-                    updatedById: UserStorage.getId(),
-                    type: bill.type,
-                    note: JSON.stringify({ proposalId: bill.proposalId, warehousingBillId: bill.id }),
-                }),
-            );
-            return {
-                productId: billProduct.productId,
-                warehouseId: bill.warehouseId,
-                quantity: change,
-                createdById: UserStorage.getId(),
-            };
-        });
-
-        this.database.inventory.save(updatedInventories);
-        this.database.inventoryHistory.save(inventoryHistories);
-    }
-
-    private getChangeQuantity(billType: WAREHOUSING_BILL_TYPE, actualQuantity: number) {
-        switch (billType) {
-            case WAREHOUSING_BILL_TYPE.IMPORT:
-                return actualQuantity;
-            case WAREHOUSING_BILL_TYPE.EXPORT:
-                return -actualQuantity;
-        }
     }
 }
