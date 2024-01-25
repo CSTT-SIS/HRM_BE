@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Res } from '@nestjs/common';
 import { ApiBasicAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Permission } from '~/common/decorators/permission.decorator';
 import { FilterDto } from '~/common/dtos/filter.dto';
@@ -42,4 +42,10 @@ export class UserController {
     remove(@Param('id') id: string) {
         return this.userService.remove(+id);
     }
+
+    // @Get('export/:id')
+    // exportUserToTemplate(@Param('id') id: string, @Res() res: Response) {
+    //     const templateFile = 'Template/System/example.docx';
+    //     return this.userService.generateDocxFromTemplate(+id, templateFile, res);
+    // }
 }

@@ -4,6 +4,7 @@ import { MediaService } from '~/modules/media/media.service';
 import { TokenService, UtilService } from '~/shared/services';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { finishSavingDocxTemplate, initialDocxTemplate } from './helper/docxGenerate.helper';
 
 @Injectable()
 export class UserService {
@@ -108,5 +109,22 @@ export class UserService {
         }
 
         return true;
+    }
+
+    async generateDocxFromTemplate(id: number, templateFile: string, res: any) {
+        const data = await this.database.user.findOneUserWithAllRelationsById(id);
+
+        const doc = initialDocxTemplate(templateFile); // khởi tạo template
+
+        doc.setData(data); // đổ dữ liệu vào template
+        doc.render(); // cập nhật vào docxtemplater
+
+        const outputPath = finishSavingDocxTemplate(doc, templateFile, 'Profile');
+
+        const templateFileSplit = templateFile.split('/');
+
+        res.setHeader('Content-Disposition', `attachment; filename=${templateFileSplit[templateFileSplit.length - 1]}`);
+        res.sendFile(outputPath);
+        return outputPath;
     }
 }
