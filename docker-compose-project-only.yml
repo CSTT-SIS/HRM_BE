@@ -9,17 +9,11 @@ services:
         networks:
             - myNetwork
         ports:
-            - '8080:8080'
+            - '${PORT}:${PORT}'
         volumes:
             - './public:/home/project/public'
         restart: always
-        depends_on:
-            - redis
-            - db
         environment:
-            - DATABASE_HOST=db
-            - REDIS_HOST=redis
-            - REDIS_PORT=6379
             - REDIS_PASSWORD=${REDIS_PASSWORD}
             - REDIS_PREFIX=${REDIS_PREFIX}
 
