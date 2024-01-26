@@ -1,5 +1,4 @@
-import { Column, Entity, Index, OneToMany, PrimaryGeneratedColumn, Relation } from 'typeorm';
-import { ProductEntity } from '~/database/typeorm/entities/product.entity';
+import { Column, Entity, Index, PrimaryGeneratedColumn } from 'typeorm';
 import { AbstractEntity } from './abstract.entity';
 
 @Entity({ name: 'providers' })
@@ -24,6 +23,4 @@ export class ProviderEntity extends AbstractEntity {
     description: string;
 
     /* RELATIONS */
-    @OneToMany(() => ProductEntity, (product) => product.provider, { createForeignKeyConstraints: false })
-    products: Relation<ProductEntity>[];
 }

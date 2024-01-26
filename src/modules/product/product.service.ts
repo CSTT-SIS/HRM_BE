@@ -11,23 +11,22 @@ export class ProductService {
     constructor(private readonly database: DatabaseService, private readonly utilService: UtilService) {}
 
     async create(createProductDto: CreateProductDto) {
-        await this.utilService.checkRelationIdExist({ productCategory: createProductDto.categoryId, provider: createProductDto.providerId });
+        await this.utilService.checkRelationIdExist({ productCategory: createProductDto.categoryId });
         return this.database.product.save(this.database.product.create(createProductDto));
     }
 
-    async findAll(queries: { page: number; perPage: number; search: string; sortBy: string; categoryId: number; providerId: number }) {
+    async findAll(queries: { page: number; perPage: number; search: string; sortBy: string; categoryId: number }) {
         const { builder, take, pagination } = this.utilService.getQueryBuilderAndPagination(this.database.product, queries);
 
-        builder.andWhere(this.utilService.relationQuerySearch({ categoryId: queries.categoryId, providerId: queries.providerId }));
+        builder.andWhere(this.utilService.relationQuerySearch({ categoryId: queries.categoryId }));
         if (!this.utilService.isEmpty(queries.search)) {
             builder.andWhere(this.utilService.fullTextSearch({ fields: ['name', 'code'], keyword: queries.search }));
         }
 
         builder.leftJoinAndSelect('entity.category', 'category');
-        builder.leftJoinAndSelect('entity.provider', 'provider');
         builder.leftJoinAndSelect('entity.unit', 'unit');
         builder.leftJoinAndSelect('entity.media', 'media');
-        builder.select(['entity', 'category.id', 'category.name', 'media.id', 'media.path', 'provider.id', 'provider.name', 'unit.id', 'unit.name']);
+        builder.select(['entity', 'category.id', 'category.name', 'media.id', 'media.path', 'unit.id', 'unit.name']);
 
         const [result, total] = await builder.getManyAndCount();
         const totalPages = Math.ceil(total / take);
@@ -46,7 +45,7 @@ export class ProductService {
     }
 
     async update(id: number, updateProductDto: UpdateProductDto) {
-        await this.utilService.checkRelationIdExist({ productCategory: updateProductDto.categoryId, provider: updateProductDto.providerId });
+        await this.utilService.checkRelationIdExist({ productCategory: updateProductDto.categoryId });
         return this.database.product.update(id, updateProductDto);
     }
 

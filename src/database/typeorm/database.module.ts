@@ -53,6 +53,13 @@ import { WarehouseRepository } from '~/database/typeorm/repositories/warehouse.r
 import { WarehouseTypeRepository } from '~/database/typeorm/repositories/warehouseType.repository';
 import { WarehousingBillRepository } from '~/database/typeorm/repositories/warehousingBill.repository';
 import { WarehousingBillDetailRepository } from '~/database/typeorm/repositories/warehousingBillDetail.repository';
+import { OrderEntity } from '~/database/typeorm/entities/order.entity';
+import { OrderItemEntity } from '~/database/typeorm/entities/orderItem.entity';
+import { OrderProgressTrackingEntity } from '~/database/typeorm/entities/orderProgressTracking.entity';
+import { OrderRepository } from '~/database/typeorm/repositories/order.repository';
+import { OrderItemRepository } from '~/database/typeorm/repositories/orderItem.repository';
+import { OrderProgessTrackingRepository } from '~/database/typeorm/repositories/orderProgessTracking.repository';
+import { OrderProgressTrackingRepository } from '~/database/typeorm/repositories/orderProgressTracking.repository';
 
 const entities = [
     RoleEntity,
@@ -80,6 +87,9 @@ const entities = [
     WarehousingBillDetailEntity,
     StocktakeEntity,
     StocktakeDetailEntity,
+    OrderEntity,
+    OrderItemEntity,
+    OrderProgressTrackingEntity,
 ];
 
 const repositories = [
@@ -108,6 +118,10 @@ const repositories = [
     WarehousingBillDetailRepository,
     StocktakeRepository,
     StocktakeDetailRepository,
+    OrderRepository,
+    OrderItemRepository,
+    OrderProgessTrackingRepository,
+    OrderProgressTrackingRepository,
 ];
 
 @Global()

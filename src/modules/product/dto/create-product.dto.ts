@@ -38,9 +38,4 @@ export class CreateProductDto {
     @IsOptional()
     @IsNumber({}, { message: 'Loại sản phẩm phải là số' })
     categoryId: number;
-
-    @ApiProperty()
-    @IsOptional()
-    @IsNumber({}, { message: 'Nhà cung cấp phải là số' })
-    providerId: number;
 }

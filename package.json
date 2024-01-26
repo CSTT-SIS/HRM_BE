@@ -34,7 +34,7 @@
         "compodoc": "npx @compodoc/compodoc -p tsconfig.json -s",
         "generate:module": "node ./scripts/generate-module.js",
         "generate:entity": "node ./scripts/generate-entity.js",
-        "generate:reposity": "node ./scripts/generate-repository.js"
+        "generate:repository": "node ./scripts/generate-repository.js"
     },
     "dependencies": {
         "@golevelup/nestjs-discovery": "^4.0.0",

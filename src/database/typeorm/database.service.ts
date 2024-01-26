@@ -7,6 +7,8 @@ import { DepartmentRepository } from '~/database/typeorm/repositories/department
 import { InventoryRepository } from '~/database/typeorm/repositories/inventory.repository';
 import { InventoryHistoryRepository } from '~/database/typeorm/repositories/inventoryHistory.repository';
 import { MediaRepository } from '~/database/typeorm/repositories/media.repository';
+import { OrderRepository } from '~/database/typeorm/repositories/order.repository';
+import { OrderItemRepository } from '~/database/typeorm/repositories/orderItem.repository';
 import { PermissionRepository } from '~/database/typeorm/repositories/permission.repository';
 import { ProductRepository } from '~/database/typeorm/repositories/product.repository';
 import { ProductCategoryRepository } from '~/database/typeorm/repositories/productCategory.repository';
@@ -17,6 +19,8 @@ import { ProposalTypeRepository } from '~/database/typeorm/repositories/proposal
 import { ProviderRepository } from '~/database/typeorm/repositories/provider.repository';
 import { QuantityLimitRepository } from '~/database/typeorm/repositories/quantityLimit.repository';
 import { RoleRepository } from '~/database/typeorm/repositories/role.repository';
+import { StocktakeRepository } from '~/database/typeorm/repositories/stocktake.repository';
+import { StocktakeDetailRepository } from '~/database/typeorm/repositories/stocktakeDetail.repository';
 import { UnitRepository } from '~/database/typeorm/repositories/unit.repository';
 import { UserRepository } from '~/database/typeorm/repositories/user.repository';
 import { UserLogRepository } from '~/database/typeorm/repositories/userLog.repository';
@@ -25,8 +29,7 @@ import { WarehouseTypeRepository } from '~/database/typeorm/repositories/warehou
 import { WarehousingBillRepository } from '~/database/typeorm/repositories/warehousingBill.repository';
 import { WarehousingBillDetailRepository } from '~/database/typeorm/repositories/warehousingBillDetail.repository';
 import { CacheService } from '~/shared/services/cache.service';
-import { StocktakeRepository } from '~/database/typeorm/repositories/stocktake.repository';
-import { StocktakeDetailRepository } from '~/database/typeorm/repositories/stocktakeDetail.repository';
+import { OrderProgressTrackingRepository } from '~/database/typeorm/repositories/orderProgressTracking.repository';
 
 @Injectable()
 export class DatabaseService {
@@ -58,6 +61,9 @@ export class DatabaseService {
         public readonly warehousingBillDetail: WarehousingBillDetailRepository,
         public readonly stocktake: StocktakeRepository,
         public readonly stocktakeDetail: StocktakeDetailRepository,
+        public readonly order: OrderRepository,
+        public readonly orderItem: OrderItemRepository,
+        public readonly orderProgressTracking: OrderProgressTrackingRepository,
     ) {
         // load all departments to cache
         // this.loadDepartmentsToCache();

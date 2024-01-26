@@ -2,7 +2,6 @@ import { Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, OneToOne, Prim
 import { InventoryEntity } from '~/database/typeorm/entities/inventory.entity';
 import { MediaEntity } from '~/database/typeorm/entities/media.entity';
 import { ProductCategoryEntity } from '~/database/typeorm/entities/productCategory.entity';
-import { ProviderEntity } from '~/database/typeorm/entities/provider.entity';
 import { QuantityLimitEntity } from '~/database/typeorm/entities/quantityLimit.entity';
 import { ColumnNumericTransformer } from '~/database/typeorm/entities/transformer.entity';
 import { UnitEntity } from '~/database/typeorm/entities/unit.entity';
@@ -15,9 +14,6 @@ export class ProductEntity extends AbstractEntity {
 
     @Column({ name: 'category_id', type: 'int', unsigned: true, nullable: true })
     categoryId: number;
-
-    @Column({ name: 'provider_id', type: 'int', unsigned: true, nullable: true })
-    providerId: number;
 
     @Column({ name: 'unit_id', type: 'int', unsigned: true, nullable: true })
     unitId: number;
@@ -36,7 +32,8 @@ export class ProductEntity extends AbstractEntity {
     @Column({ name: 'description', type: 'text', nullable: true })
     description: string;
 
-    @Column({ name: 'price', type: 'decimal', precision: 10, scale: 0, nullable: true, transformer: new ColumnNumericTransformer() })
+    // 9,999,999,999,999.999
+    @Column({ name: 'price', type: 'decimal', precision: 16, scale: 3, nullable: true, transformer: new ColumnNumericTransformer() })
     price: number;
 
     @Column({ name: 'tax', type: 'decimal', precision: 5, scale: 2, nullable: true, default: 0, transformer: new ColumnNumericTransformer() })
@@ -46,10 +43,6 @@ export class ProductEntity extends AbstractEntity {
     @ManyToOne(() => ProductCategoryEntity, (category) => category.products, { createForeignKeyConstraints: false })
     @JoinColumn({ name: 'category_id', referencedColumnName: 'id' })
     category: Relation<ProductCategoryEntity>;
-
-    @ManyToOne(() => ProviderEntity, (provider) => provider.products, { createForeignKeyConstraints: false })
-    @JoinColumn({ name: 'provider_id', referencedColumnName: 'id' })
-    provider: Relation<ProviderEntity>;
 
     @ManyToOne(() => MediaEntity, (media) => media.products, { createForeignKeyConstraints: false })
     @JoinColumn({ name: 'media_id', referencedColumnName: 'id' })

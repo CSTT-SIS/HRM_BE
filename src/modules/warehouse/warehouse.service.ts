@@ -62,7 +62,6 @@ export class WarehouseService {
         builder.leftJoinAndSelect('entity.product', 'product');
         builder.leftJoinAndSelect('product.unit', 'unit');
         builder.leftJoinAndSelect('product.category', 'category');
-        builder.leftJoinAndSelect('product.provider', 'provider');
         builder.leftJoinAndSelect('product.quantityLimit', 'limit');
         builder.select([
             'entity',
@@ -75,8 +74,6 @@ export class WarehouseService {
             'unit.name',
             'category.id',
             'category.name',
-            'provider.id',
-            'provider.name',
             'limit.id',
             'limit.minQuantity',
             'limit.maxQuantity',

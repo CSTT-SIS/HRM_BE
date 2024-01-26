@@ -23,9 +23,8 @@ export class ProductController {
     @Get()
     @ApiQuery({ type: FilterDto })
     @ApiQuery({ name: 'categoryId', required: false })
-    @ApiQuery({ name: 'providerId', required: false })
-    findAll(@Query() queries, @Query('categoryId') categoryId: number, @Query('providerId') providerId: number) {
-        return this.productService.findAll({ ...queries, categoryId, providerId });
+    findAll(@Query() queries, @Query('categoryId') categoryId: number) {
+        return this.productService.findAll({ ...queries, categoryId });
     }
 
     @Permission('product:findOne')
