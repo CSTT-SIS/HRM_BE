@@ -20,12 +20,11 @@ export class WarehousingBillService {
                 errorMessage: 'Không tìm thấy phiếu đề xuất hoặc phiếu đề xuất chưa được duyệt',
             },
             warehouse: createWarehousingBillDto.warehouseId,
+            warehousingBill: {
+                proposalId: createWarehousingBillDto.proposalId,
+                errorMessage: 'Phiếu đề xuất đã được tạo phiếu nhập kho',
+            },
         });
-
-        const check = await this.database.warehousingBill.countBy({ proposalId: createWarehousingBillDto.proposalId });
-        if (check > 0) {
-            throw new HttpException('Phiếu đề xuất đã được tạo phiếu nhập kho', 400);
-        }
 
         await this.isQuantityValid(createWarehousingBillDto);
 
