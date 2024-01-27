@@ -12,7 +12,7 @@ export class UnitService {
         return this.database.unit.save(this.database.unit.create(createUnitDto));
     }
 
-    async findAll(queries: { page: number; perPage: number; search: string; sortBy: string; typeId: number }) {
+    async findAll(queries: { page: number; perPage: number; search: string; sortBy: string }) {
         const { builder, take, pagination } = this.utilService.getQueryBuilderAndPagination(this.database.unit, queries);
 
         if (!this.utilService.isEmpty(queries.search))

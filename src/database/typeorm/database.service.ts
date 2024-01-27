@@ -9,13 +9,13 @@ import { InventoryHistoryRepository } from '~/database/typeorm/repositories/inve
 import { MediaRepository } from '~/database/typeorm/repositories/media.repository';
 import { OrderRepository } from '~/database/typeorm/repositories/order.repository';
 import { OrderItemRepository } from '~/database/typeorm/repositories/orderItem.repository';
+import { OrderProgressTrackingRepository } from '~/database/typeorm/repositories/orderProgressTracking.repository';
 import { PermissionRepository } from '~/database/typeorm/repositories/permission.repository';
 import { ProductRepository } from '~/database/typeorm/repositories/product.repository';
 import { ProductCategoryRepository } from '~/database/typeorm/repositories/productCategory.repository';
 import { ProductMetaRepository } from '~/database/typeorm/repositories/productMeta.repository';
 import { ProposalRepository } from '~/database/typeorm/repositories/proposal.repository';
 import { ProposalDetailRepository } from '~/database/typeorm/repositories/proposalDetail.repository';
-import { ProposalTypeRepository } from '~/database/typeorm/repositories/proposalType.repository';
 import { ProviderRepository } from '~/database/typeorm/repositories/provider.repository';
 import { QuantityLimitRepository } from '~/database/typeorm/repositories/quantityLimit.repository';
 import { RoleRepository } from '~/database/typeorm/repositories/role.repository';
@@ -29,7 +29,7 @@ import { WarehouseTypeRepository } from '~/database/typeorm/repositories/warehou
 import { WarehousingBillRepository } from '~/database/typeorm/repositories/warehousingBill.repository';
 import { WarehousingBillDetailRepository } from '~/database/typeorm/repositories/warehousingBillDetail.repository';
 import { CacheService } from '~/shared/services/cache.service';
-import { OrderProgressTrackingRepository } from '~/database/typeorm/repositories/orderProgressTracking.repository';
+import { ReceiptRepository } from '~/database/typeorm/repositories/receipt.repository';
 
 @Injectable()
 export class DatabaseService {
@@ -53,7 +53,6 @@ export class DatabaseService {
         public readonly inventoryHistory: InventoryHistoryRepository,
         public readonly quantityLimit: QuantityLimitRepository,
         public readonly proposal: ProposalRepository,
-        public readonly proposalType: ProposalTypeRepository,
         public readonly proposalDetail: ProposalDetailRepository,
         public readonly productMeta: ProductMetaRepository,
         public readonly approvalProcess: ApprovalProcessRepository,
@@ -64,6 +63,7 @@ export class DatabaseService {
         public readonly order: OrderRepository,
         public readonly orderItem: OrderItemRepository,
         public readonly orderProgressTracking: OrderProgressTrackingRepository,
+        public readonly receipt: ReceiptRepository,
     ) {
         // load all departments to cache
         // this.loadDepartmentsToCache();

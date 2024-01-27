@@ -22,10 +22,10 @@ import { MailModule } from '~/modules/mail/mail.module';
 import { MediaModule } from '~/modules/media/media.module';
 import { PermissionModule } from '~/modules/permission/permission.module';
 import { ProfileModule } from '~/modules/profile/profile.module';
-import { ProposalTypeModule } from '~/modules/proposal-type/proposal-type.module';
 import { ProposalModule } from '~/modules/proposal/proposal.module';
 import { RoleModule } from '~/modules/role/role.module';
 import { SocketModule } from '~/modules/socket/socket.module';
+import { StocktakeModule } from '~/modules/stocktake/stocktake.module';
 import { WarehousingBillModule } from '~/modules/warehousing-bill/warehousing-bill.module';
 import { UtilService } from '~/shared/services';
 import { CacheService } from '~/shared/services/cache.service';
@@ -40,7 +40,7 @@ import { UnitModule } from './modules/unit/unit.module';
 import { UserModule } from './modules/user/user.module';
 import { WarehouseTypeModule } from './modules/warehouse-type/warehouse-type.module';
 import { WarehouseModule } from './modules/warehouse/warehouse.module';
-import { StocktakeModule } from '~/modules/stocktake/stocktake.module';
+import { OrderModule } from '~/modules/order/order.module';
 
 @Module({
     imports: [
@@ -82,9 +82,9 @@ import { StocktakeModule } from '~/modules/stocktake/stocktake.module';
         WarehouseTypeModule,
         UnitModule,
         ProposalModule,
-        ProposalTypeModule,
         WarehousingBillModule,
         StocktakeModule,
+        OrderModule,
     ],
     controllers: [AppController],
     providers: [

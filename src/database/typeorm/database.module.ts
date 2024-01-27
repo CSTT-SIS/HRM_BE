@@ -9,13 +9,15 @@ import { DepartmentEntity } from '~/database/typeorm/entities/department.entity'
 import { InventoryEntity } from '~/database/typeorm/entities/inventory.entity';
 import { InventoryHistoryEntity } from '~/database/typeorm/entities/inventoryHistory.entity';
 import { MediaEntity } from '~/database/typeorm/entities/media.entity';
+import { OrderEntity } from '~/database/typeorm/entities/order.entity';
+import { OrderItemEntity } from '~/database/typeorm/entities/orderItem.entity';
+import { OrderProgressTrackingEntity } from '~/database/typeorm/entities/orderProgressTracking.entity';
 import { PermissionEntity } from '~/database/typeorm/entities/permission.entity';
 import { ProductEntity } from '~/database/typeorm/entities/product.entity';
 import { ProductCategoryEntity } from '~/database/typeorm/entities/productCategory.entity';
 import { ProductMetaEntity } from '~/database/typeorm/entities/productMeta.entity';
 import { ProposalEntity } from '~/database/typeorm/entities/proposal.entity';
 import { ProposalDetailEntity } from '~/database/typeorm/entities/proposalDetail.entity';
-import { ProposalTypeEntity } from '~/database/typeorm/entities/proposalType.entity';
 import { ProviderEntity } from '~/database/typeorm/entities/provider.entity';
 import { QuantityLimitEntity } from '~/database/typeorm/entities/quantityLimit.entity';
 import { RoleEntity } from '~/database/typeorm/entities/role.entity';
@@ -34,13 +36,15 @@ import { DepartmentRepository } from '~/database/typeorm/repositories/department
 import { InventoryRepository } from '~/database/typeorm/repositories/inventory.repository';
 import { InventoryHistoryRepository } from '~/database/typeorm/repositories/inventoryHistory.repository';
 import { MediaRepository } from '~/database/typeorm/repositories/media.repository';
+import { OrderRepository } from '~/database/typeorm/repositories/order.repository';
+import { OrderItemRepository } from '~/database/typeorm/repositories/orderItem.repository';
+import { OrderProgressTrackingRepository } from '~/database/typeorm/repositories/orderProgressTracking.repository';
 import { PermissionRepository } from '~/database/typeorm/repositories/permission.repository';
 import { ProductRepository } from '~/database/typeorm/repositories/product.repository';
 import { ProductCategoryRepository } from '~/database/typeorm/repositories/productCategory.repository';
 import { ProductMetaRepository } from '~/database/typeorm/repositories/productMeta.repository';
 import { ProposalRepository } from '~/database/typeorm/repositories/proposal.repository';
 import { ProposalDetailRepository } from '~/database/typeorm/repositories/proposalDetail.repository';
-import { ProposalTypeRepository } from '~/database/typeorm/repositories/proposalType.repository';
 import { ProviderRepository } from '~/database/typeorm/repositories/provider.repository';
 import { QuantityLimitRepository } from '~/database/typeorm/repositories/quantityLimit.repository';
 import { RoleRepository } from '~/database/typeorm/repositories/role.repository';
@@ -53,13 +57,8 @@ import { WarehouseRepository } from '~/database/typeorm/repositories/warehouse.r
 import { WarehouseTypeRepository } from '~/database/typeorm/repositories/warehouseType.repository';
 import { WarehousingBillRepository } from '~/database/typeorm/repositories/warehousingBill.repository';
 import { WarehousingBillDetailRepository } from '~/database/typeorm/repositories/warehousingBillDetail.repository';
-import { OrderEntity } from '~/database/typeorm/entities/order.entity';
-import { OrderItemEntity } from '~/database/typeorm/entities/orderItem.entity';
-import { OrderProgressTrackingEntity } from '~/database/typeorm/entities/orderProgressTracking.entity';
-import { OrderRepository } from '~/database/typeorm/repositories/order.repository';
-import { OrderItemRepository } from '~/database/typeorm/repositories/orderItem.repository';
-import { OrderProgessTrackingRepository } from '~/database/typeorm/repositories/orderProgessTracking.repository';
-import { OrderProgressTrackingRepository } from '~/database/typeorm/repositories/orderProgressTracking.repository';
+import { ReceiptEntity } from '~/database/typeorm/entities/receipt.entity';
+import { ReceiptRepository } from '~/database/typeorm/repositories/receipt.repository';
 
 const entities = [
     RoleEntity,
@@ -79,7 +78,6 @@ const entities = [
     InventoryHistoryEntity,
     QuantityLimitEntity,
     ProposalEntity,
-    ProposalTypeEntity,
     ProposalDetailEntity,
     ProductMetaEntity,
     ApprovalProcessEntity,
@@ -90,6 +88,7 @@ const entities = [
     OrderEntity,
     OrderItemEntity,
     OrderProgressTrackingEntity,
+    ReceiptEntity,
 ];
 
 const repositories = [
@@ -110,7 +109,6 @@ const repositories = [
     InventoryHistoryRepository,
     QuantityLimitRepository,
     ProposalRepository,
-    ProposalTypeRepository,
     ProposalDetailRepository,
     ProductMetaRepository,
     ApprovalProcessRepository,
@@ -120,8 +118,8 @@ const repositories = [
     StocktakeDetailRepository,
     OrderRepository,
     OrderItemRepository,
-    OrderProgessTrackingRepository,
     OrderProgressTrackingRepository,
+    ReceiptRepository,
 ];
 
 @Global()

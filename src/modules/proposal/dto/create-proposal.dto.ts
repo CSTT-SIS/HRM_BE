@@ -1,11 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsNumber, IsString, Length } from 'class-validator';
+import { IsNotEmpty, IsString, Length } from 'class-validator';
+import { PROPOSAL_TYPE } from '~/common/enums/enum';
 
 export class CreateProposalDto {
-    @ApiProperty()
+    @ApiProperty({ type: 'enum', enum: PROPOSAL_TYPE })
     @IsNotEmpty({ message: 'Loại đề xuất không được để trống' })
-    @IsNumber({}, { message: 'Loại đề xuất phải là số' })
-    typeId: number;
+    @IsString({ message: 'Loại đề xuất phải là dạng chuỗi' })
+    type: PROPOSAL_TYPE;
 
     @ApiProperty()
     @IsNotEmpty({ message: 'Tên đề xuất không được để trống' })

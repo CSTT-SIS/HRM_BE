@@ -1,7 +1,6 @@
 import { HttpException, Injectable } from '@nestjs/common';
-import { EventEmitter2 } from '@nestjs/event-emitter';
 import { In, IsNull, Not } from 'typeorm';
-import { PROPOSAL_STATUS, WAREHOUSING_BILL_STATUS, WAREHOUSING_BILL_TYPE } from '~/common/enums/enum';
+import { ORDER_STATUS, PROPOSAL_STATUS, WAREHOUSING_BILL_STATUS, WAREHOUSING_BILL_TYPE } from '~/common/enums/enum';
 import { UserStorage } from '~/common/storages/user.storage';
 import { DatabaseService } from '~/database/typeorm/database.service';
 import { WarehousingBillEntity } from '~/database/typeorm/entities/warehousingBill.entity';
@@ -11,11 +10,7 @@ import { UpdateWarehousingBillDto } from './dto/update-warehousing-bill.dto';
 
 @Injectable()
 export class WarehousingBillService {
-    constructor(
-        private readonly utilService: UtilService,
-        private readonly database: DatabaseService,
-        private readonly eventEmitter: EventEmitter2,
-    ) {}
+    constructor(private readonly utilService: UtilService, private readonly database: DatabaseService) {}
 
     async create(createWarehousingBillDto: CreateWarehousingBillDto) {
         await this.utilService.checkRelationIdExist({
@@ -33,6 +28,17 @@ export class WarehousingBillService {
         }
 
         await this.isQuantityValid(createWarehousingBillDto);
+
+        // remove this if you want to allow user to create warehousing bill without order
+        if (createWarehousingBillDto.type === WAREHOUSING_BILL_TYPE.IMPORT && createWarehousingBillDto.orderId) {
+            await this.utilService.checkRelationIdExist({
+                order: {
+                    id: createWarehousingBillDto.orderId,
+                    status: ORDER_STATUS.RECEIVED,
+                    errorMessage: 'Không tìm thấy phiếu đặt hàng hoặc hàng chưa được nhận',
+                },
+            });
+        }
 
         const entity = await this.database.warehousingBill.save(
             this.database.warehousingBill.create({ ...createWarehousingBillDto, createdById: UserStorage.getId() }),
@@ -87,6 +93,7 @@ export class WarehousingBillService {
         const builder = this.database.warehousingBill.createQueryBuilder('entity');
         builder.where({ id });
         builder.leftJoinAndSelect('entity.proposal', 'proposal');
+        builder.leftJoinAndSelect('entity.order', 'order');
         builder.leftJoinAndSelect('entity.details', 'details');
         builder.leftJoinAndSelect('details.product', 'product');
         builder.leftJoinAndSelect('product.unit', 'unit');
@@ -97,6 +104,8 @@ export class WarehousingBillService {
             'entity',
             'proposal.id',
             'proposal.name',
+            'order.id',
+            'order.name',
             'details.id',
             'details.productId',
             'details.proposalQuantity',
@@ -181,7 +190,7 @@ export class WarehousingBillService {
         const { result, nonTalliedProducts } = await this.isAllDetailsTallied(bill.id);
         if (!result) throw new HttpException('Còn sản phẩm chưa được kiểm đếm: ' + nonTalliedProducts.join(', '), 400);
 
-        await this.allDetailsTallied(bill.id, bill.proposalId);
+        await this.allDetailsTallied(bill.id, bill.proposalId, bill.orderId);
 
         return { message: 'Kiểm phiếu kho hoàn tất', data: { id } };
     }
@@ -293,9 +302,9 @@ export class WarehousingBillService {
      * @returns Promise<void>
      * @emits tallying.completed
      */
-    private async allDetailsTallied(billId: number, proposalId: number) {
+    private async allDetailsTallied(billId: number, proposalId: number, orderId: number) {
         await this.database.warehousingBill.update(billId, { status: WAREHOUSING_BILL_STATUS.COMPLETED });
-        await this.database.approvalProcess.save(
+        this.database.approvalProcess.save(
             this.database.approvalProcess.create({
                 warehousingBillId: billId,
                 userId: UserStorage.getId(),
@@ -305,7 +314,7 @@ export class WarehousingBillService {
         );
 
         await this.database.proposal.update(proposalId, { status: PROPOSAL_STATUS.COMPLETED });
-        await this.database.approvalProcess.save(
+        this.database.approvalProcess.save(
             this.database.approvalProcess.create({
                 proposalId: proposalId,
                 userId: UserStorage.getId(),
@@ -313,6 +322,11 @@ export class WarehousingBillService {
                 to: PROPOSAL_STATUS.COMPLETED,
             }),
         );
+
+        if (orderId) {
+            await this.database.order.update(orderId, { status: ORDER_STATUS.COMPLETED });
+            this.database.orderProgressTracking.save({ orderId, status: ORDER_STATUS.CANCELLED, trackingDate: new Date() });
+        }
 
         this.updateInventory(billId);
     }

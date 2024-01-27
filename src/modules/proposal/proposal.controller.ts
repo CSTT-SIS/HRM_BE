@@ -2,7 +2,7 @@ import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestj
 import { ApiBasicAuth, ApiBody, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Permission } from '~/common/decorators/permission.decorator';
 import { FilterDto } from '~/common/dtos/filter.dto';
-import { PROPOSAL_STATUS } from '~/common/enums/enum';
+import { PROPOSAL_STATUS, PROPOSAL_TYPE } from '~/common/enums/enum';
 import { CreateProposalDetailDto } from '~/modules/proposal/dto/create-proposal-detail.dto';
 import { UpdateProposalDetailDto } from '~/modules/proposal/dto/update-proposal-detail.dto';
 import { CreateProposalDto } from './dto/create-proposal.dto';
@@ -24,10 +24,10 @@ export class ProposalController {
     @Permission('proposal:findAll')
     @Get()
     @ApiQuery({ type: FilterDto })
-    @ApiQuery({ name: 'typeId', required: false })
+    @ApiQuery({ name: 'type', enum: PROPOSAL_TYPE, required: false })
     @ApiQuery({ name: 'status', enum: PROPOSAL_STATUS, required: false })
-    findAll(@Query() queries, @Query('typeId') typeId: number, @Query('status') status: string) {
-        return this.proposalService.findAll({ ...queries, typeId, status });
+    findAll(@Query() queries, @Query('type') type: string, @Query('status') status: string) {
+        return this.proposalService.findAll({ ...queries, type, status });
     }
 
     @Permission('proposal:findOne')

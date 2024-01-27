@@ -71,7 +71,7 @@ describe('ProposalService', () => {
                 perPage: 10,
                 search: undefined,
                 sortBy: undefined,
-                typeId: undefined,
+                type: undefined,
                 status: undefined,
             };
             const result = await service.findAll(payload);

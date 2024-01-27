@@ -1,6 +1,6 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { In } from 'typeorm';
-import { PROPOSAL_STATUS } from '~/common/enums/enum';
+import { PROPOSAL_STATUS, PROPOSAL_TYPE } from '~/common/enums/enum';
 import { UserStorage } from '~/common/storages/user.storage';
 import { DatabaseService } from '~/database/typeorm/database.service';
 import { ProposalEntity } from '~/database/typeorm/entities/proposal.entity';
@@ -15,21 +15,20 @@ export class ProposalService {
     constructor(private readonly utilService: UtilService, private readonly database: DatabaseService) {}
 
     async create(createProposalDto: CreateProposalDto) {
-        await this.utilService.checkRelationIdExist({ proposalType: createProposalDto.typeId });
+        if (!Object.keys(PROPOSAL_TYPE).includes(createProposalDto.type)) throw new HttpException('Loại đề xuất không hợp lệ', 400);
         return this.database.proposal.save(this.database.proposal.create({ ...createProposalDto, createdById: UserStorage.getId() }));
     }
 
-    async findAll(queries: { page: number; perPage: number; search: string; sortBy: string; typeId: number; status: PROPOSAL_STATUS }) {
+    async findAll(queries: { page: number; perPage: number; search: string; sortBy: string; type: PROPOSAL_TYPE; status: PROPOSAL_STATUS }) {
         const { builder, take, pagination } = this.utilService.getQueryBuilderAndPagination(this.database.proposal, queries);
 
         if (!this.utilService.isEmpty(queries.search))
             builder.andWhere(this.utilService.fullTextSearch({ fields: ['name'], keyword: queries.search }));
-        builder.andWhere(this.utilService.getConditionsFromQuery(queries, ['typeId', 'status']));
+        builder.andWhere(this.utilService.getConditionsFromQuery(queries, ['type', 'status']));
 
-        builder.leftJoinAndSelect('entity.type', 'type');
         builder.leftJoinAndSelect('entity.createdBy', 'createdBy');
         builder.leftJoinAndSelect('entity.updatedBy', 'updatedBy');
-        builder.select(['entity', 'type.id', 'type.name', 'createdBy.id', 'createdBy.fullName', 'updatedBy.id', 'updatedBy.fullName']);
+        builder.select(['entity', 'createdBy.id', 'createdBy.fullName', 'updatedBy.id', 'updatedBy.fullName']);
 
         const [result, total] = await builder.getManyAndCount();
         const totalPages = Math.ceil(total / take);
@@ -45,7 +44,6 @@ export class ProposalService {
 
     findOne(id: number) {
         const builder = this.database.proposal.createQueryBuilder('entity');
-        builder.leftJoinAndSelect('entity.type', 'type');
         builder.leftJoinAndSelect('entity.createdBy', 'createdBy');
         builder.leftJoinAndSelect('entity.updatedBy', 'updatedBy');
         builder.leftJoinAndSelect('entity.details', 'details');
@@ -55,8 +53,6 @@ export class ProposalService {
         builder.where('entity.id = :id', { id });
         builder.select([
             'entity',
-            'type.id',
-            'type.name',
             'createdBy.id',
             'createdBy.fullName',
             'updatedBy.id',
@@ -76,7 +72,7 @@ export class ProposalService {
 
     async update(id: number, updateProposalDto: UpdateProposalDto) {
         await this.isProposalStatusValid({ id, statuses: [PROPOSAL_STATUS.DRAFT], userId: UserStorage.getId() });
-        await this.utilService.checkRelationIdExist({ proposalType: updateProposalDto.typeId });
+        if (!Object.keys(PROPOSAL_TYPE).includes(updateProposalDto.type)) throw new HttpException('Loại đề xuất không hợp lệ', 400);
         return this.database.proposal.update(id, {
             ...updateProposalDto,
             updatedById: UserStorage.getId(),
@@ -183,6 +179,9 @@ export class ProposalService {
         if (!data.statuses.includes(entity.status)) throw new HttpException('Không thể chỉnh sửa đề xuất do trạng thái không hợp lệ', 400);
         if (data.userId && entity.createdById !== data.userId) throw new HttpException('Bạn không có quyền chỉnh sửa đề xuất này', 403);
         if (data.checkIfBillCreated) {
+            const order = await this.database.order.countBy({ proposalId: data.id });
+            if (order) throw new HttpException('Không thể chỉnh sửa đề xuất do đơn hàng đã được tạo', 400);
+
             const bill = await this.database.warehousingBill.countBy({ proposalId: data.id });
             if (bill) throw new HttpException('Không thể chỉnh sửa đề xuất do phiếu kho đã được tạo', 400);
         }

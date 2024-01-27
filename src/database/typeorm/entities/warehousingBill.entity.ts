@@ -1,5 +1,6 @@
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
 import { WAREHOUSING_BILL_STATUS, WAREHOUSING_BILL_TYPE } from '~/common/enums/enum';
+import { OrderEntity } from '~/database/typeorm/entities/order.entity';
 import { ProposalEntity } from '~/database/typeorm/entities/proposal.entity';
 import { UserEntity } from '~/database/typeorm/entities/user.entity';
 import { WarehouseEntity } from '~/database/typeorm/entities/warehouse.entity';
@@ -11,10 +12,13 @@ export class WarehousingBillEntity extends AbstractEntity {
     @PrimaryGeneratedColumn('increment', { name: 'id', type: 'int', unsigned: true })
     id: number;
 
-    @Column({ name: 'proposal_id', type: 'int', unsigned: true })
+    @Column({ name: 'proposal_id', type: 'int', unsigned: true, nullable: true })
     proposalId: number;
 
-    @Column({ name: 'warehouse_id', type: 'int', unsigned: true })
+    @Column({ name: 'order_id', type: 'int', unsigned: true, nullable: true })
+    orderId: number;
+
+    @Column({ name: 'warehouse_id', type: 'int', unsigned: true, nullable: true })
     warehouseId: number;
 
     @Column({ name: 'type', type: 'varchar', length: 50 })
@@ -36,6 +40,10 @@ export class WarehousingBillEntity extends AbstractEntity {
     @OneToOne(() => ProposalEntity, { createForeignKeyConstraints: false })
     @JoinColumn({ name: 'proposal_id', referencedColumnName: 'id' })
     proposal: Relation<ProposalEntity>;
+
+    @OneToOne(() => OrderEntity, { createForeignKeyConstraints: false })
+    @JoinColumn({ name: 'order_id', referencedColumnName: 'id' })
+    order: Relation<OrderEntity>;
 
     @ManyToOne(() => WarehouseEntity, { createForeignKeyConstraints: false })
     @JoinColumn({ name: 'warehouse_id', referencedColumnName: 'id' })
