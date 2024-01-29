@@ -41,6 +41,7 @@ import { UserModule } from './modules/user/user.module';
 import { WarehouseTypeModule } from './modules/warehouse-type/warehouse-type.module';
 import { WarehouseModule } from './modules/warehouse/warehouse.module';
 import { OrderModule } from '~/modules/order/order.module';
+import { DropdownModule } from '~/modules/dropdown/dropdown.module';
 
 @Module({
     imports: [
@@ -85,6 +86,7 @@ import { OrderModule } from '~/modules/order/order.module';
         WarehousingBillModule,
         StocktakeModule,
         OrderModule,
+        DropdownModule,
     ],
     controllers: [AppController],
     providers: [
