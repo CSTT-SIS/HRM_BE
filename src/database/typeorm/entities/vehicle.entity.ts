@@ -10,7 +10,7 @@ export class VehicleEntity extends AbstractEntity {
     @Column({ name: 'name', type: 'varchar', length: 255, nullable: true })
     name: string;
 
-    @Index('IDX_VEHICLE_REGISTRATION', { unique: true, fulltext: true })
+    @Index('IDX_VEHICLE_REGISTRATION', { fulltext: true })
     @Column({ name: 'registration_number', type: 'varchar', length: 255, nullable: true })
     registrationNumber: string;
 
