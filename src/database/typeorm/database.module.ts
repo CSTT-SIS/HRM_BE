@@ -59,6 +59,14 @@ import { WarehousingBillRepository } from '~/database/typeorm/repositories/wareh
 import { WarehousingBillDetailRepository } from '~/database/typeorm/repositories/warehousingBillDetail.repository';
 import { ReceiptEntity } from '~/database/typeorm/entities/receipt.entity';
 import { ReceiptRepository } from '~/database/typeorm/repositories/receipt.repository';
+import { VehicleEntity } from '~/database/typeorm/entities/vehicle.entity';
+import { RepairRequestEntity } from '~/database/typeorm/entities/repairRequest.entity';
+import { RepairDetailEntity } from '~/database/typeorm/entities/repairDetail.entity';
+import { RepairProgressEntity } from '~/database/typeorm/entities/repairProgress.entity';
+import { VehicleRepository } from '~/database/typeorm/repositories/vehicle.repository';
+import { RepairRequestRepository } from '~/database/typeorm/repositories/repairRequest.repository';
+import { RepairDetailRepository } from '~/database/typeorm/repositories/repairDetail.repository';
+import { RepairProgressRepository } from '~/database/typeorm/repositories/repairProgress.repository';
 
 const entities = [
     RoleEntity,
@@ -89,6 +97,10 @@ const entities = [
     OrderItemEntity,
     OrderProgressTrackingEntity,
     ReceiptEntity,
+    VehicleEntity,
+    RepairRequestEntity,
+    RepairDetailEntity,
+    RepairProgressEntity,
 ];
 
 const repositories = [
@@ -120,6 +132,10 @@ const repositories = [
     OrderItemRepository,
     OrderProgressTrackingRepository,
     ReceiptRepository,
+    VehicleRepository,
+    RepairRequestRepository,
+    RepairDetailRepository,
+    RepairProgressRepository,
 ];
 
 @Global()

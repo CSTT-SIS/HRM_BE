@@ -30,6 +30,10 @@ import { WarehousingBillRepository } from '~/database/typeorm/repositories/wareh
 import { WarehousingBillDetailRepository } from '~/database/typeorm/repositories/warehousingBillDetail.repository';
 import { CacheService } from '~/shared/services/cache.service';
 import { ReceiptRepository } from '~/database/typeorm/repositories/receipt.repository';
+import { VehicleRepository } from '~/database/typeorm/repositories/vehicle.repository';
+import { RepairRequestRepository } from '~/database/typeorm/repositories/repairRequest.repository';
+import { RepairDetailRepository } from '~/database/typeorm/repositories/repairDetail.repository';
+import { RepairProgressRepository } from '~/database/typeorm/repositories/repairProgress.repository';
 
 @Injectable()
 export class DatabaseService {
@@ -64,6 +68,10 @@ export class DatabaseService {
         public readonly orderItem: OrderItemRepository,
         public readonly orderProgressTracking: OrderProgressTrackingRepository,
         public readonly receipt: ReceiptRepository,
+        public readonly vehicle: VehicleRepository,
+        public readonly repairRequest: RepairRequestRepository,
+        public readonly repairDetail: RepairDetailRepository,
+        public readonly repairProgress: RepairProgressRepository,
     ) {
         // load all departments to cache
         // this.loadDepartmentsToCache();
