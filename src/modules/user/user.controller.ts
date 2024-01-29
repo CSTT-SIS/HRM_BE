@@ -50,4 +50,18 @@ export class UserController {
         const templateFile = 'Template/System/example.docx';
         return this.userService.generateDocxFromTemplate(+id, templateFile, res);
     }
+
+    @Permission(BYPASS_PERMISSION)
+    @Get('demo-export/:id')
+    async generateDemo(@Res() res: Response) {
+      const templateFile = 'Template/System/absx.docx'; // đường dẫn tới file template
+      const data = {
+        first_name: 'John',
+        last_name: 'Doe',
+        phone: '0652455478',
+        description: 'New Website'
+      }; // dữ liệu mẫu
+  
+      await this.userService.generateDocxFromTemplate2(templateFile, data, res);
+    }
 }
