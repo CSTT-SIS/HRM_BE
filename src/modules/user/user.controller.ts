@@ -5,6 +5,7 @@ import { FilterDto } from '~/common/dtos/filter.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserService } from './user.service';
+import { BYPASS_PERMISSION } from '~/common/constants/constant';
 
 @ApiTags('User')
 @ApiBasicAuth('authorization')
@@ -43,9 +44,10 @@ export class UserController {
         return this.userService.remove(+id);
     }
 
-    // @Get('export/:id')
-    // exportUserToTemplate(@Param('id') id: string, @Res() res: Response) {
-    //     const templateFile = 'Template/System/example.docx';
-    //     return this.userService.generateDocxFromTemplate(+id, templateFile, res);
-    // }
+    @Permission(BYPASS_PERMISSION)
+    @Get('export/:id')
+    exportUserToTemplate(@Param('id') id: string, @Res() res: Response) {
+        const templateFile = 'Template/System/example.docx';
+        return this.userService.generateDocxFromTemplate(+id, templateFile, res);
+    }
 }

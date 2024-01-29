@@ -112,7 +112,12 @@ export class UserService {
     }
 
     async generateDocxFromTemplate(id: number, templateFile: string, res: any) {
-        const data = await this.database.user.findOneUserWithAllRelationsById(id);
+        const data = {
+            first_name: 'John',
+            last_name: 'Doe',
+            phone: '0652455478',
+            description: 'New Website',
+        };
 
         const doc = initialDocxTemplate(templateFile); // khởi tạo template
 
@@ -125,6 +130,6 @@ export class UserService {
 
         res.setHeader('Content-Disposition', `attachment; filename=${templateFileSplit[templateFileSplit.length - 1]}`);
         res.sendFile(outputPath);
-        return outputPath;
+        return data;
     }
 }
