@@ -22,6 +22,7 @@
     -   [Format of API Response](#format-of-api-response)
         -   [Success Response](#success-response)
         -   [Error Response](#error-response)
+    -   [Public Folder](#public-folder)
     -   [Git Branches](#git-branches)
     -   [API Documentation](#api-documentation)
     -   [API Testing](#api-testing)
@@ -322,7 +323,7 @@ Read more about [Database Seeding](https://en.wikipedia.org/wiki/Database_seedin
 
 ```
 migrations
-public
+public- THIS FOLDER USE FOR UPLOAD FILE, DOWNLOAD FILE, EVERYTHING RELATED TO PUBLIC.
 test
 src
 ├── app.module.ts
@@ -487,6 +488,20 @@ Or
     "statusCode": 400
 }
 ```
+
+## Public Folder
+
+Public folder is used for upload file, download file, everything related to public.
+
+Every files in public folder will be ignored by git.
+
+And you can access the file in public folder by this url: `http://localhost:8080/public/<file name>`
+
+It will return the file to you.
+
+**DON'T PUT YOUR FILE IN **`src`** FOLDER. PUT IT IN **`public`** FOLDER.**
+
+**AND DON'T PUT ANYTHING IMPORTANT IN PUBLIC FOLDER. EVERYONE CAN ACCESS IT.**
 
 ## Git Branches
 
