@@ -111,25 +111,22 @@ export class UserService {
         return true;
     }
 
-    async generateDocxFromTemplate(id: number, templateFile: string, res: any) {
-        const data = {
-            first_name: 'John',
-            last_name: 'Doe',
-            phone: '0652455478',
-            description: 'New Website',
-        };
-
+    async generateDocxFromTemplate(templateFile: string, data: Record<string, any>, res: any): Promise<string> {
         const doc = initialDocxTemplate(templateFile); // khởi tạo template
 
         doc.setData(data); // đổ dữ liệu vào template
         doc.render(); // cập nhật vào docxtemplater
 
-        const outputPath = finishSavingDocxTemplate(doc, templateFile, 'Profile');
+        /**
+         * Biến thứ 3 trong hàm finishSavingDocxTemplate chính là saveDir: nó là folder nằm trong folder src/UserFile/Download.
+         * Mọi người lưu ý lấy các biến này dạng constants để đồng bộ về mặt folder, tránh fix cứng
+         */
+        const outputPath = finishSavingDocxTemplate(doc, templateFile, 'DOWNLOAD_PROFILE'); // lưu file sau khi đổ dữ liệu
 
         const templateFileSplit = templateFile.split('/');
 
         res.setHeader('Content-Disposition', `attachment; filename=${templateFileSplit[templateFileSplit.length - 1]}`);
         res.sendFile(outputPath);
-        return data;
+        return outputPath;
     }
 }
