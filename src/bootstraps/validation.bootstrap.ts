@@ -9,7 +9,7 @@ export function bootstrapValidation(app: INestApplication): void {
     app.useGlobalPipes(
         new ValidationPipe({
             whitelist: true,
-            //   transform: true,
+            transform: true,
             // transformOptions: {
             //   // strategy: 'exposeAll',
             //   excludeExtraneousValues: true,
