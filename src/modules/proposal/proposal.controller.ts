@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query } from '@nestjs/common';
 import { ApiBasicAuth, ApiBody, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Permission } from '~/common/decorators/permission.decorator';
 import { FilterDto } from '~/common/dtos/filter.dto';
@@ -32,31 +32,31 @@ export class ProposalController {
 
     @Permission('proposal:findOne')
     @Get(':id')
-    findOne(@Param('id') id: string) {
+    findOne(@Param('id', ParseIntPipe) id: string) {
         return this.proposalService.findOne(+id);
     }
 
     @Permission('proposal:update')
     @Patch(':id')
-    update(@Param('id') id: string, @Body() updateProposalDto: UpdateProposalDto) {
+    update(@Param('id', ParseIntPipe) id: string, @Body() updateProposalDto: UpdateProposalDto) {
         return this.proposalService.update(+id, updateProposalDto);
     }
 
     @Permission('proposal:remove')
     @Delete(':id')
-    remove(@Param('id') id: string) {
+    remove(@Param('id', ParseIntPipe) id: string) {
         return this.proposalService.remove(+id);
     }
 
     @Permission('proposal:pending')
     @Patch(':id/pending')
-    pending(@Param('id') id: string) {
+    pending(@Param('id', ParseIntPipe) id: string) {
         return this.proposalService.pending(+id);
     }
 
     @Permission('proposal:approve')
     @Patch(':id/approve')
-    approve(@Param('id') id: string) {
+    approve(@Param('id', ParseIntPipe) id: string) {
         return this.proposalService.approve(+id);
     }
 
@@ -72,7 +72,7 @@ export class ProposalController {
     })
     @Permission('proposal:reject')
     @Patch(':id/reject')
-    reject(@Param('id') id: string, @Body() body: { comment: string }) {
+    reject(@Param('id', ParseIntPipe) id: string, @Body() body: { comment: string }) {
         return this.proposalService.reject(+id, body?.comment);
     }
 
@@ -88,7 +88,7 @@ export class ProposalController {
     })
     @Permission('proposal:return')
     @Patch(':id/return')
-    return(@Param('id') id: string, @Body() body: { comment: string }) {
+    return(@Param('id', ParseIntPipe) id: string, @Body() body: { comment: string }) {
         return this.proposalService.return(+id, body?.comment);
     }
 
@@ -96,25 +96,25 @@ export class ProposalController {
     @Get(':id/get-details')
     @ApiQuery({ type: FilterDto })
     @ApiQuery({ name: 'productId', required: false })
-    getDetails(@Param('id') id: string, @Query() queries, @Query('productId') productId: string) {
+    getDetails(@Param('id', ParseIntPipe) id: string, @Query() queries, @Query('productId', ParseIntPipe) productId: string) {
         return this.proposalService.getDetails({ ...queries, proposalId: +id, productId });
     }
 
     @Permission('proposal:addDetail')
     @Post(':id/add-detail')
-    addDetail(@Param('id') id: string, @Body() body: CreateProposalDetailDto) {
+    addDetail(@Param('id', ParseIntPipe) id: string, @Body() body: CreateProposalDetailDto) {
         return this.proposalService.addDetail(+id, body);
     }
 
     @Permission('proposal:updateDetail')
     @Patch(':id/update-detail/:detailId')
-    updateDetail(@Param('id') id: string, @Param('detailId') detailId: string, @Body() body: UpdateProposalDetailDto) {
+    updateDetail(@Param('id', ParseIntPipe) id: string, @Param('detailId', ParseIntPipe) detailId: string, @Body() body: UpdateProposalDetailDto) {
         return this.proposalService.updateDetail(+id, +detailId, body);
     }
 
     @Permission('proposal:removeDetail')
     @Delete(':id/remove-detail/:detailId')
-    removeDetail(@Param('id') id: string, @Param('detailId') detailId: string) {
+    removeDetail(@Param('id', ParseIntPipe) id: string, @Param('detailId', ParseIntPipe) detailId: string) {
         return this.proposalService.removeDetail(+id, +detailId);
     }
 }

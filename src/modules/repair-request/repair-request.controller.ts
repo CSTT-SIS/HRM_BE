@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query } from '@nestjs/common';
 import { ApiBasicAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Permission } from '~/common/decorators/permission.decorator';
 import { FilterDto } from '~/common/dtos/filter.dto';
@@ -29,19 +29,19 @@ export class RepairRequestController {
 
     @Permission('repairRequest:findOne')
     @Get(':id')
-    findOne(@Param('id') id: string) {
+    findOne(@Param('id', ParseIntPipe) id: string) {
         return this.repairRequestService.findOne(+id);
     }
 
     @Permission('repairRequest:update')
     @Patch(':id')
-    update(@Param('id') id: string, @Body() updateRepairRequestDto: UpdateRepairRequestDto) {
+    update(@Param('id', ParseIntPipe) id: string, @Body() updateRepairRequestDto: UpdateRepairRequestDto) {
         return this.repairRequestService.update(+id, updateRepairRequestDto);
     }
 
     @Permission('repairRequest:remove')
     @Delete(':id')
-    remove(@Param('id') id: string) {
+    remove(@Param('id', ParseIntPipe) id: string) {
         return this.repairRequestService.remove(+id);
     }
 
@@ -49,37 +49,37 @@ export class RepairRequestController {
     @Get(':id/get-details')
     @ApiQuery({ type: FilterDto })
     @ApiQuery({ name: 'productId', required: false })
-    getDetails(@Param('id') id: string, @Query() queries, @Query('productId') productId: string) {
+    getDetails(@Param('id', ParseIntPipe) id: string, @Query() queries, @Query('productId') productId: string) {
         return this.repairRequestService.getDetails({ ...queries, requestId: +id, productId });
     }
 
     @Permission('repairRequest:addDetail')
     @Post(':id/details')
-    addDetail(@Param('id') id: string, @Body() body: CreateRepairDetailDto) {
+    addDetail(@Param('id', ParseIntPipe) id: string, @Body() body: CreateRepairDetailDto) {
         return this.repairRequestService.addDetail(+id, body);
     }
 
     @Permission('repairRequest:updateDetail')
     @Patch(':id/details/:detailId')
-    updateDetail(@Param('id') id: string, @Param('detailId') detailId: string, @Body() body: UpdateRepairDetailDto) {
+    updateDetail(@Param('id', ParseIntPipe) id: string, @Param('detailId', ParseIntPipe) detailId: string, @Body() body: UpdateRepairDetailDto) {
         return this.repairRequestService.updateDetail(+id, +detailId, body);
     }
 
     @Permission('repairRequest:removeDetail')
     @Delete(':id/details/:detailId')
-    removeDetail(@Param('id') id: string, @Param('detailId') detailId: string) {
+    removeDetail(@Param('id', ParseIntPipe) id: string, @Param('detailId', ParseIntPipe) detailId: string) {
         return this.repairRequestService.removeDetail(+id, +detailId);
     }
 
     @Permission('repairRequest:inProgress')
     @Patch(':id/in-progress')
-    inProgress(@Param('id') id: string) {
+    inProgress(@Param('id', ParseIntPipe) id: string) {
         return this.repairRequestService.inProgress(+id);
     }
 
     @Permission('repairRequest:complete')
     @Patch(':id/complete')
-    complete(@Param('id') id: string) {
+    complete(@Param('id', ParseIntPipe) id: string) {
         return this.repairRequestService.complete(+id);
     }
 }

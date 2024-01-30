@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query } from '@nestjs/common';
 import { ApiBasicAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Permission } from '~/common/decorators/permission.decorator';
 import { FilterDto } from '~/common/dtos/filter.dto';
@@ -27,19 +27,19 @@ export class UnitController {
 
     @Permission('unit:findOne')
     @Get(':id')
-    findOne(@Param('id') id: string) {
+    findOne(@Param('id', ParseIntPipe) id: string) {
         return this.unitService.findOne(+id);
     }
 
     @Permission('unit:update')
     @Patch(':id')
-    update(@Param('id') id: string, @Body() updateUnitDto: UpdateUnitDto) {
+    update(@Param('id', ParseIntPipe) id: string, @Body() updateUnitDto: UpdateUnitDto) {
         return this.unitService.update(+id, updateUnitDto);
     }
 
     @Permission('unit:remove')
     @Delete(':id')
-    remove(@Param('id') id: string) {
+    remove(@Param('id', ParseIntPipe) id: string) {
         return this.unitService.remove(+id);
     }
 }

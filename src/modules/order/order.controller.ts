@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query } from '@nestjs/common';
 import { ApiBasicAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Permission } from '~/common/decorators/permission.decorator';
 import { FilterDto } from '~/common/dtos/filter.dto';
@@ -29,43 +29,43 @@ export class OrderController {
 
     @Permission('order:findOne')
     @Get(':id')
-    findOne(@Param('id') id: string) {
+    findOne(@Param('id', ParseIntPipe) id: string) {
         return this.orderService.findOne(+id);
     }
 
     @Permission('order:update')
     @Patch(':id')
-    update(@Param('id') id: string, @Body() updateOrderDto: UpdateOrderDto) {
+    update(@Param('id', ParseIntPipe) id: string, @Body() updateOrderDto: UpdateOrderDto) {
         return this.orderService.update(+id, updateOrderDto);
     }
 
     @Permission('order:remove')
     @Delete(':id')
-    remove(@Param('id') id: string) {
+    remove(@Param('id', ParseIntPipe) id: string) {
         return this.orderService.remove(+id);
     }
 
     @Permission('order:placeOrder')
     @Patch(':id/place-order')
-    approve(@Param('id') id: string) {
+    approve(@Param('id', ParseIntPipe) id: string) {
         return this.orderService.placeOrder(+id);
     }
 
     @Permission('order:cancel')
     @Patch(':id/cancel')
-    cancelOrder(@Param('id') id: string) {
+    cancelOrder(@Param('id', ParseIntPipe) id: string) {
         return this.orderService.cancel(+id);
     }
 
     @Permission('order:shipping')
     @Patch(':id/shipping')
-    shipping(@Param('id') id: string) {
+    shipping(@Param('id', ParseIntPipe) id: string) {
         return this.orderService.shipping(+id);
     }
 
     @Permission('order:receive')
     @Patch(':id/receive')
-    receive(@Param('id') id: string) {
+    receive(@Param('id', ParseIntPipe) id: string) {
         return this.orderService.receive(+id);
     }
 
@@ -73,25 +73,25 @@ export class OrderController {
     @Get(':id/get-items')
     @ApiQuery({ type: FilterDto })
     @ApiQuery({ name: 'productId', required: false })
-    getDetails(@Param('id') id: string, @Query() queries, @Query('productId') productId: string) {
+    getDetails(@Param('id', ParseIntPipe) id: string, @Query() queries, @Query('productId', ParseIntPipe) productId: string) {
         return this.orderService.getItems({ ...queries, orderId: +id, productId });
     }
 
     @Permission('order:addItem')
     @Post(':id/add-item')
-    addItem(@Param('id') id: string, @Body() body: CreateOrderItemDto) {
+    addItem(@Param('id', ParseIntPipe) id: string, @Body() body: CreateOrderItemDto) {
         return this.orderService.addItem(+id, body);
     }
 
     @Permission('order:updateItem')
     @Patch(':id/update-item/:itemId')
-    updateItem(@Param('id') id: string, @Param('itemId') itemId: string, @Body() body: UpdateOrderItemDto) {
+    updateItem(@Param('id', ParseIntPipe) id: string, @Param('itemId') itemId: string, @Body() body: UpdateOrderItemDto) {
         return this.orderService.updateItem(+id, +itemId, body);
     }
 
     @Permission('order:removeItem')
     @Delete(':id/remove-item/:itemId')
-    removeItem(@Param('id') id: string, @Param('itemId') itemId: string) {
+    removeItem(@Param('id', ParseIntPipe) id: string, @Param('itemId') itemId: string) {
         return this.orderService.removeItem(+id, +itemId);
     }
 }

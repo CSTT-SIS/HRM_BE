@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query } from '@nestjs/common';
 import { ApiBasicAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Permission } from '~/common/decorators/permission.decorator';
 import { FilterDto } from '~/common/dtos/filter.dto';
@@ -29,19 +29,19 @@ export class PermissionController {
 
     @Permission('permission:findOne')
     @Get(':id')
-    findOne(@Param('id') id: string) {
+    findOne(@Param('id', ParseIntPipe) id: string) {
         return this.permissionService.findOne(+id);
     }
 
     @Permission('permission:update')
     @Patch(':id')
-    update(@Param('id') id: string, @Body() updatePermissionDto: UpdatePermissionDto) {
+    update(@Param('id', ParseIntPipe) id: string, @Body() updatePermissionDto: UpdatePermissionDto) {
         return this.permissionService.update(+id, updatePermissionDto);
     }
 
     @Permission('permission:delete')
     @Delete(':id')
-    remove(@Param('id') id: string) {
+    remove(@Param('id', ParseIntPipe) id: string) {
         return this.permissionService.remove(+id);
     }
 }

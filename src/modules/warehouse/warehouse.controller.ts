@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query } from '@nestjs/common';
 import { ApiBasicAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Permission } from '~/common/decorators/permission.decorator';
 import { FilterDto } from '~/common/dtos/filter.dto';
@@ -23,37 +23,37 @@ export class WarehouseController {
     @Get()
     @ApiQuery({ type: FilterDto })
     @ApiQuery({ name: 'typeId', required: false })
-    findAll(@Query() queries, @Query('typeId') typeId: number) {
+    findAll(@Query() queries, @Query('typeId', ParseIntPipe) typeId: number) {
         return this.warehouseService.findAll({ ...queries, typeId });
     }
 
     @Permission('warehouse:findOne')
     @Get(':id')
-    findOne(@Param('id') id: string) {
+    findOne(@Param('id', ParseIntPipe) id: string) {
         return this.warehouseService.findOne(+id);
     }
 
     @Permission('warehouse:update')
     @Patch(':id')
-    update(@Param('id') id: string, @Body() updateWarehouseDto: UpdateWarehouseDto) {
+    update(@Param('id', ParseIntPipe) id: string, @Body() updateWarehouseDto: UpdateWarehouseDto) {
         return this.warehouseService.update(+id, updateWarehouseDto);
     }
 
     @Permission('warehouse:remove')
     @Delete(':id')
-    remove(@Param('id') id: string) {
+    remove(@Param('id', ParseIntPipe) id: string) {
         return this.warehouseService.remove(+id);
     }
     @Permission('warehouse:get-products')
     @Get(':id/products')
     @ApiQuery({ type: FilterDto })
-    getProducts(@Param('id') id: string, @Query() queries) {
+    getProducts(@Param('id', ParseIntPipe) id: string, @Query() queries) {
         return this.warehouseService.getProducts({ ...queries, warehouseId: +id });
     }
 
     @Permission('warehouse:import')
     @Post(':id/import')
-    import(@Param('id') id: string, @Body() importGoodDto: ImportGoodDto) {
+    import(@Param('id', ParseIntPipe) id: string, @Body() importGoodDto: ImportGoodDto) {
         return this.warehouseService.importGoods(+id, importGoodDto);
     }
 }

@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query } from '@nestjs/common';
 import { ApiBasicAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Permission } from '~/common/decorators/permission.decorator';
 import { FilterDto } from '~/common/dtos/filter.dto';
@@ -27,19 +27,19 @@ export class ProductCategoryController {
 
     @Permission('productCategory:findOne')
     @Get(':id')
-    findOne(@Param('id') id: string) {
+    findOne(@Param('id', ParseIntPipe) id: string) {
         return this.productCategoryService.findOne(+id);
     }
 
     @Permission('productCategory:update')
     @Patch(':id')
-    update(@Param('id') id: string, @Body() updateProductCategoryDto: UpdateProductCategoryDto) {
+    update(@Param('id', ParseIntPipe) id: string, @Body() updateProductCategoryDto: UpdateProductCategoryDto) {
         return this.productCategoryService.update(+id, updateProductCategoryDto);
     }
 
     @Permission('productCategory:delete')
     @Delete(':id')
-    remove(@Param('id') id: string) {
+    remove(@Param('id', ParseIntPipe) id: string) {
         return this.productCategoryService.remove(+id);
     }
 }

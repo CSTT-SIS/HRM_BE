@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query } from '@nestjs/common';
 import { ApiBasicAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Permission } from '~/common/decorators/permission.decorator';
 import { FilterDto } from '~/common/dtos/filter.dto';
@@ -27,19 +27,19 @@ export class WarehouseTypeController {
 
     @Permission('warehouseType:findOne')
     @Get(':id')
-    findOneType(@Param('id') id: string) {
+    findOneType(@Param('id', ParseIntPipe) id: string) {
         return this.warehouseTypeService.findOne(+id);
     }
 
     @Permission('warehouseType:update')
     @Patch(':id')
-    updateType(@Param('id') id: string, @Body() updateWarehouseTypeDto: UpdateWarehouseTypeDto) {
+    updateType(@Param('id', ParseIntPipe) id: string, @Body() updateWarehouseTypeDto: UpdateWarehouseTypeDto) {
         return this.warehouseTypeService.update(+id, updateWarehouseTypeDto);
     }
 
     @Permission('warehouseType:remove')
     @Delete(':id')
-    removeType(@Param('id') id: string) {
+    removeType(@Param('id', ParseIntPipe) id: string) {
         return this.warehouseTypeService.remove(+id);
     }
 }

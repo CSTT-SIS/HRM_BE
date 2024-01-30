@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query } from '@nestjs/common';
 import { ApiBasicAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Permission } from '~/common/decorators/permission.decorator';
 import { FilterDto } from '~/common/dtos/filter.dto';
@@ -23,31 +23,31 @@ export class ProductController {
     @Get()
     @ApiQuery({ type: FilterDto })
     @ApiQuery({ name: 'categoryId', required: false })
-    findAll(@Query() queries, @Query('categoryId') categoryId: number) {
+    findAll(@Query() queries, @Query('categoryId', ParseIntPipe) categoryId: number) {
         return this.productService.findAll({ ...queries, categoryId });
     }
 
     @Permission('product:findOne')
     @Get(':id')
-    findOne(@Param('id') id: string) {
+    findOne(@Param('id', ParseIntPipe) id: string) {
         return this.productService.findOne(+id);
     }
 
     @Permission('product:update')
     @Patch(':id')
-    update(@Param('id') id: string, @Body() updateproductDto: UpdateProductDto) {
+    update(@Param('id', ParseIntPipe) id: string, @Body() updateproductDto: UpdateProductDto) {
         return this.productService.update(+id, updateproductDto);
     }
 
     @Permission('product:delete')
     @Delete(':id')
-    remove(@Param('id') id: string) {
+    remove(@Param('id', ParseIntPipe) id: string) {
         return this.productService.remove(+id);
     }
 
     @Permission('product:updateLimit')
     @Patch(':id/limit')
-    updateLimit(@Param('id') id: string, @Body() data: UpdateProductLimitDto) {
+    updateLimit(@Param('id', ParseIntPipe) id: string, @Body() data: UpdateProductLimitDto) {
         return this.productService.updateLimit(+id, data);
     }
 }

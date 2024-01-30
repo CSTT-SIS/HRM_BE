@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query } from '@nestjs/common';
 import { ApiBasicAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Permission } from '~/common/decorators/permission.decorator';
 import { FilterDto } from '~/common/dtos/filter.dto';
@@ -28,8 +28,8 @@ export class WarehousingBillController {
     @ApiQuery({ name: 'status', enum: WAREHOUSING_BILL_STATUS, required: false })
     findAll(
         @Query() queries,
-        @Query('proposalId') proposalId: number,
-        @Query('warehouseId') warehouseId: number,
+        @Query('proposalId', ParseIntPipe) proposalId: number,
+        @Query('warehouseId', ParseIntPipe) warehouseId: number,
         @Query('type') type: string,
         @Query('status') status: string,
     ) {
@@ -38,44 +38,48 @@ export class WarehousingBillController {
 
     @Permission('warehousingBill:findOne')
     @Get(':id')
-    findOne(@Param('id') id: string) {
+    findOne(@Param('id', ParseIntPipe) id: string) {
         return this.warehousingBillService.findOne(+id);
     }
 
     @Permission('warehousingBill:update')
     @Patch(':id')
-    update(@Param('id') id: string, @Body() updateWarehousingBillDto: UpdateWarehousingBillDto) {
+    update(@Param('id', ParseIntPipe) id: string, @Body() updateWarehousingBillDto: UpdateWarehousingBillDto) {
         return this.warehousingBillService.update(+id, updateWarehousingBillDto);
     }
 
     @Permission('warehousingBill:remove')
     @Delete(':id')
-    remove(@Param('id') id: string) {
+    remove(@Param('id', ParseIntPipe) id: string) {
         return this.warehousingBillService.remove(+id);
     }
 
     @Permission('warehousingBill:approve')
     @Patch(':id/approve')
-    approve(@Param('id') id: string) {
+    approve(@Param('id', ParseIntPipe) id: string) {
         return this.warehousingBillService.approve(+id);
     }
 
     @Permission('warehousingBill:reject')
     @Patch(':id/reject')
-    reject(@Param('id') id: string) {
+    reject(@Param('id', ParseIntPipe) id: string) {
         return this.warehousingBillService.reject(+id);
     }
 
     @Permission('warehousingBill:finish')
     @Patch(':id/finish')
-    finish(@Param('id') id: string) {
+    finish(@Param('id', ParseIntPipe) id: string) {
         return this.warehousingBillService.finish(+id);
     }
 
     @Permission('warehousingBill:tally')
     @Patch(':id/tally/:detailId')
     @ApiQuery({ name: 'quantity', required: true, type: Number })
-    tally(@Param('id') id: string, @Param('detailId') detailId: string, @Query('quantity') quantity: string) {
+    tally(
+        @Param('id', ParseIntPipe) id: string,
+        @Param('detailId', ParseIntPipe) detailId: string,
+        @Query('quantity', ParseIntPipe) quantity: string,
+    ) {
         return this.warehousingBillService.tally(+id, +detailId, +quantity);
     }
 }
