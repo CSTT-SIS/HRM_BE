@@ -28,8 +28,8 @@ export class WarehousingBillController {
     @ApiQuery({ name: 'status', enum: WAREHOUSING_BILL_STATUS, required: false })
     findAll(
         @Query() queries,
-        @Query('proposalId', new ParseIntPipe({ optional: true })) proposalId: number,
-        @Query('warehouseId', new ParseIntPipe({ optional: true })) warehouseId: number,
+        @Query('proposalId', new ParseIntPipe({ optional: true })) proposalId: string,
+        @Query('warehouseId', new ParseIntPipe({ optional: true })) warehouseId: string,
         @Query('type') type: string,
         @Query('status') status: string,
     ) {
