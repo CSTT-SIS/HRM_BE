@@ -95,8 +95,12 @@ export class ProposalController {
     @Permission('proposal:getDetails')
     @Get(':id/get-details')
     @ApiQuery({ type: FilterDto })
-    @ApiQuery({ name: 'productId', required: false })
-    getDetails(@Param('id', ParseIntPipe) id: string, @Query() queries, @Query('productId') productId: string) {
+    @ApiQuery({ name: 'productId', required: false, type: Number })
+    getDetails(
+        @Param('id', ParseIntPipe) id: string,
+        @Query() queries,
+        @Query('productId', new ParseIntPipe({ optional: true })) productId?: string,
+    ) {
         return this.proposalService.getDetails({ ...queries, proposalId: +id, productId });
     }
 

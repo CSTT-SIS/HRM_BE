@@ -56,7 +56,7 @@ export class StocktakeController {
     @Get(':id/get-details')
     @ApiQuery({ type: FilterDto })
     @ApiQuery({ name: 'productId', required: false })
-    getDetails(@Param('id', ParseIntPipe) id: string, @Query() queries, @Query('productId') productId: string) {
+    getDetails(@Param('id', ParseIntPipe) id: string, @Query() queries, @Query('productId', new ParseIntPipe({ optional: true })) productId: string) {
         return this.stocktakeService.getDetails({ ...queries, stocktakeId: +id, productId });
     }
 

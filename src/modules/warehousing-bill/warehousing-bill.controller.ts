@@ -28,8 +28,8 @@ export class WarehousingBillController {
     @ApiQuery({ name: 'status', enum: WAREHOUSING_BILL_STATUS, required: false })
     findAll(
         @Query() queries,
-        @Query('proposalId') proposalId: number,
-        @Query('warehouseId') warehouseId: number,
+        @Query('proposalId', new ParseIntPipe({ optional: true })) proposalId: number,
+        @Query('warehouseId', new ParseIntPipe({ optional: true })) warehouseId: number,
         @Query('type') type: string,
         @Query('status') status: string,
     ) {
@@ -75,7 +75,11 @@ export class WarehousingBillController {
     @Permission('warehousingBill:tally')
     @Patch(':id/tally/:detailId')
     @ApiQuery({ name: 'quantity', required: true, type: Number })
-    tally(@Param('id', ParseIntPipe) id: string, @Param('detailId', ParseIntPipe) detailId: string, @Query('quantity') quantity: string) {
+    tally(
+        @Param('id', ParseIntPipe) id: string,
+        @Param('detailId', ParseIntPipe) detailId: string,
+        @Query('quantity', new ParseIntPipe({ optional: true })) quantity: string,
+    ) {
         return this.warehousingBillService.tally(+id, +detailId, +quantity);
     }
 }
