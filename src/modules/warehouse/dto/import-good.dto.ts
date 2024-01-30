@@ -1,9 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsNumber, IsOptional, IsString, Min } from 'class-validator';
+import { IsIdExist } from '~/common/validators/is-id-exist.validator';
 
 export class ImportGoodDto {
     @ApiProperty()
     @IsNotEmpty({ message: 'Vui lòng chọn sản phẩm' })
+    @IsIdExist({ entity: 'product' }, { message: 'Mã sản phẩm không tồn tại' })
     productId: number;
 
     @ApiProperty()

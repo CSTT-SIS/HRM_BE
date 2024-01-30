@@ -1,4 +1,5 @@
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, Relation } from 'typeorm';
+import { REPAIR_REQUEST_STATUS } from '~/common/enums/enum';
 import { RepairDetailEntity } from '~/database/typeorm/entities/repairDetail.entity';
 import { RepairProgressEntity } from '~/database/typeorm/entities/repairProgress.entity';
 import { UserEntity } from '~/database/typeorm/entities/user.entity';
@@ -31,7 +32,7 @@ export class RepairRequestEntity extends AbstractEntity {
     @Column({ name: 'end_date', type: 'datetime', nullable: true })
     endDate: Date;
 
-    @Column({ name: 'status', type: 'varchar', length: 50, nullable: true })
+    @Column({ name: 'status', type: 'varchar', length: 50, nullable: true, default: REPAIR_REQUEST_STATUS.PENDING })
     status: string;
 
     /* RELATIONS */

@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import { IsEmail, IsNotEmpty, IsOptional } from 'class-validator';
+import { IsIdExist } from '~/common/validators/is-id-exist.validator';
 
 export class CreateUserDto {
     @ApiProperty()
@@ -18,10 +19,12 @@ export class CreateUserDto {
 
     @ApiProperty()
     @IsOptional()
+    @IsIdExist({ entity: 'role' }, { message: 'Mã quyền không tồn tại' })
     roleId: number;
 
     @ApiProperty()
     @IsOptional()
+    @IsIdExist({ entity: 'department' }, { message: 'Mã phòng ban không tồn tại' })
     departmentId: number;
 
     @ApiProperty()

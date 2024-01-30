@@ -1,8 +1,10 @@
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { BadRequestException, INestApplication, ValidationPipe } from '@nestjs/common';
+import { ValidationError, useContainer } from 'class-validator';
+import { AppModule } from '~/app.module';
 
 export function bootstrapValidation(app: INestApplication): void {
     // https://github.com/typestack/class-validator#using-service-container
-    // useContainer(app.select(AppModule), { fallbackOnErrors: true })
+    useContainer(app.select(AppModule), { fallbackOnErrors: true });
 
     app.useGlobalPipes(
         new ValidationPipe({
@@ -15,7 +17,14 @@ export function bootstrapValidation(app: INestApplication): void {
             // stopAtFirstError: false,
             // forbidUnknownValues: true,
             // disableErrorMessages: false,
-            // exceptionFactory: (errors) => new BadRequestException(errors),
+            exceptionFactory: (validationErrors: ValidationError[] = []) => {
+                return new BadRequestException(
+                    validationErrors.map((error) => ({
+                        field: error.property,
+                        error: Object.values(error.constraints).join(', '),
+                    })),
+                );
+            },
             // validationError: { target: true, value: true },
         }),
     );

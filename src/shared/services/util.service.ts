@@ -62,40 +62,6 @@ export class UtilService {
         return sortQuery.join(', ');
     }
 
-    getSearchCondition(builder: SelectQueryBuilder<any>, entityAlias: string, search: string) {
-        if (!search) return null;
-
-        entityAlias = entityAlias ? `${entityAlias}.` : '';
-        const searchFields = search.split(',');
-        searchFields.forEach((el) => {
-            const field = el.split('.');
-            builder.andWhere(`${entityAlias}${field[0]} LIKE '%${field[1]}%'`);
-        });
-
-        return builder;
-    }
-
-    getQueriesSearchCondition(builder: SelectQueryBuilder<any>, entityAlias: string, searchQueries: { [key: string]: any }) {
-        entityAlias = entityAlias ? `${entityAlias}.` : '';
-        Object.keys(searchQueries).forEach((key) => {
-            const value = searchQueries[key];
-            if (value) {
-                builder.andWhere(`${entityAlias}${key} LIKE '%${value}%'`);
-            }
-        });
-
-        return builder;
-    }
-
-    getSearchQueries(queries: { [key: string]: any }) {
-        return Object.keys(queries)
-            .filter((key) => key.startsWith('search_'))
-            .reduce((obj, key) => {
-                obj[key.replace('search_', '')] = queries[key];
-                return obj;
-            }, {});
-    }
-
     getPagination(queries: { page: number; perPage: number }) {
         const take = Number(queries.perPage) || DEFAULT_PER_PAGE;
         return {
@@ -332,6 +298,7 @@ export class UtilService {
      * @returns raw condition string with OR operator between fields
      */
     rawQuerySearch(data: { entityAlias?: string; fields?: string[]; keyword: string }) {
+        if (this.isEmpty(data.keyword)) return null;
         const { entityAlias, keyword, fields } = data;
         const entityAliasString = entityAlias ? `${entityAlias}.` : 'entity.';
         return fields.map((field) => `${field.indexOf('.') === -1 ? entityAliasString : ''}${field} LIKE '%${keyword}%'`).join(' OR ');

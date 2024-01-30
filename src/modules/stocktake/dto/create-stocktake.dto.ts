@@ -1,10 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsArray, IsNotEmpty, IsNumber, IsOptional, IsString, Length, Matches } from 'class-validator';
+import { IsIdExist } from '~/common/validators/is-id-exist.validator';
 
 export class CreateStocktakeDto {
     @ApiProperty()
     @IsNotEmpty({ message: 'Mã kho không được để trống' })
     @IsNumber({}, { message: 'Mã kho phải là số' })
+    @IsIdExist({ entity: 'warehouse' }, { message: 'Mã kho không tồn tại' })
     warehouseId: number;
 
     @ApiProperty()

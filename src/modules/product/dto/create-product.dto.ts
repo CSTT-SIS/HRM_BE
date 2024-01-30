@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsNumber, IsOptional, Length, Max, Min } from 'class-validator';
+import { IsIdExist } from '~/common/validators/is-id-exist.validator';
 
 export class CreateProductDto {
     @ApiProperty()
@@ -28,6 +29,7 @@ export class CreateProductDto {
     @ApiProperty()
     @IsNotEmpty({ message: 'Đơn vị sản phẩm không được để trống' })
     @IsNumber({}, { message: 'Đơn vị sản phẩm phải là số' })
+    @IsIdExist({ entity: 'unit' }, { message: 'Đơn vị sản phẩm không tồn tại' })
     unitId: number;
 
     @ApiProperty()
@@ -37,5 +39,6 @@ export class CreateProductDto {
     @ApiProperty()
     @IsOptional()
     @IsNumber({}, { message: 'Loại sản phẩm phải là số' })
+    @IsIdExist({ entity: 'productCategory' }, { message: 'Loại sản phẩm không tồn tại' })
     categoryId: number;
 }

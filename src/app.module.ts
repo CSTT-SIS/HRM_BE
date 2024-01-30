@@ -11,6 +11,7 @@ import { AllExceptionsFilter } from '~/common/filters/exception.filter';
 import { TypeOrmFilter } from '~/common/filters/typeorm.filter';
 import { PermissionGuard } from '~/common/guards';
 import { AuthMiddleware, LogMiddleware } from '~/common/middleware';
+import { IsIdAlreadyExistConstraint } from '~/common/validators/is-id-exist.validator';
 import database from '~/config/database.config';
 import mail from '~/config/mail.config';
 import redis from '~/config/redis.config';
@@ -18,11 +19,14 @@ import token from '~/config/token.config';
 import { DatabaseModule } from '~/database/typeorm';
 import { PermissionRepository } from '~/database/typeorm/repositories/permission.repository';
 import { AuthModule } from '~/modules/auth/auth.module';
+import { DropdownModule } from '~/modules/dropdown/dropdown.module';
 import { MailModule } from '~/modules/mail/mail.module';
 import { MediaModule } from '~/modules/media/media.module';
+import { OrderModule } from '~/modules/order/order.module';
 import { PermissionModule } from '~/modules/permission/permission.module';
 import { ProfileModule } from '~/modules/profile/profile.module';
 import { ProposalModule } from '~/modules/proposal/proposal.module';
+import { RepairRequestModule } from '~/modules/repair-request/repair-request.module';
 import { RoleModule } from '~/modules/role/role.module';
 import { SocketModule } from '~/modules/socket/socket.module';
 import { StocktakeModule } from '~/modules/stocktake/stocktake.module';
@@ -40,8 +44,6 @@ import { UnitModule } from './modules/unit/unit.module';
 import { UserModule } from './modules/user/user.module';
 import { WarehouseTypeModule } from './modules/warehouse-type/warehouse-type.module';
 import { WarehouseModule } from './modules/warehouse/warehouse.module';
-import { OrderModule } from '~/modules/order/order.module';
-import { DropdownModule } from '~/modules/dropdown/dropdown.module';
 
 @Module({
     imports: [
@@ -87,6 +89,7 @@ import { DropdownModule } from '~/modules/dropdown/dropdown.module';
         StocktakeModule,
         OrderModule,
         DropdownModule,
+        RepairRequestModule,
     ],
     controllers: [AppController],
     providers: [
@@ -104,6 +107,7 @@ import { DropdownModule } from '~/modules/dropdown/dropdown.module';
             useClass: PermissionGuard,
         },
         PermissionRepository,
+        IsIdAlreadyExistConstraint,
     ],
 })
 // export class AppModule { }

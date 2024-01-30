@@ -92,6 +92,14 @@ export class ProposalController {
         return this.proposalService.return(+id, body?.comment);
     }
 
+    @Permission('proposal:getDetails')
+    @Get(':id/get-details')
+    @ApiQuery({ type: FilterDto })
+    @ApiQuery({ name: 'productId', required: false })
+    getDetails(@Param('id') id: string, @Query() queries, @Query('productId') productId: string) {
+        return this.proposalService.getDetails({ ...queries, proposalId: +id, productId });
+    }
+
     @Permission('proposal:addDetail')
     @Post(':id/add-detail')
     addDetail(@Param('id') id: string, @Body() body: CreateProposalDetailDto) {

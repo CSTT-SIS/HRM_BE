@@ -112,13 +112,11 @@ export class OrderService {
 
     async addItem(id: number, item: CreateOrderItemDto) {
         await this.isStatusValid({ id, statuses: [ORDER_STATUS.PENDING] });
-        await this.utilService.checkRelationIdExist({ product: item.productId });
         return this.database.orderItem.save(item);
     }
 
     async updateItem(id: number, itemId: number, item: UpdateOrderItemDto) {
         await this.isStatusValid({ id, statuses: [ORDER_STATUS.PENDING] });
-        await this.utilService.checkRelationIdExist({ product: item.productId });
         return this.database.orderItem.update({ id: itemId, orderId: id }, item);
     }
 

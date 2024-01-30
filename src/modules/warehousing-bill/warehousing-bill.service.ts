@@ -19,7 +19,6 @@ export class WarehousingBillService {
                 status: PROPOSAL_STATUS.APPROVED,
                 errorMessage: 'Không tìm thấy phiếu đề xuất hoặc phiếu đề xuất chưa được duyệt',
             },
-            warehouse: createWarehousingBillDto.warehouseId,
             warehousingBill: {
                 proposalId: createWarehousingBillDto.proposalId,
                 errorMessage: 'Phiếu đề xuất đã được tạo phiếu nhập kho',
@@ -125,7 +124,6 @@ export class WarehousingBillService {
 
     async update(id: number, updateWarehousingBillDto: UpdateWarehousingBillDto) {
         await this.isStatusValid({ id, statuses: [WAREHOUSING_BILL_STATUS.PENDING] });
-        await this.utilService.checkRelationIdExist({ warehouse: updateWarehousingBillDto.warehouseId });
         return this.database.warehousingBill.update(id, updateWarehousingBillDto);
     }
 

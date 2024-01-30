@@ -483,7 +483,16 @@ Or
 ```json
 {
     "result": false,
-    "message": ["Tên không được để trống"],
+    "message": [
+        {
+            "field": "unitId",
+            "error": "Đơn vị sản phẩm không tồn tại"
+        },
+        {
+            "field": "categoryId",
+            "error": "Loại sản phẩm không tồn tại"
+        }
+    ],
     "data": null,
     "statusCode": 400
 }

@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsOptional, Length } from 'class-validator';
+import { IsIdExist } from '~/common/validators/is-id-exist.validator';
 
 export class CreateWarehouseDto {
     @ApiProperty()
@@ -13,6 +14,7 @@ export class CreateWarehouseDto {
 
     @ApiProperty()
     @IsOptional()
+    @IsIdExist({ entity: 'warehouseType' }, { message: 'Mã loại kho không tồn tại' })
     typeId: number;
 
     @ApiProperty()

@@ -1,5 +1,6 @@
 import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
+import { useContainer } from 'class-validator';
 import request from 'supertest';
 import { AppModule } from './../src/app.module';
 
@@ -12,6 +13,7 @@ describe('AppController (e2e)', () => {
         }).compile();
 
         app = moduleFixture.createNestApplication();
+        useContainer(app.select(AppModule), { fallbackOnErrors: true });
         await app.init();
     });
 

@@ -12,8 +12,6 @@ export class WarehouseService {
     constructor(private readonly utilService: UtilService, private readonly database: DatabaseService) {}
 
     async create(createWarehouseDto: CreateWarehouseDto) {
-        await this.utilService.checkRelationIdExist({ warehouseType: createWarehouseDto.typeId });
-
         const entity = await this.database.warehouse.save(this.database.warehouse.create(createWarehouseDto));
         this.database.warehouse.update(entity.id, { parentPath: entity.id.toString() });
 
@@ -47,7 +45,6 @@ export class WarehouseService {
     }
 
     async update(id: number, updateWarehouseDto: UpdateWarehouseDto) {
-        await this.utilService.checkRelationIdExist({ warehouseType: updateWarehouseDto.typeId });
         return this.database.warehouse.update(id, updateWarehouseDto);
     }
 
@@ -98,7 +95,6 @@ export class WarehouseService {
     async importGoods(id: number, data: ImportGoodDto) {
         await this.utilService.checkRelationIdExist({
             warehouse: id,
-            product: data.productId,
         });
 
         let inventory = await this.database.inventory.findOne({ where: { warehouseId: id, productId: data.productId } });

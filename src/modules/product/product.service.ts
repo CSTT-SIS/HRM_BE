@@ -11,7 +11,6 @@ export class ProductService {
     constructor(private readonly database: DatabaseService, private readonly utilService: UtilService) {}
 
     async create(createProductDto: CreateProductDto) {
-        await this.utilService.checkRelationIdExist({ productCategory: createProductDto.categoryId });
         return this.database.product.save(this.database.product.create(createProductDto));
     }
 
@@ -45,7 +44,6 @@ export class ProductService {
     }
 
     async update(id: number, updateProductDto: UpdateProductDto) {
-        await this.utilService.checkRelationIdExist({ productCategory: updateProductDto.categoryId });
         return this.database.product.update(id, updateProductDto);
     }
 

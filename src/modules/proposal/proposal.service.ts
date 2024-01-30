@@ -16,6 +16,10 @@ export class ProposalService {
 
     async create(createProposalDto: CreateProposalDto) {
         if (!Object.keys(PROPOSAL_TYPE).includes(createProposalDto.type)) throw new HttpException('Loại đề xuất không hợp lệ', 400);
+        if (createProposalDto.type === PROPOSAL_TYPE.REPAIR) {
+            return this.repairFlow(createProposalDto);
+        }
+
         return this.database.proposal.save(this.database.proposal.create({ ...createProposalDto, createdById: UserStorage.getId() }));
     }
 
@@ -141,6 +145,29 @@ export class ProposalService {
         return { message: 'Đã trả lại đề xuất', data: { id } };
     }
 
+    async getDetails(queries: { page: number; perPage: number; search: string; sortBy: string; proposalId: number; productId: number }) {
+        const { builder, take, pagination } = this.utilService.getQueryBuilderAndPagination(this.database.proposalDetail, queries);
+        if (!this.utilService.isEmpty(queries.search))
+            builder.andWhere(this.utilService.fullTextSearch({ fields: ['product.name'], keyword: queries.search }));
+
+        builder.leftJoinAndSelect('entity.product', 'product');
+        builder.leftJoinAndSelect('product.unit', 'unit');
+        builder.andWhere('entity.proposalId = :id', { id: queries.proposalId });
+        builder.andWhere(this.utilService.getConditionsFromQuery(queries, ['productId']));
+        builder.select(['entity', 'product.id', 'product.name', 'unit.id', 'unit.name']);
+
+        const [result, total] = await builder.getManyAndCount();
+        const totalPages = Math.ceil(total / take);
+        return {
+            data: result,
+            pagination: {
+                ...pagination,
+                totalRecords: total,
+                totalPages: totalPages,
+            },
+        };
+    }
+
     async addDetail(id: number, detail: CreateProposalDetailDto) {
         await this.isProposalStatusValid({ id, statuses: [PROPOSAL_STATUS.DRAFT] });
         await this.verifyDetail(detail);
@@ -228,5 +255,26 @@ export class ProposalService {
                 comment: data.comment,
             }),
         );
+    }
+
+    private async repairFlow(createProposalDto: CreateProposalDto) {
+        if (!createProposalDto.repairRequestId) throw new HttpException('Yêu cầu sửa chữa không được để trống', 400);
+
+        const countProposal = await this.database.proposal.countBy({ repairRequestId: createProposalDto.repairRequestId });
+        if (countProposal) throw new HttpException(`Yêu cầu sửa chữa ${createProposalDto.repairRequestId} đã được tạo đề xuất`, 400);
+
+        const repairDetails = await this.database.repairDetail.find({
+            where: { repairRequestId: createProposalDto.repairRequestId },
+        });
+        const details = repairDetails.map((detail) => ({
+            productId: detail.replacementPartId,
+            quantity: detail.quantity,
+        }));
+
+        await this.verifyDetails(details);
+        const proposal = await this.database.proposal.save(this.database.proposal.create({ ...createProposalDto, createdById: UserStorage.getId() }));
+        await this.database.proposalDetail.save(details.map((detail) => ({ ...detail, proposalId: proposal.id })));
+
+        return proposal;
     }
 }

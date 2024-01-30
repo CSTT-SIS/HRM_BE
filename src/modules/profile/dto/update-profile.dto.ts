@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import { IsOptional } from 'class-validator';
+import { IsIdExist } from '~/common/validators/is-id-exist.validator';
 
 export class UpdateProfileDto {
     @ApiProperty()
@@ -13,6 +14,7 @@ export class UpdateProfileDto {
 
     @ApiProperty()
     @IsOptional()
+    @IsIdExist({ entity: 'avatar' }, { message: 'Mã avatar không tồn tại' })
     avatarId: number;
 
     @ApiProperty()
