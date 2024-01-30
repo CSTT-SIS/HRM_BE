@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsNumber } from 'class-validator';
+import { IsNotEmpty, IsNumber, Matches } from 'class-validator';
 import { ORDER_TYPE } from '~/common/enums/enum';
 import { IsIdExist } from '~/common/validators/is-id-exist.validator';
 
@@ -13,4 +13,17 @@ export class CreateOrderDto {
     @ApiProperty({ type: 'string', description: 'type' })
     @IsNotEmpty({ message: 'Loại không được để trống' })
     type: ORDER_TYPE;
+
+    @ApiProperty({ type: 'string', description: 'name' })
+    @IsNotEmpty({ message: 'Tên không được để trống' })
+    name: string;
+
+    @ApiProperty({ type: 'string', description: 'code' })
+    @IsNotEmpty({ message: 'Mã không được để trống' })
+    code: string;
+
+    @ApiProperty({ type: 'string', description: 'Estimated Delivery Date' })
+    @IsNotEmpty({ message: 'Ngày giao hàng dự kiến không được để trống' })
+    @Matches(/^(\d{4})-(\d{2})-(\d{2})$/, { message: 'Ngày giao hàng dự kiến không đúng định dạng YYYY-MM-DD' })
+    estimatedDeliveryDate: string;
 }
