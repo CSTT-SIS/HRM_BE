@@ -44,4 +44,11 @@ export class DropdownController {
     provider(@Query() queries) {
         return this.dropdownService.provider({ ...queries });
     }
+
+    @Permission('proposal:findAll')
+    @Get('proposal')
+    @ApiQuery({ type: FilterDto })
+    proposal(@Query() queries) {
+        return this.dropdownService.proposal({ ...queries });
+    }
 }

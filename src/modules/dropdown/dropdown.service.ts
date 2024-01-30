@@ -12,6 +12,7 @@ export class DropdownService {
             queries,
             label: 'name',
             value: 'id',
+            fulltext: true,
         });
     }
 
@@ -21,6 +22,7 @@ export class DropdownService {
             queries,
             label: 'name',
             value: 'id',
+            fulltext: true,
         });
     }
 
@@ -30,6 +32,7 @@ export class DropdownService {
             queries,
             label: 'name',
             value: 'id',
+            fulltext: false,
         });
     }
 
@@ -39,6 +42,7 @@ export class DropdownService {
             queries,
             label: 'name',
             value: 'id',
+            fulltext: false,
         });
     }
 
@@ -48,6 +52,17 @@ export class DropdownService {
             queries,
             label: 'name',
             value: 'id',
+            fulltext: true,
+        });
+    }
+
+    proposal(queries: { page: number; perPage: number; search: string; sortBy: string }) {
+        return this.getDropdown({
+            entity: 'proposal',
+            queries,
+            label: 'name',
+            value: 'id',
+            fulltext: true,
         });
     }
 
