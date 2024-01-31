@@ -23,10 +23,12 @@ export class OrderService {
         return entity;
     }
 
-    async findAll(queries: FilterDto & { proposalId: number; providerId: number }) {
+    async findAll(queries: FilterDto & { proposalId: string; providerId: string; status: ORDER_STATUS }) {
+        console.log(queries);
+
         const { builder, take, pagination } = this.utilService.getQueryBuilderAndPagination(this.database.order, queries);
 
-        builder.andWhere(this.utilService.getConditionsFromQuery(queries, ['proposalId', 'providerId']));
+        builder.andWhere(this.utilService.getConditionsFromQuery(queries, ['proposalId', 'providerId', 'status']));
         builder.andWhere(this.utilService.fullTextSearch({ fields: ['name'], keyword: queries.search }));
 
         builder.leftJoinAndSelect('entity.createdBy', 'createdBy');

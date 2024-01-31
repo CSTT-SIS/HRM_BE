@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { FilterDto } from '~/common/dtos/filter.dto';
 import {
+    ORDER_STATUS,
     ORDER_TYPE,
     ORDER_TYPE_NAME,
     PROPOSAL_STATUS,
@@ -93,14 +94,14 @@ export class DropdownService {
         });
     }
 
-    order(queries: FilterDto & { proposalId: number; providerId: number }) {
+    order(queries: FilterDto & { proposalId: string; providerId: string; status: ORDER_STATUS }) {
         return this.getDropdown({
             entity: 'order',
             queries,
             label: 'name',
             value: 'id',
             fulltext: true,
-            andWhere: this.utilService.getConditionsFromQuery(queries, ['proposalId', 'providerId']),
+            andWhere: this.utilService.getConditionsFromQuery(queries, ['proposalId', 'providerId', 'status']),
         });
     }
 

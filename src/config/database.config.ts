@@ -17,7 +17,7 @@ function getMySQLDatabaseConfig() {
             cache: true,
             keepConnectionAlive: process.env.DATABASE_KEEPCONNECTIONALIVE ? JSON.parse(process.env.DATABASE_KEEPCONNECTIONALIVE) : false,
             logging: process.env.DATABASE_LOGGING ? JSON.parse(process.env.DATABASE_LOGGING) : false,
-            synchronize: process.env.DATABASE_SYNCHRONIZE === 'true' ? true : false,
+            synchronize: process.env.DATABASE_SYNCHRONIZE === 'true',
             // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
             // uuidExtension: <'pgcrypto' | 'uuid-ossp'>process.env.DATABASE_UUID_EXTENSION,
             ssl: ssl,

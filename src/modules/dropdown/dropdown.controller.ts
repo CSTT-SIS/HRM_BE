@@ -2,7 +2,7 @@ import { Controller, Get, ParseIntPipe, Query } from '@nestjs/common';
 import { ApiBasicAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Permission } from '~/common/decorators/permission.decorator';
 import { FilterDto } from '~/common/dtos/filter.dto';
-import { PROPOSAL_STATUS, PROPOSAL_TYPE } from '~/common/enums/enum';
+import { ORDER_STATUS, PROPOSAL_STATUS, PROPOSAL_TYPE } from '~/common/enums/enum';
 import { DropdownService } from './dropdown.service';
 
 @ApiTags('Dropdown')
@@ -72,15 +72,16 @@ export class DropdownController {
 
     @Permission('order:findAll')
     @Get('order')
-    @ApiQuery({ type: FilterDto })
     @ApiQuery({ name: 'proposalId', required: false, type: Number })
     @ApiQuery({ name: 'providerId', required: false, type: Number })
+    @ApiQuery({ name: 'status', required: false, enum: ORDER_STATUS })
     order(
-        @Query() queries,
+        @Query() queries: FilterDto,
         @Query('proposalId', new ParseIntPipe({ optional: true })) proposalId: string,
         @Query('providerId', new ParseIntPipe({ optional: true })) providerId: string,
+        @Query('status') status: ORDER_STATUS,
     ) {
-        return this.dropdownService.order({ ...queries, proposalId, providerId });
+        return this.dropdownService.order({ ...queries, proposalId, providerId, status });
     }
 
     @Permission('order:findAll')

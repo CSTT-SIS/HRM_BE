@@ -1,4 +1,5 @@
 import { HttpException, Injectable } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { In } from 'typeorm';
 import { FilterDto } from '~/common/dtos/filter.dto';
 import { PROPOSAL_STATUS, PROPOSAL_TYPE } from '~/common/enums/enum';
@@ -7,13 +8,14 @@ import { DatabaseService } from '~/database/typeorm/database.service';
 import { ProposalEntity } from '~/database/typeorm/entities/proposal.entity';
 import { CreateProposalDetailDto } from '~/modules/proposal/dto/create-proposal-detail.dto';
 import { UpdateProposalDetailDto } from '~/modules/proposal/dto/update-proposal-detail.dto';
+import { ProposalCreatedEvent } from '~/modules/proposal/events/proposal-created.event';
 import { UtilService } from '~/shared/services';
 import { CreateProposalDto } from './dto/create-proposal.dto';
 import { UpdateProposalDto } from './dto/update-proposal.dto';
 
 @Injectable()
 export class ProposalService {
-    constructor(private readonly utilService: UtilService, private readonly database: DatabaseService) {}
+    constructor(private readonly utilService: UtilService, private readonly database: DatabaseService, private eventEmitter: EventEmitter2) {}
 
     async create(createProposalDto: CreateProposalDto) {
         if (!Object.keys(PROPOSAL_TYPE).includes(createProposalDto.type)) throw new HttpException('Loại đề xuất không hợp lệ', 400);
@@ -113,6 +115,14 @@ export class ProposalService {
         });
 
         // TODO: Notify user who can create warehousing bill
+        // maybe use a table to store who can receive notification when a proposal is approved
+        // or send notification to all users who have permission to create warehousing bill (fastest way)
+        const proposalCreatedEvent = new ProposalCreatedEvent();
+        proposalCreatedEvent.id = id;
+        proposalCreatedEvent.senderId = UserStorage.getId();
+        proposalCreatedEvent.receiverIds = [];
+        this.eventEmitter.emit('proposal.created', proposalCreatedEvent);
+
         return { message: 'Đã duyệt đề xuất', data: { id } };
     }
 
