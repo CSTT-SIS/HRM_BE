@@ -24,8 +24,6 @@ export class OrderService {
     }
 
     async findAll(queries: FilterDto & { proposalId: string; providerId: string; status: string }) {
-        console.log(queries);
-
         const { builder, take, pagination } = this.utilService.getQueryBuilderAndPagination(this.database.order, queries);
 
         builder.andWhere(this.utilService.getConditionsFromQuery(queries, ['proposalId', 'providerId', 'status']));
