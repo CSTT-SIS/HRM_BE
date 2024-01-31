@@ -20,7 +20,8 @@ export class {{nameCapitalized}}Controller {
 
     @Permission('{{name}}:findAll')
     @Get()
-    findAll(@Query() queries: FilterDto) {
+    @ApiQuery({ type: FilterDto })
+    findAll(@Query() queries) {
         return this.{{name}}Service.findAll({ ...queries });
     }
 

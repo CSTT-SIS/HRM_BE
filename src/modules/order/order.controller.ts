@@ -30,8 +30,10 @@ export class OrderController {
         @Query() queries: FilterDto,
         @Query('proposalId', new ParseIntPipe({ optional: true })) proposalId: string,
         @Query('providerId', new ParseIntPipe({ optional: true })) providerId: string,
-        @Query('status') status: ORDER_STATUS,
+        @Query('status') status: string,
     ) {
+        console.log('queries', queries);
+
         return this.orderService.findAll({ ...queries, proposalId, providerId, status });
     }
 

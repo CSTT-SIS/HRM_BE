@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsNumber, IsOptional, IsString, Length } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsString, Length, ValidateIf } from 'class-validator';
 import { PROPOSAL_TYPE } from '~/common/enums/enum';
 import { IsIdExist } from '~/common/validators/is-id-exist.validator';
 
@@ -21,7 +21,8 @@ export class CreateProposalDto {
     content: string;
 
     @ApiProperty()
-    @IsOptional()
+    @ValidateIf((o) => o.type === PROPOSAL_TYPE.REPAIR)
+    @IsNotEmpty({ message: 'Mã yêu cầu sửa chữa không được để trống' })
     @IsNumber({}, { message: 'Mã yêu cầu sửa chữa phải là dạng số' })
     @IsIdExist({ entity: 'repairRequest' }, { message: 'Mã yêu cầu sửa chữa không tồn tại' })
     repairRequestId: number;

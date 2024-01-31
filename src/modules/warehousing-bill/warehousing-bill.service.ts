@@ -29,7 +29,7 @@ export class WarehousingBillService {
 
         await this.isQuantityValid(createWarehousingBillDto);
 
-        // remove this if you want to allow user to create warehousing bill without order
+        // if warehousing bill type is IMPORT and orderId is null, it's mean that the bill is created from proposal
         if (createWarehousingBillDto.type === WAREHOUSING_BILL_TYPE.IMPORT && createWarehousingBillDto.orderId) {
             await this.utilService.checkRelationIdExist({
                 order: {

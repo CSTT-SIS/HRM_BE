@@ -23,7 +23,7 @@ export class OrderService {
         return entity;
     }
 
-    async findAll(queries: FilterDto & { proposalId: string; providerId: string; status: ORDER_STATUS }) {
+    async findAll(queries: FilterDto & { proposalId: string; providerId: string; status: string }) {
         console.log(queries);
 
         const { builder, take, pagination } = this.utilService.getQueryBuilderAndPagination(this.database.order, queries);

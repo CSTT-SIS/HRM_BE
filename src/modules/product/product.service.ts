@@ -46,7 +46,12 @@ export class ProductService {
         return this.database.product.update(id, updateProductDto);
     }
 
-    remove(id: number) {
+    async remove(id: number) {
+        const count = await this.database.inventory.count({ where: { productId: id } });
+        if (count) {
+            throw new Error('Không thể xóa sản phẩm đã tồn tại trong kho');
+        }
+
         return this.database.product.delete(id);
     }
 
