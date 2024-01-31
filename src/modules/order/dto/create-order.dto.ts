@@ -10,6 +10,12 @@ export class CreateOrderDto {
     @IsIdExist({ entity: 'proposal' }, { message: 'Mã phiếu đề xuất không tồn tại' })
     proposalId: number;
 
+    @ApiProperty({ type: 'number', description: 'Proposal Id' })
+    @IsNotEmpty({ message: 'Mã đơn vị cung cấp không được để trống' })
+    @IsNumber({}, { message: 'Mã đơn vị cung cấp phải là số' })
+    @IsIdExist({ entity: 'provider' }, { message: 'Mã đơn vị cung cấp không tồn tại' })
+    providerId: number;
+
     @ApiProperty({ type: 'string', description: 'type' })
     @IsNotEmpty({ message: 'Loại không được để trống' })
     type: ORDER_TYPE;

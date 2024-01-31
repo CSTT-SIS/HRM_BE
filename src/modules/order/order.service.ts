@@ -17,7 +17,7 @@ export class OrderService {
     constructor(private readonly utilService: UtilService, private readonly database: DatabaseService) {}
 
     async create(createOrderDto: CreateOrderDto) {
-        const proposal = await this.getProposal(createOrderDto.proposalId, createOrderDto.type);
+        const proposal = await this.getProposal(createOrderDto.proposalId, createOrderDto.providerId, createOrderDto.type);
         const entity = await this.database.order.save(this.database.order.create({ ...createOrderDto, createdById: UserStorage.getId() }));
         this.createOrderDetails(entity.id, proposal.id);
         return entity;
@@ -78,7 +78,7 @@ export class OrderService {
 
     async update(id: number, updateOrderDto: UpdateOrderDto) {
         await this.isStatusValid({ id, statuses: [ORDER_STATUS.PENDING] });
-        await this.getProposal(updateOrderDto.proposalId, updateOrderDto.type);
+        await this.getProposal(updateOrderDto.proposalId, updateOrderDto.providerId, updateOrderDto.type);
         return this.database.order.update(id, updateOrderDto);
     }
 
@@ -112,11 +112,15 @@ export class OrderService {
 
     async addItem(id: number, item: CreateOrderItemDto) {
         await this.isStatusValid({ id, statuses: [ORDER_STATUS.PENDING] });
+        // check if the product have been added to the proposal
+        await this.isProductAddedToProposal(id, item.productId);
         return this.database.orderItem.save(item);
     }
 
     async updateItem(id: number, itemId: number, item: UpdateOrderItemDto) {
         await this.isStatusValid({ id, statuses: [ORDER_STATUS.PENDING] });
+        // check if the product have been added to the proposal
+        await this.isProductAddedToProposal(id, item.productId);
         return this.database.orderItem.update({ id: itemId, orderId: id }, item);
     }
 
@@ -142,23 +146,26 @@ export class OrderService {
     }
 
     /**
-     * The function `getProposal` retrieves a proposal entity from the database based on the provided
-     * proposal ID and order type, and performs several validation checks before returning the
-     * proposal.
-     * @param {number} proposalId - The proposalId parameter is the unique identifier of the proposal
-     * that you want to retrieve.
-     * @param {ORDER_TYPE} orderType - The `orderType` parameter is of type `ORDER_TYPE`, which is an
-     * enum representing the type of order. It can have the value `PURCHASE` or any other value defined
-     * in the `ORDER_TYPE` enum.
-     * @returns a Promise that resolves to a ProposalEntity object.
+     * The function `getProposal` retrieves a proposal from the database based on the provided proposal
+     * ID, provider ID, and order type, and performs various checks and validations before returning
+     * the proposal.
+     * @param {number} proposalId - The ID of the proposal you want to retrieve.
+     * @param {number} providerId - The `providerId` parameter is the ID of the provider associated
+     * with the proposal.
+     * @param {ORDER_TYPE} orderType - The orderType parameter is of type ORDER_TYPE, which is an enum
+     * representing different types of orders.
+     * @returns a Promise that resolves to a ProposalEntity.
      */
-    private async getProposal(proposalId: number, orderType: ORDER_TYPE): Promise<ProposalEntity> {
+    private async getProposal(proposalId: number, providerId: number, orderType: ORDER_TYPE): Promise<ProposalEntity> {
         const proposal = await this.database.proposal.findOne({ where: { id: proposalId } });
         if (!proposal) throw new HttpException('Phiếu đề xuất không tồn tại', 400);
         if (proposal.status !== PROPOSAL_STATUS.APPROVED) throw new HttpException('Phiếu đề xuất chưa được duyệt', 400);
         if (proposal.type !== PROPOSAL_TYPE.PURCHASE) throw new HttpException('Phiếu đề xuất không phải là phiếu mua hàng', 400);
         if (orderType !== ORDER_TYPE.PURCHASE && proposal.type !== PROPOSAL_TYPE.PURCHASE)
             throw new HttpException('Loại đơn hàng không phải là đơn hàng mua hàng', 400);
+
+        const count = await this.database.order.count({ where: { proposalId, providerId } });
+        if (count > 0) throw new HttpException('Đơn hàng đã tồn tại', 400);
 
         return proposal;
     }
@@ -210,5 +217,16 @@ export class OrderService {
         await this.isStatusValid({ id: data.id, statuses: data.from });
         this.database.orderProgressTracking.save({ orderId: data.id, status: data.to, trackingDate: new Date() });
         return this.database.order.update(data.id, { status: data.to });
+    }
+
+    /**
+     * The function checks if a product is added to a proposal and throws an exception if it is not.
+     * @param {number} orderId - The orderId parameter is a number that represents the ID of the order.
+     * @param {number} productId - The `productId` parameter is the ID of the product that needs to be
+     * checked if it has been added to a proposal.
+     */
+    private async isProductAddedToProposal(orderId: number, productId: number) {
+        const result = await this.database.order.isProductAddedToProposal(orderId, productId);
+        if (!result) throw new HttpException('Sản phẩm chưa được thêm vào phiếu đề xuất', 400);
     }
 }
