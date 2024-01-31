@@ -88,10 +88,9 @@ export class OrderService {
         return this.database.order.delete(id);
     }
 
-    async getItems(queries: FilterDto & { orderId: number; productId: number }) {
+    async getItems(queries: FilterDto & { orderId: number; productId: string }) {
         const { builder, take, pagination } = this.utilService.getQueryBuilderAndPagination(this.database.orderItem, queries);
-        if (!this.utilService.isEmpty(queries.search))
-            builder.andWhere(this.utilService.fullTextSearch({ fields: ['product.name'], keyword: queries.search }));
+        builder.andWhere(this.utilService.fullTextSearch({ fields: ['product.name'], keyword: queries.search }));
 
         builder.leftJoinAndSelect('entity.product', 'product');
         builder.leftJoinAndSelect('product.unit', 'unit');

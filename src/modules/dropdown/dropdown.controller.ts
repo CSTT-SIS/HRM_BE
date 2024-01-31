@@ -56,6 +56,12 @@ export class DropdownController {
         return this.dropdownService.proposal({ ...queries, type, status });
     }
 
+    @Permission('proposal:findAll')
+    @Get('proposal-type')
+    proposalType() {
+        return this.dropdownService.proposalType();
+    }
+
     @Permission('warehouse:findAll')
     @Get('warehouse')
     @ApiQuery({ type: FilterDto })
@@ -75,5 +81,11 @@ export class DropdownController {
         @Query('providerId', new ParseIntPipe({ optional: true })) providerId: string,
     ) {
         return this.dropdownService.order({ ...queries, proposalId, providerId });
+    }
+
+    @Permission('order:findAll')
+    @Get('order-type')
+    orderType() {
+        return this.dropdownService.orderType();
     }
 }

@@ -22,18 +22,20 @@ export class WarehousingBillController {
     @Permission('warehousingBill:findAll')
     @Get()
     @ApiQuery({ type: FilterDto })
-    @ApiQuery({ name: 'proposalId', required: false })
-    @ApiQuery({ name: 'warehouseId', required: false })
+    @ApiQuery({ name: 'proposalId', required: false, type: Number })
+    @ApiQuery({ name: 'warehouseId', required: false, type: Number })
+    @ApiQuery({ name: 'orderId', required: false, type: Number })
     @ApiQuery({ name: 'type', enum: WAREHOUSING_BILL_TYPE, required: false })
     @ApiQuery({ name: 'status', enum: WAREHOUSING_BILL_STATUS, required: false })
     findAll(
         @Query() queries,
         @Query('proposalId', new ParseIntPipe({ optional: true })) proposalId: string,
         @Query('warehouseId', new ParseIntPipe({ optional: true })) warehouseId: string,
+        @Query('orderId', new ParseIntPipe({ optional: true })) orderId: string,
         @Query('type') type: string,
         @Query('status') status: string,
     ) {
-        return this.warehousingBillService.findAll({ ...queries, proposalId, warehouseId, type, status });
+        return this.warehousingBillService.findAll({ ...queries, proposalId, warehouseId, orderId, type, status });
     }
 
     @Permission('warehousingBill:findOne')
@@ -52,6 +54,17 @@ export class WarehousingBillController {
     @Delete(':id')
     remove(@Param('id', ParseIntPipe) id: string) {
         return this.warehousingBillService.remove(+id);
+    }
+
+    @Permission('warehousingBill:getDetails')
+    @Get(':id/details')
+    @ApiQuery({ name: 'productId', required: false })
+    getDetails(
+        @Param('id', ParseIntPipe) id: string,
+        @Query() queries: FilterDto,
+        @Query('productId', new ParseIntPipe({ optional: true })) productId: string,
+    ) {
+        return this.warehousingBillService.getDetails({ ...queries, warehousingBillId: +id, productId });
     }
 
     @Permission('warehousingBill:approve')

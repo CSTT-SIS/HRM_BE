@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { FilterDto } from '~/common/dtos/filter.dto';
-import { PROPOSAL_STATUS, PROPOSAL_TYPE } from '~/common/enums/enum';
+import { ORDER_TYPE, ORDER_TYPE_NAME, PROPOSAL_STATUS, PROPOSAL_TYPE, PROPOSAL_TYPE_NAME } from '~/common/enums/enum';
 import { DatabaseService } from '~/database/typeorm/database.service';
 import { UtilService } from '~/shared/services';
 
@@ -70,6 +70,10 @@ export class DropdownService {
         });
     }
 
+    proposalType() {
+        return Object.values(PROPOSAL_TYPE).map((item) => ({ value: item, label: PROPOSAL_TYPE_NAME[item] }));
+    }
+
     warehouse(queries: FilterDto & { typeId: number }) {
         return this.getDropdown({
             entity: 'warehouse',
@@ -90,6 +94,10 @@ export class DropdownService {
             fulltext: true,
             andWhere: this.utilService.getConditionsFromQuery(queries, ['proposalId', 'providerId']),
         });
+    }
+
+    orderType() {
+        return Object.values(ORDER_TYPE).map((item) => ({ value: item, label: ORDER_TYPE_NAME[item] }));
     }
 
     private async getDropdown(data: {

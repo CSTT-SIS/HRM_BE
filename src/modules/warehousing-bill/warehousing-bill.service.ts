@@ -1,6 +1,7 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import moment from 'moment';
 import { In, IsNull, Not } from 'typeorm';
+import { FilterDto } from '~/common/dtos/filter.dto';
 import { ORDER_STATUS, PROPOSAL_STATUS, WAREHOUSING_BILL_STATUS, WAREHOUSING_BILL_TYPE } from '~/common/enums/enum';
 import { UserStorage } from '~/common/storages/user.storage';
 import { DatabaseService } from '~/database/typeorm/database.service';
@@ -43,7 +44,7 @@ export class WarehousingBillService {
             this.database.warehousingBill.create({
                 ...createWarehousingBillDto,
                 createdById: UserStorage.getId(),
-                code: createWarehousingBillDto.type + '-' + moment().utc(),
+                code: `${createWarehousingBillDto.type}-${moment().unix()}`,
             }),
         );
         this.createBillDetails(entity);
@@ -51,20 +52,20 @@ export class WarehousingBillService {
         return entity;
     }
 
-    async findAll(queries: {
-        page: number;
-        perPage: number;
-        search: string;
-        sortBy: string;
-        proposalId: number;
-        warehouseId: number;
-        type: WAREHOUSING_BILL_TYPE;
-        status: WAREHOUSING_BILL_STATUS;
-    }) {
+    async findAll(
+        queries: FilterDto & {
+            proposalId: number;
+            warehouseId: number;
+            orderId: number;
+            type: WAREHOUSING_BILL_TYPE;
+            status: WAREHOUSING_BILL_STATUS;
+        },
+    ) {
         const { builder, take, pagination } = this.utilService.getQueryBuilderAndPagination(this.database.warehousingBill, queries);
-        builder.andWhere(this.utilService.getConditionsFromQuery(queries, ['proposalId', 'warehouseId', 'type', 'status']));
+        builder.andWhere(this.utilService.getConditionsFromQuery(queries, ['proposalId', 'warehouseId', 'orderId', 'type', 'status']));
 
         builder.leftJoinAndSelect('entity.proposal', 'proposal');
+        builder.leftJoinAndSelect('entity.order', 'order');
         builder.leftJoinAndSelect('entity.warehouse', 'warehouse');
         builder.leftJoinAndSelect('entity.createdBy', 'createdBy');
         builder.leftJoinAndSelect('entity.updatedBy', 'updatedBy');
@@ -72,6 +73,8 @@ export class WarehousingBillService {
             'entity',
             'proposal.id',
             'proposal.name',
+            'order.id',
+            'order.name',
             'warehouse.id',
             'warehouse.name',
             'createdBy.id',
@@ -136,6 +139,28 @@ export class WarehousingBillService {
         await this.isStatusValid({ id, statuses: [WAREHOUSING_BILL_STATUS.PENDING, WAREHOUSING_BILL_STATUS.REJECTED] });
         await this.database.warehousingBillDetail.delete({ warehousingBillId: id });
         return this.database.warehousingBill.delete(id);
+    }
+
+    async getDetails(queries: FilterDto & { warehousingBillId: number; productId: string }) {
+        const { builder, take, pagination } = this.utilService.getQueryBuilderAndPagination(this.database.warehousingBillDetail, queries);
+        builder.andWhere(this.utilService.fullTextSearch({ fields: ['product.name'], keyword: queries.search }));
+
+        builder.leftJoinAndSelect('entity.product', 'product');
+        builder.leftJoinAndSelect('product.unit', 'unit');
+        builder.andWhere('entity.warehousingBillId = :id', { id: queries.warehousingBillId });
+        builder.andWhere(this.utilService.getConditionsFromQuery(queries, ['productId']));
+        builder.select(['entity', 'product.id', 'product.name', 'product.code', 'unit.id', 'unit.name']);
+
+        const [result, total] = await builder.getManyAndCount();
+        const totalPages = Math.ceil(total / take);
+        return {
+            data: result,
+            pagination: {
+                ...pagination,
+                totalRecords: total,
+                totalPages: totalPages,
+            },
+        };
     }
 
     async approve(id: number) {

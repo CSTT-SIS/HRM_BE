@@ -77,9 +77,12 @@ export class OrderController {
 
     @Permission('order:getItems')
     @Get(':id/get-items')
-    @ApiQuery({ type: FilterDto })
     @ApiQuery({ name: 'productId', required: false })
-    getDetails(@Param('id', ParseIntPipe) id: string, @Query() queries, @Query('productId', new ParseIntPipe({ optional: true })) productId: string) {
+    getDetails(
+        @Param('id', ParseIntPipe) id: string,
+        @Query() queries: FilterDto,
+        @Query('productId', new ParseIntPipe({ optional: true })) productId: string,
+    ) {
         return this.orderService.getItems({ ...queries, orderId: +id, productId });
     }
 

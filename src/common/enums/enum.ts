@@ -58,6 +58,11 @@ export enum PROPOSAL_TYPE {
     // REPLENISHMENT = 'REPLENISHMENT',
 }
 
+export enum PROPOSAL_TYPE_NAME {
+    PURCHASE = 'Yêu cầu mua hàng',
+    REPAIR = 'Yêu cầu sửa chữa',
+}
+
 export enum WAREHOUSING_BILL_TYPE {
     IMPORT = 'IMPORT',
     EXPORT = 'EXPORT',
@@ -86,6 +91,11 @@ export enum STOCKTAKE_STATUS {
 export enum ORDER_TYPE {
     PURCHASE = 'PURCHASE',
     SALE = 'SALE',
+}
+
+export enum ORDER_TYPE_NAME {
+    PURCHASE = 'Đơn hàng mua',
+    SALE = 'Đơn hàng bán',
 }
 
 export enum ORDER_STATUS {
