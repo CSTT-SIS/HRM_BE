@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { FilterDto } from '~/common/dtos/filter.dto';
 import { INVENTORY_HISTORY_TYPE } from '~/common/enums/enum';
 import { UserStorage } from '~/common/storages/user.storage';
 import { DatabaseService } from '~/database/typeorm/database.service';
@@ -18,12 +19,11 @@ export class WarehouseService {
         return { result: true, message: 'Tạo kho thành công', data: entity };
     }
 
-    async findAll(queries: { page: number; perPage: number; search: string; sortBy: string; typeId: number }) {
+    async findAll(queries: FilterDto & { typeId: number }) {
         const { builder, take, pagination } = this.utilService.getQueryBuilderAndPagination(this.database.warehouse, queries);
 
         builder.andWhere(this.utilService.relationQuerySearch({ typeId: queries.typeId }));
-        if (!this.utilService.isEmpty(queries.search))
-            builder.andWhere(this.utilService.fullTextSearch({ fields: ['name'], keyword: queries.search }));
+        builder.andWhere(this.utilService.fullTextSearch({ fields: ['name'], keyword: queries.search }));
 
         builder.leftJoinAndSelect('entity.type', 'type');
         builder.select(['entity', 'type.id', 'type.name']);
@@ -52,7 +52,7 @@ export class WarehouseService {
         return this.database.warehouse.delete(id);
     }
 
-    async getProducts(queries: { page: number; perPage: number; search: string; sortBy: string; warehouseId: number }) {
+    async getProducts(queries: FilterDto & { warehouseId: number }) {
         const { builder, take, pagination } = this.utilService.getQueryBuilderAndPagination(this.database.inventory, queries);
 
         builder.andWhere(this.utilService.relationQuerySearch({ warehouseId: queries.warehouseId }));

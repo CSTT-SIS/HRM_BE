@@ -1,5 +1,6 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { In } from 'typeorm';
+import { FilterDto } from '~/common/dtos/filter.dto';
 import { STOCKTAKE_STATUS } from '~/common/enums/enum';
 import { UserStorage } from '~/common/storages/user.storage';
 import { DatabaseService } from '~/database/typeorm/database.service';
@@ -24,7 +25,7 @@ export class StocktakeService {
         return entity;
     }
 
-    async findAll(queries: { page: number; perPage: number; search: string; sortBy: string }) {
+    async findAll(queries: FilterDto) {
         const { builder, take, pagination } = this.utilService.getQueryBuilderAndPagination(this.database.stocktake, queries);
 
         if (!this.utilService.isEmpty(queries.search))
@@ -123,7 +124,7 @@ export class StocktakeService {
         return this.database.stocktakeDetail.save(this.database.stocktakeDetail.create(details));
     }
 
-    async getDetails(queries: { page: number; perPage: number; search: string; sortBy: string; stocktakeId: number; productId: number }) {
+    async getDetails(queries: FilterDto & { stocktakeId: number; productId: number }) {
         const { builder, take, pagination } = this.utilService.getQueryBuilderAndPagination(this.database.stocktakeDetail, queries);
         if (!this.utilService.isEmpty(queries.search))
             builder.andWhere(this.utilService.fullTextSearch({ fields: ['product.name'], keyword: queries.search }));

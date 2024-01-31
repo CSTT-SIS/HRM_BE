@@ -22,7 +22,7 @@ export class ProductController {
     @Permission('product:findAll')
     @Get()
     @ApiQuery({ type: FilterDto })
-    @ApiQuery({ name: 'categoryId', required: false })
+    @ApiQuery({ name: 'categoryId', required: false, type: Number })
     findAll(@Query() queries, @Query('categoryId', new ParseIntPipe({ optional: true })) categoryId: string) {
         return this.productService.findAll({ ...queries, categoryId });
     }

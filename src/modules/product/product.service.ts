@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { FilterDto } from '~/common/dtos/filter.dto';
 import { UserStorage } from '~/common/storages/user.storage';
 import { DatabaseService } from '~/database/typeorm/database.service';
 import { UpdateProductLimitDto } from '~/modules/product/dto/update-product-limit.dto';
@@ -14,13 +15,11 @@ export class ProductService {
         return this.database.product.save(this.database.product.create(createProductDto));
     }
 
-    async findAll(queries: { page: number; perPage: number; search: string; sortBy: string; categoryId: number }) {
+    async findAll(queries: FilterDto & { categoryId: number }) {
         const { builder, take, pagination } = this.utilService.getQueryBuilderAndPagination(this.database.product, queries);
 
         builder.andWhere(this.utilService.relationQuerySearch({ categoryId: queries.categoryId }));
-        if (!this.utilService.isEmpty(queries.search)) {
-            builder.andWhere(this.utilService.fullTextSearch({ fields: ['name', 'code'], keyword: queries.search }));
-        }
+        builder.andWhere(this.utilService.fullTextSearch({ fields: ['name', 'code'], keyword: queries.search }));
 
         builder.leftJoinAndSelect('entity.category', 'category');
         builder.leftJoinAndSelect('entity.unit', 'unit');

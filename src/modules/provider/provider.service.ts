@@ -16,9 +16,7 @@ export class ProviderService {
     async findAll(queries: FilterDto & { test: string }) {
         const { builder, take, pagination } = this.utilService.getQueryBuilderAndPagination(this.database.provider, queries);
 
-        if (!this.utilService.isEmpty(queries.search)) {
-            builder.andWhere(this.utilService.fullTextSearch({ fields: ['name'], keyword: queries.search }));
-        }
+        builder.andWhere(this.utilService.fullTextSearch({ fields: ['name'], keyword: queries.search }));
 
         builder.select(['entity']);
 

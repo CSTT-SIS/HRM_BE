@@ -23,8 +23,14 @@ export class OrderController {
     @Permission('order:findAll')
     @Get()
     @ApiQuery({ type: FilterDto })
-    findAll(@Query() queries) {
-        return this.orderService.findAll({ ...queries });
+    @ApiQuery({ name: 'proposalId', required: false, type: Number })
+    @ApiQuery({ name: 'providerId', required: false, type: Number })
+    findAll(
+        @Query() queries,
+        @Query('proposalId', new ParseIntPipe({ optional: true })) proposalId: string,
+        @Query('providerId', new ParseIntPipe({ optional: true })) providerId: string,
+    ) {
+        return this.orderService.findAll({ ...queries, proposalId, providerId });
     }
 
     @Permission('order:findOne')

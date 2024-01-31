@@ -1,4 +1,6 @@
 import { Injectable } from '@nestjs/common';
+import { FilterDto } from '~/common/dtos/filter.dto';
+import { PROPOSAL_STATUS, PROPOSAL_TYPE } from '~/common/enums/enum';
 import { DatabaseService } from '~/database/typeorm/database.service';
 import { UtilService } from '~/shared/services';
 
@@ -6,7 +8,7 @@ import { UtilService } from '~/shared/services';
 export class DropdownService {
     constructor(private readonly utilService: UtilService, private readonly database: DatabaseService) {}
 
-    warehouseType(queries: { page: number; perPage: number; search: string; sortBy: string }) {
+    warehouseType(queries: FilterDto) {
         return this.getDropdown({
             entity: 'warehouseType',
             queries,
@@ -16,17 +18,18 @@ export class DropdownService {
         });
     }
 
-    product(queries: { page: number; perPage: number; search: string; sortBy: string }) {
+    product(queries: FilterDto & { categoryId: number }) {
         return this.getDropdown({
             entity: 'product',
             queries,
             label: 'name',
             value: 'id',
             fulltext: true,
+            andWhere: this.utilService.relationQuerySearch({ categoryId: queries.categoryId }),
         });
     }
 
-    productCategory(queries: { page: number; perPage: number; search: string; sortBy: string }) {
+    productCategory(queries: FilterDto) {
         return this.getDropdown({
             entity: 'productCategory',
             queries,
@@ -36,7 +39,7 @@ export class DropdownService {
         });
     }
 
-    unit(queries: { page: number; perPage: number; search: string; sortBy: string }) {
+    unit(queries: FilterDto) {
         return this.getDropdown({
             entity: 'unit',
             queries,
@@ -46,7 +49,7 @@ export class DropdownService {
         });
     }
 
-    provider(queries: { page: number; perPage: number; search: string; sortBy: string }) {
+    provider(queries: FilterDto) {
         return this.getDropdown({
             entity: 'provider',
             queries,
@@ -56,22 +59,46 @@ export class DropdownService {
         });
     }
 
-    proposal(queries: { page: number; perPage: number; search: string; sortBy: string }) {
+    proposal(queries: FilterDto & { type: PROPOSAL_TYPE; status: PROPOSAL_STATUS }) {
         return this.getDropdown({
             entity: 'proposal',
             queries,
             label: 'name',
             value: 'id',
             fulltext: true,
+            andWhere: this.utilService.getConditionsFromQuery(queries, ['type', 'status']),
+        });
+    }
+
+    warehouse(queries: FilterDto & { typeId: number }) {
+        return this.getDropdown({
+            entity: 'warehouse',
+            queries,
+            label: 'name',
+            value: 'id',
+            fulltext: true,
+            andWhere: this.utilService.relationQuerySearch({ typeId: queries.typeId }),
+        });
+    }
+
+    order(queries: FilterDto & { proposalId: number; providerId: number }) {
+        return this.getDropdown({
+            entity: 'order',
+            queries,
+            label: 'name',
+            value: 'id',
+            fulltext: true,
+            andWhere: this.utilService.getConditionsFromQuery(queries, ['proposalId', 'providerId']),
         });
     }
 
     private async getDropdown(data: {
         entity: string;
-        queries: { page: number; perPage: number; search: string; sortBy: string };
+        queries: FilterDto;
         label: string;
         value: string;
-        fulltext?: boolean;
+        fulltext: boolean;
+        andWhere?: string | string[] | object;
     }) {
         const { builder, take, pagination } = this.utilService.getQueryBuilderAndPagination(this.database[data.entity], data.queries);
         builder.select([`entity.${data.value} as value`, `entity.${data.label} as label`]);
@@ -82,6 +109,9 @@ export class DropdownService {
         }
         if (data.queries.search && !data.fulltext) {
             builder.andWhere(`entity.${data.label} ILIKE :search`, { search: `%${data.queries.search}%` });
+        }
+        if (data.andWhere) {
+            builder.andWhere(data.andWhere);
         }
 
         const result = await builder.getRawMany();

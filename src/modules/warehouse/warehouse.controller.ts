@@ -22,7 +22,7 @@ export class WarehouseController {
     @Permission('warehouse:findAll')
     @Get()
     @ApiQuery({ type: FilterDto })
-    @ApiQuery({ name: 'typeId', required: false })
+    @ApiQuery({ name: 'typeId', required: false, type: Number })
     findAll(@Query() queries, @Query('typeId', new ParseIntPipe({ optional: true })) typeId: string) {
         return this.warehouseService.findAll({ ...queries, typeId });
     }

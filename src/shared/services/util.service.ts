@@ -283,6 +283,7 @@ export class UtilService {
      * @returns raw fulltext condition string with OR operator between fields
      */
     fullTextSearch(data: { entityAlias?: string; fields?: string[]; keyword: string }) {
+        if (this.isEmpty(data.keyword)) return {};
         const { entityAlias, keyword, fields } = data;
         const entityAliasString = entityAlias ? `${entityAlias}.` : 'entity.';
         return fields
@@ -298,7 +299,7 @@ export class UtilService {
      * @returns raw condition string with OR operator between fields
      */
     rawQuerySearch(data: { entityAlias?: string; fields?: string[]; keyword: string }) {
-        if (this.isEmpty(data.keyword)) return null;
+        if (this.isEmpty(data.keyword)) return {};
         const { entityAlias, keyword, fields } = data;
         const entityAliasString = entityAlias ? `${entityAlias}.` : 'entity.';
         return fields.map((field) => `${field.indexOf('.') === -1 ? entityAliasString : ''}${field} LIKE '%${keyword}%'`).join(' OR ');
@@ -314,14 +315,16 @@ export class UtilService {
         const { entityAlias, ...rest } = data;
         const entityAliasString = entityAlias ? `${entityAlias}.` : 'entity.';
         const fields = Object.keys(rest);
-        return fields
-            .map((field) => {
-                if (this.isEmpty(rest[field])) return null;
-                const searchCondition = rest[field] == 0 ? 'IS NULL' : `= '${rest[field]}'`;
-                return `${field.indexOf('.') === -1 ? entityAliasString : ''}${field} ${searchCondition}`;
-            })
-            .filter((el) => el !== null)
-            .join(' AND ');
+        return (
+            fields
+                .map((field) => {
+                    if (this.isEmpty(rest[field])) return null;
+                    const searchCondition = rest[field] == 0 ? 'IS NULL' : `= '${rest[field]}'`;
+                    return `${field.indexOf('.') === -1 ? entityAliasString : ''}${field} ${searchCondition}`;
+                })
+                .filter((el) => el !== null)
+                .join(' AND ') || '1=1'
+        );
     }
 
     /**

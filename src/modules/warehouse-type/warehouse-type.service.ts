@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { FilterDto } from '~/common/dtos/filter.dto';
 import { DatabaseService } from '~/database/typeorm/database.service';
 import { UtilService } from '~/shared/services';
 import { CreateWarehouseTypeDto } from './dto/create-warehouse-type.dto';
@@ -12,7 +13,7 @@ export class WarehouseTypeService {
         return this.database.warehouseType.save(this.database.warehouseType.create(createWarehouseTypeDto));
     }
 
-    async findAll(queries: { page: number; perPage: number; search: string; sortBy: string }) {
+    async findAll(queries: FilterDto) {
         const { builder, take, pagination } = this.utilService.getQueryBuilderAndPagination(this.database.warehouseType, queries);
 
         if (!this.utilService.isEmpty(queries.search)) {

@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { FilterDto } from '~/common/dtos/filter.dto';
 import { DatabaseService } from '~/database/typeorm/database.service';
 import { UtilService } from '~/shared/services';
 import { CreateProductCategoryDto } from './dto/create-product-category.dto';
@@ -12,7 +13,7 @@ export class ProductCategoryService {
         return this.database.productCategory.save(this.database.productCategory.create(createProductCategoryDto));
     }
 
-    async findAll(queries: { page: number; perPage: number; search: string; sortBy: string }) {
+    async findAll(queries: FilterDto) {
         const { builder, take, pagination } = this.utilService.getQueryBuilderAndPagination(this.database.productCategory, queries);
 
         if (!this.utilService.isEmpty(queries.search))

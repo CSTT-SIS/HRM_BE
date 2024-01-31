@@ -1,4 +1,5 @@
 import { HttpException, Injectable } from '@nestjs/common';
+import { FilterDto } from '~/common/dtos/filter.dto';
 import { ORDER_STATUS, ORDER_TYPE, PROPOSAL_STATUS, PROPOSAL_TYPE } from '~/common/enums/enum';
 import { UserStorage } from '~/common/storages/user.storage';
 import { DatabaseService } from '~/database/typeorm/database.service';
@@ -22,11 +23,11 @@ export class OrderService {
         return entity;
     }
 
-    async findAll(queries: { page: number; perPage: number; search: string; sortBy: string }) {
+    async findAll(queries: FilterDto & { proposalId: number; providerId: number }) {
         const { builder, take, pagination } = this.utilService.getQueryBuilderAndPagination(this.database.order, queries);
 
-        if (!this.utilService.isEmpty(queries.search))
-            builder.andWhere(this.utilService.fullTextSearch({ fields: ['name'], keyword: queries.search }));
+        builder.andWhere(this.utilService.getConditionsFromQuery(queries, ['proposalId', 'providerId']));
+        builder.andWhere(this.utilService.fullTextSearch({ fields: ['name'], keyword: queries.search }));
 
         builder.leftJoinAndSelect('entity.createdBy', 'createdBy');
         builder.leftJoinAndSelect('entity.proposal', 'proposal');
@@ -87,7 +88,7 @@ export class OrderService {
         return this.database.order.delete(id);
     }
 
-    async getItems(queries: { page: number; perPage: number; search: string; sortBy: string; orderId: number; productId: number }) {
+    async getItems(queries: FilterDto & { orderId: number; productId: number }) {
         const { builder, take, pagination } = this.utilService.getQueryBuilderAndPagination(this.database.orderItem, queries);
         if (!this.utilService.isEmpty(queries.search))
             builder.andWhere(this.utilService.fullTextSearch({ fields: ['product.name'], keyword: queries.search }));

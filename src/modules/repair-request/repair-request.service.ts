@@ -1,5 +1,6 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import moment from 'moment';
+import { FilterDto } from '~/common/dtos/filter.dto';
 import { REPAIR_REQUEST_STATUS } from '~/common/enums/enum';
 import { DatabaseService } from '~/database/typeorm/database.service';
 import { CreateRepairDetailDto } from '~/modules/repair-request/dto/create-repair-detail.dto';
@@ -36,7 +37,7 @@ export class RepairRequestService {
         return entity;
     }
 
-    async findAll(queries: { page: number; perPage: number; search: string; sortBy: string; repairById: number }) {
+    async findAll(queries: FilterDto & { repairById: number }) {
         const { builder, take, pagination } = this.utilService.getQueryBuilderAndPagination(this.database.repairRequest, queries);
 
         builder.andWhere(this.utilService.getConditionsFromQuery(queries, ['repairById']));
@@ -103,7 +104,7 @@ export class RepairRequestService {
         return this.database.repairRequest.delete(id);
     }
 
-    async getDetails(queries: { page: number; perPage: number; search: string; sortBy: string; requestId: number; productId: number }) {
+    async getDetails(queries: FilterDto & { requestId: number; productId: number }) {
         const { builder, take, pagination } = this.utilService.getQueryBuilderAndPagination(this.database.repairDetail, queries);
         if (!this.utilService.isEmpty(queries.search))
             builder.andWhere(this.utilService.fullTextSearch({ fields: ['product.name'], keyword: queries.search }));

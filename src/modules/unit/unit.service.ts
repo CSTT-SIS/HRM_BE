@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { FilterDto } from '~/common/dtos/filter.dto';
 import { DatabaseService } from '~/database/typeorm/database.service';
 import { UtilService } from '~/shared/services';
 import { CreateUnitDto } from './dto/create-unit.dto';
@@ -12,7 +13,7 @@ export class UnitService {
         return this.database.unit.save(this.database.unit.create(createUnitDto));
     }
 
-    async findAll(queries: { page: number; perPage: number; search: string; sortBy: string }) {
+    async findAll(queries: FilterDto) {
         const { builder, take, pagination } = this.utilService.getQueryBuilderAndPagination(this.database.unit, queries);
 
         if (!this.utilService.isEmpty(queries.search))

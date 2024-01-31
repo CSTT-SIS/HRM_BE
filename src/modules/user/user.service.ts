@@ -1,4 +1,5 @@
 import { HttpException, Injectable } from '@nestjs/common';
+import { FilterDto } from '~/common/dtos/filter.dto';
 import { DatabaseService } from '~/database/typeorm/database.service';
 import { MediaService } from '~/modules/media/media.service';
 import { TokenService, UtilService } from '~/shared/services';
@@ -48,7 +49,7 @@ export class UserService {
         };
     }
 
-    async findAll(queries: { page: number; perPage: number; search: string; sortBy: string }) {
+    async findAll(queries: FilterDto) {
         const { builder, take, pagination } = this.utilService.getQueryBuilderAndPagination(this.database.user, queries);
 
         if (!this.utilService.isEmpty(queries.search)) {

@@ -1,5 +1,6 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { In } from 'typeorm';
+import { FilterDto } from '~/common/dtos/filter.dto';
 import { PROPOSAL_STATUS, PROPOSAL_TYPE } from '~/common/enums/enum';
 import { UserStorage } from '~/common/storages/user.storage';
 import { DatabaseService } from '~/database/typeorm/database.service';
@@ -23,11 +24,10 @@ export class ProposalService {
         return this.database.proposal.save(this.database.proposal.create({ ...createProposalDto, createdById: UserStorage.getId() }));
     }
 
-    async findAll(queries: { page: number; perPage: number; search: string; sortBy: string; type: PROPOSAL_TYPE; status: PROPOSAL_STATUS }) {
+    async findAll(queries: FilterDto & { type: PROPOSAL_TYPE; status: PROPOSAL_STATUS }) {
         const { builder, take, pagination } = this.utilService.getQueryBuilderAndPagination(this.database.proposal, queries);
 
-        if (!this.utilService.isEmpty(queries.search))
-            builder.andWhere(this.utilService.fullTextSearch({ fields: ['name'], keyword: queries.search }));
+        builder.andWhere(this.utilService.fullTextSearch({ fields: ['name'], keyword: queries.search }));
         builder.andWhere(this.utilService.getConditionsFromQuery(queries, ['type', 'status']));
 
         builder.leftJoinAndSelect('entity.createdBy', 'createdBy');
@@ -145,7 +145,7 @@ export class ProposalService {
         return { message: 'Đã trả lại đề xuất', data: { id } };
     }
 
-    async getDetails(queries: { page: number; perPage: number; search: string; sortBy: string; proposalId: number; productId: number }) {
+    async getDetails(queries: FilterDto & { proposalId: number; productId: number }) {
         const { builder, take, pagination } = this.utilService.getQueryBuilderAndPagination(this.database.proposalDetail, queries);
         if (!this.utilService.isEmpty(queries.search))
             builder.andWhere(this.utilService.fullTextSearch({ fields: ['product.name'], keyword: queries.search }));
