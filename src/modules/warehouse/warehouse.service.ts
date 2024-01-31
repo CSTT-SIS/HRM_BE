@@ -93,9 +93,7 @@ export class WarehouseService {
     }
 
     async importGoods(id: number, data: ImportGoodDto) {
-        await this.utilService.checkRelationIdExist({
-            warehouse: id,
-        });
+        await this.utilService.checkRelationIdExist({ warehouse: id });
 
         let inventory = await this.database.inventory.findOne({ where: { warehouseId: id, productId: data.productId } });
         if (inventory) {

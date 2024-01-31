@@ -24,6 +24,12 @@ export class WarehousingBillEntity extends AbstractEntity {
     @Column({ name: 'type', type: 'varchar', length: 50 })
     type: WAREHOUSING_BILL_TYPE;
 
+    @Column({ name: 'name', type: 'varchar', length: 255, nullable: true })
+    name: string;
+
+    @Column({ name: 'code', type: 'varchar', length: 50, nullable: true })
+    code: string;
+
     @Column({ name: 'status', type: 'varchar', length: 50, default: WAREHOUSING_BILL_STATUS.PENDING })
     status: WAREHOUSING_BILL_STATUS;
 

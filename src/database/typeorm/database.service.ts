@@ -34,6 +34,7 @@ import { VehicleRepository } from '~/database/typeorm/repositories/vehicle.repos
 import { RepairRequestRepository } from '~/database/typeorm/repositories/repairRequest.repository';
 import { RepairDetailRepository } from '~/database/typeorm/repositories/repairDetail.repository';
 import { RepairProgressRepository } from '~/database/typeorm/repositories/repairProgress.repository';
+import { NotificationRepository } from '~/database/typeorm/repositories/notification.repository';
 
 @Injectable()
 export class DatabaseService {
@@ -72,6 +73,7 @@ export class DatabaseService {
         public readonly repairRequest: RepairRequestRepository,
         public readonly repairDetail: RepairDetailRepository,
         public readonly repairProgress: RepairProgressRepository,
+        public readonly notification: NotificationRepository,
     ) {
         // load all departments to cache
         // this.loadDepartmentsToCache();

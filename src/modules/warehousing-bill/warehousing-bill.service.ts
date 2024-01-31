@@ -1,4 +1,5 @@
 import { HttpException, Injectable } from '@nestjs/common';
+import moment from 'moment';
 import { In, IsNull, Not } from 'typeorm';
 import { ORDER_STATUS, PROPOSAL_STATUS, WAREHOUSING_BILL_STATUS, WAREHOUSING_BILL_TYPE } from '~/common/enums/enum';
 import { UserStorage } from '~/common/storages/user.storage';
@@ -39,7 +40,11 @@ export class WarehousingBillService {
         }
 
         const entity = await this.database.warehousingBill.save(
-            this.database.warehousingBill.create({ ...createWarehousingBillDto, createdById: UserStorage.getId() }),
+            this.database.warehousingBill.create({
+                ...createWarehousingBillDto,
+                createdById: UserStorage.getId(),
+                code: createWarehousingBillDto.type + '-' + moment().utc(),
+            }),
         );
         this.createBillDetails(entity);
 

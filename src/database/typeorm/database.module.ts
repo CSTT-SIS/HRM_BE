@@ -67,6 +67,8 @@ import { VehicleRepository } from '~/database/typeorm/repositories/vehicle.repos
 import { RepairRequestRepository } from '~/database/typeorm/repositories/repairRequest.repository';
 import { RepairDetailRepository } from '~/database/typeorm/repositories/repairDetail.repository';
 import { RepairProgressRepository } from '~/database/typeorm/repositories/repairProgress.repository';
+import { NotificationEntity } from '~/database/typeorm/entities/notification.entity';
+import { NotificationRepository } from '~/database/typeorm/repositories/notification.repository';
 
 const entities = [
     RoleEntity,
@@ -101,6 +103,7 @@ const entities = [
     RepairRequestEntity,
     RepairDetailEntity,
     RepairProgressEntity,
+    NotificationEntity,
 ];
 
 const repositories = [
@@ -136,6 +139,7 @@ const repositories = [
     RepairRequestRepository,
     RepairDetailRepository,
     RepairProgressRepository,
+    NotificationRepository,
 ];
 
 @Global()

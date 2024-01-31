@@ -29,6 +29,11 @@ export class CreateWarehousingBillDto {
     type: WAREHOUSING_BILL_TYPE;
 
     @ApiProperty({ type: 'string', required: false })
+    @IsNotEmpty()
+    @IsString({ message: 'Tên phiếu phải là chuỗi' })
+    name: string;
+
+    @ApiProperty({ type: 'string', required: false })
     @IsOptional()
     @IsString({ message: 'Ghi chú phải là chuỗi' })
     note?: string;
