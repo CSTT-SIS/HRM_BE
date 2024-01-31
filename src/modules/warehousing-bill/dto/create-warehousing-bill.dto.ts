@@ -11,8 +11,9 @@ export class CreateWarehousingBillDto {
     proposalId: number;
 
     @ApiProperty({ type: 'integer', required: false })
-    @IsOptional()
+    // @ValidateIf((o) => o.type === WAREHOUSING_BILL_TYPE.IMPORT)
     // @IsNotEmpty({ message: 'Mã đơn hàng không được để trống' })
+    @IsOptional()
     @IsNumber({}, { message: 'Mã đơn hàng phải là số' })
     @IsIdExist({ entity: 'order' }, { message: 'Mã đơn hàng không tồn tại' })
     orderId: number;

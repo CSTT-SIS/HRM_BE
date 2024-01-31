@@ -1,6 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { FilterDto } from '~/common/dtos/filter.dto';
-import { ORDER_TYPE, ORDER_TYPE_NAME, PROPOSAL_STATUS, PROPOSAL_TYPE, PROPOSAL_TYPE_NAME } from '~/common/enums/enum';
+import {
+    ORDER_TYPE,
+    ORDER_TYPE_NAME,
+    PROPOSAL_STATUS,
+    PROPOSAL_TYPE,
+    PROPOSAL_TYPE_NAME,
+    WAREHOUSING_BILL_TYPE,
+    WAREHOUSING_BILL_TYPE_NAME,
+} from '~/common/enums/enum';
 import { DatabaseService } from '~/database/typeorm/database.service';
 import { UtilService } from '~/shared/services';
 
@@ -98,6 +106,10 @@ export class DropdownService {
 
     orderType() {
         return Object.values(ORDER_TYPE).map((item) => ({ value: item, label: ORDER_TYPE_NAME[item] }));
+    }
+
+    warehousingBillType() {
+        return Object.values(WAREHOUSING_BILL_TYPE).map((item) => ({ value: item, label: WAREHOUSING_BILL_TYPE_NAME[item] }));
     }
 
     private async getDropdown(data: {

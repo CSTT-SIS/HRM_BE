@@ -72,6 +72,11 @@ export enum WAREHOUSING_BILL_TYPE {
     // REPLENISHMENT = 'REPLENISHMENT',
 }
 
+export enum WAREHOUSING_BILL_TYPE_NAME {
+    IMPORT = 'Phiếu nhập kho',
+    EXPORT = 'Phiếu xuất kho',
+}
+
 export enum WAREHOUSING_BILL_STATUS {
     PENDING = 'PENDING',
     APPROVED = 'APPROVED',

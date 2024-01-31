@@ -88,4 +88,10 @@ export class DropdownController {
     orderType() {
         return this.dropdownService.orderType();
     }
+
+    @Permission('warehousingBill:findAll')
+    @Get('warehousing-bill-type')
+    warehousingBillType() {
+        return this.dropdownService.warehousingBillType();
+    }
 }
