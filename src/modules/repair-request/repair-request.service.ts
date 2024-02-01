@@ -44,7 +44,8 @@ export class RepairRequestService {
         builder.andWhere(this.utilService.rawQuerySearch({ fields: ['name', 'vehicle.registrationNumber'], keyword: queries.search }));
 
         builder.leftJoinAndSelect('entity.vehicle', 'vehicle');
-        builder.select(['entity', 'vehicle.id', 'vehicle.registrationNumber']);
+        builder.leftJoinAndSelect('entity.repairBy', 'repairBy');
+        builder.select(['entity', 'vehicle.id', 'vehicle.registrationNumber', 'repairBy.id', 'repairBy.fullName']);
 
         const [result, total] = await builder.getManyAndCount();
         const totalPages = Math.ceil(total / take);
