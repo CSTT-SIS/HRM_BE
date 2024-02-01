@@ -134,6 +134,16 @@ export class DropdownService {
         });
     }
 
+    vehicle(queries: FilterDto) {
+        return this.getDropdown({
+            entity: 'vehicle',
+            queries,
+            label: 'registrationNumber',
+            value: 'id',
+            fulltext: true,
+        });
+    }
+
     private async getDropdown(data: {
         entity: string;
         queries: FilterDto;

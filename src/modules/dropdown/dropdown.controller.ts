@@ -103,4 +103,19 @@ export class DropdownController {
     user(@Query() queries, @Query('fullName') fullName: string) {
         return this.dropdownService.user({ ...queries, fullName });
     }
+
+    @Permission('repairRequest:findAll')
+    @Get('repair-request')
+    @ApiQuery({ type: FilterDto })
+    @ApiQuery({ name: 'repairById', required: false, type: Number })
+    repairRequest(@Query() queries, @Query('repairById', new ParseIntPipe({ optional: true })) repairById: string) {
+        return this.dropdownService.repairRequest({ ...queries, repairById });
+    }
+
+    @Permission('repairRequest:findAll')
+    @Get('vehicle')
+    @ApiQuery({ type: FilterDto })
+    vehicle(@Query() queries) {
+        return this.dropdownService.vehicle({ ...queries });
+    }
 }
