@@ -44,9 +44,9 @@ export class RepairRequestEntity extends AbstractEntity {
     @JoinColumn({ name: 'repair_by_id', referencedColumnName: 'id' })
     repairBy: Relation<UserEntity>;
 
-    @OneToMany(() => RepairDetailEntity, (detail) => detail, { createForeignKeyConstraints: false })
+    @OneToMany(() => RepairDetailEntity, (entity) => entity.repairRequest, { createForeignKeyConstraints: false })
     details: Relation<RepairDetailEntity>[];
 
-    @OneToMany(() => RepairProgressEntity, (progress) => progress, { createForeignKeyConstraints: false })
+    @OneToMany(() => RepairProgressEntity, (entity) => entity.repairRequest, { createForeignKeyConstraints: false })
     progresses: Relation<RepairProgressEntity>[];
 }

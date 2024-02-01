@@ -1,5 +1,6 @@
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
 import { ProductEntity } from '~/database/typeorm/entities/product.entity';
+import { RepairRequestEntity } from '~/database/typeorm/entities/repairRequest.entity';
 import { AbstractEntity } from './abstract.entity';
 
 @Entity({ name: 'repair_details' })
@@ -26,4 +27,8 @@ export class RepairDetailEntity extends AbstractEntity {
     @ManyToOne(() => ProductEntity, { createForeignKeyConstraints: false })
     @JoinColumn({ name: 'replacement_part_id', referencedColumnName: 'id' })
     replacementPart: Relation<ProductEntity>;
+
+    @ManyToOne(() => RepairRequestEntity, { createForeignKeyConstraints: false })
+    @JoinColumn({ name: 'repair_request_id', referencedColumnName: 'id' })
+    repairRequest: Relation<RepairRequestEntity>;
 }
