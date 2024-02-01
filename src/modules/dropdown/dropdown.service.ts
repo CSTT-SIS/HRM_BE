@@ -113,6 +113,16 @@ export class DropdownService {
         return Object.values(WAREHOUSING_BILL_TYPE).map((item) => ({ value: item, label: WAREHOUSING_BILL_TYPE_NAME[item] }));
     }
 
+    user(queries: FilterDto & { fullName: string }) {
+        return this.getDropdown({
+            entity: 'user',
+            queries,
+            label: 'fullName',
+            value: 'id',
+            fulltext: true,
+        });
+    }
+
     private async getDropdown(data: {
         entity: string;
         queries: FilterDto;
@@ -126,7 +136,7 @@ export class DropdownService {
         builder.addSelect(`COUNT(entity.id) OVER() AS total`);
 
         if (data.queries.search && data.fulltext) {
-            builder.andWhere(this.utilService.fullTextSearch({ fields: ['name'], keyword: data.queries.search }));
+            builder.andWhere(this.utilService.fullTextSearch({ fields: [data.label], keyword: data.queries.search }));
         }
         if (data.queries.search && !data.fulltext) {
             builder.andWhere(`entity.${data.label} ILIKE :search`, { search: `%${data.queries.search}%` });

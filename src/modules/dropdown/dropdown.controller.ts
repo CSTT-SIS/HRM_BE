@@ -95,4 +95,12 @@ export class DropdownController {
     warehousingBillType() {
         return this.dropdownService.warehousingBillType();
     }
+
+    @Permission('user:findAll')
+    @Get('user')
+    @ApiQuery({ type: FilterDto })
+    @ApiQuery({ name: 'fullName', required: false, type: String })
+    user(@Query() queries, @Query('fullName') fullName: string) {
+        return this.dropdownService.user({ ...queries, fullName });
+    }
 }

@@ -56,6 +56,7 @@ export class WarehouseService {
         const { builder, take, pagination } = this.utilService.getQueryBuilderAndPagination(this.database.inventory, queries);
 
         builder.andWhere(this.utilService.relationQuerySearch({ warehouseId: queries.warehouseId }));
+        builder.andWhere(this.utilService.fullTextSearch({ entityAlias: 'product', fields: ['name', 'code'], keyword: queries.search }));
         builder.leftJoinAndSelect('entity.product', 'product');
         builder.leftJoinAndSelect('product.unit', 'unit');
         builder.leftJoinAndSelect('product.category', 'category');
@@ -76,14 +77,10 @@ export class WarehouseService {
             'limit.maxQuantity',
         ]);
 
-        if (!this.utilService.isEmpty(queries.search)) {
-            builder.andWhere(this.utilService.fullTextSearch({ entityAlias: 'product', fields: ['name', 'code'], keyword: queries.search }));
-        }
-
         const [result, total] = await builder.getManyAndCount();
         const totalPages = Math.ceil(total / take);
         return {
-            data: result,
+            data: result.filter((item) => item.product),
             pagination: {
                 ...pagination,
                 totalRecords: total,
