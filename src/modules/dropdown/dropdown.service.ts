@@ -123,6 +123,17 @@ export class DropdownService {
         });
     }
 
+    repairRequest(queries: FilterDto & { repairById: number }) {
+        return this.getDropdown({
+            entity: 'repairRequest',
+            queries,
+            label: 'name',
+            value: 'id',
+            fulltext: false,
+            andWhere: this.utilService.getConditionsFromQuery(queries, ['repairById']),
+        });
+    }
+
     private async getDropdown(data: {
         entity: string;
         queries: FilterDto;

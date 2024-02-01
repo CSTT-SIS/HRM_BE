@@ -48,9 +48,13 @@ export class RepairRequestController {
     @Permission('repairRequest:getDetails')
     @Get(':id/get-details')
     @ApiQuery({ type: FilterDto })
-    @ApiQuery({ name: 'productId', required: false })
-    getDetails(@Param('id', ParseIntPipe) id: string, @Query() queries, @Query('productId', new ParseIntPipe({ optional: true })) productId: string) {
-        return this.repairRequestService.getDetails({ ...queries, requestId: +id, productId });
+    @ApiQuery({ name: 'replacementPartId', required: false })
+    getDetails(
+        @Param('id', ParseIntPipe) id: string,
+        @Query() queries,
+        @Query('replacementPartId', new ParseIntPipe({ optional: true })) replacementPartId: string,
+    ) {
+        return this.repairRequestService.getDetails({ ...queries, requestId: +id, replacementPartId });
     }
 
     @Permission('repairRequest:addDetail')

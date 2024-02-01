@@ -105,16 +105,15 @@ export class RepairRequestService {
         return this.database.repairRequest.delete(id);
     }
 
-    async getDetails(queries: FilterDto & { requestId: number; productId: number }) {
+    async getDetails(queries: FilterDto & { requestId: number; replacementPartId: number }) {
         const { builder, take, pagination } = this.utilService.getQueryBuilderAndPagination(this.database.repairDetail, queries);
-        if (!this.utilService.isEmpty(queries.search))
-            builder.andWhere(this.utilService.fullTextSearch({ fields: ['product.name'], keyword: queries.search }));
+        builder.andWhere(this.utilService.fullTextSearch({ fields: ['replacementPart.name'], keyword: queries.search }));
 
-        builder.leftJoinAndSelect('entity.product', 'product');
-        builder.leftJoinAndSelect('product.unit', 'unit');
+        builder.leftJoinAndSelect('entity.replacementPart', 'replacementPart');
+        builder.leftJoinAndSelect('replacementPart.unit', 'unit');
         builder.andWhere('entity.repairRequestId = :id', { id: queries.requestId });
-        builder.andWhere(this.utilService.getConditionsFromQuery(queries, ['productId']));
-        builder.select(['entity', 'product.id', 'product.name', 'unit.id', 'unit.name']);
+        builder.andWhere(this.utilService.getConditionsFromQuery(queries, ['replacementPartId']));
+        builder.select(['entity', 'replacementPart.id', 'replacementPart.name', 'unit.id', 'unit.name']);
 
         const [result, total] = await builder.getManyAndCount();
         const totalPages = Math.ceil(total / take);
