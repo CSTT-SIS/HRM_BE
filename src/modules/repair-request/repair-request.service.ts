@@ -66,7 +66,7 @@ export class RepairRequestService {
         builder.leftJoinAndSelect('entity.details', 'details');
         builder.leftJoinAndSelect('details.replacementPart', 'replacementPart');
         builder.leftJoinAndSelect('entity.progresses', 'progresses');
-        builder.leftJoinAndSelect('progresses.user', 'progressUser');
+        builder.leftJoinAndSelect('progresses.repairBy', 'progressRepairBy');
 
         builder.select([
             'entity',
@@ -78,8 +78,8 @@ export class RepairRequestService {
             'replacementPart.id',
             'replacementPart.name',
             'progresses',
-            'progressUser.id',
-            'progressUser.fullName',
+            'progressRepairBy.id',
+            'progressRepairBy.fullName',
         ]);
 
         builder.where({ id });
