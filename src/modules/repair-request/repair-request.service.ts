@@ -129,9 +129,7 @@ export class RepairRequestService {
 
     async addDetail(id: number, data: CreateRepairDetailDto) {
         await this.isStatusValid({ id, statuses: [REPAIR_REQUEST_STATUS.PENDING] });
-        return this.database.repairDetail.save(
-            this.database.repairDetail.create({ repairRequestId: id, replacementPartId: data.replacementPartId, quantity: data.quantity }),
-        );
+        return this.database.repairDetail.save(this.database.repairDetail.create({ ...data, repairRequestId: id }));
     }
 
     async updateDetail(id: number, detailId: number, data: UpdateRepairDetailDto) {
