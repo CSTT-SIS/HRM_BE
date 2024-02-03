@@ -7,6 +7,7 @@ import { DepartmentRepository } from '~/database/typeorm/repositories/department
 import { InventoryRepository } from '~/database/typeorm/repositories/inventory.repository';
 import { InventoryHistoryRepository } from '~/database/typeorm/repositories/inventoryHistory.repository';
 import { MediaRepository } from '~/database/typeorm/repositories/media.repository';
+import { NotificationRepository } from '~/database/typeorm/repositories/notification.repository';
 import { OrderRepository } from '~/database/typeorm/repositories/order.repository';
 import { OrderItemRepository } from '~/database/typeorm/repositories/orderItem.repository';
 import { OrderProgressTrackingRepository } from '~/database/typeorm/repositories/orderProgressTracking.repository';
@@ -18,23 +19,22 @@ import { ProposalRepository } from '~/database/typeorm/repositories/proposal.rep
 import { ProposalDetailRepository } from '~/database/typeorm/repositories/proposalDetail.repository';
 import { ProviderRepository } from '~/database/typeorm/repositories/provider.repository';
 import { QuantityLimitRepository } from '~/database/typeorm/repositories/quantityLimit.repository';
+import { ReceiptRepository } from '~/database/typeorm/repositories/receipt.repository';
+import { RepairDetailRepository } from '~/database/typeorm/repositories/repairDetail.repository';
+import { RepairProgressRepository } from '~/database/typeorm/repositories/repairProgress.repository';
+import { RepairRequestRepository } from '~/database/typeorm/repositories/repairRequest.repository';
 import { RoleRepository } from '~/database/typeorm/repositories/role.repository';
 import { StocktakeRepository } from '~/database/typeorm/repositories/stocktake.repository';
 import { StocktakeDetailRepository } from '~/database/typeorm/repositories/stocktakeDetail.repository';
 import { UnitRepository } from '~/database/typeorm/repositories/unit.repository';
 import { UserRepository } from '~/database/typeorm/repositories/user.repository';
 import { UserLogRepository } from '~/database/typeorm/repositories/userLog.repository';
+import { VehicleRepository } from '~/database/typeorm/repositories/vehicle.repository';
 import { WarehouseRepository } from '~/database/typeorm/repositories/warehouse.repository';
 import { WarehouseTypeRepository } from '~/database/typeorm/repositories/warehouseType.repository';
 import { WarehousingBillRepository } from '~/database/typeorm/repositories/warehousingBill.repository';
 import { WarehousingBillDetailRepository } from '~/database/typeorm/repositories/warehousingBillDetail.repository';
 import { CacheService } from '~/shared/services/cache.service';
-import { ReceiptRepository } from '~/database/typeorm/repositories/receipt.repository';
-import { VehicleRepository } from '~/database/typeorm/repositories/vehicle.repository';
-import { RepairRequestRepository } from '~/database/typeorm/repositories/repairRequest.repository';
-import { RepairDetailRepository } from '~/database/typeorm/repositories/repairDetail.repository';
-import { RepairProgressRepository } from '~/database/typeorm/repositories/repairProgress.repository';
-import { NotificationRepository } from '~/database/typeorm/repositories/notification.repository';
 
 @Injectable()
 export class DatabaseService {
@@ -98,5 +98,14 @@ export class DatabaseService {
                 );
             });
         });
+    }
+
+    async getUserIdsByPermission(permission: string): Promise<number[]> {
+        const result = await this.dataSource.query(
+            'SELECT DISTINCT id FROM users WHERE role_id IN (SELECT role_id FROM roles_permissions WHERE permission_id IN (SELECT id FROM permissions WHERE action = ?))',
+            [permission],
+        );
+
+        return result.map((r) => r.id);
     }
 }

@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
-import { ProposalCreatedListener } from '~/modules/notification/listeners/proposal-created.listener';
+import { ProposalListener } from '~/modules/notification/listeners/proposal.listener';
 import { NotificationController } from './notification.controller';
 import { NotificationService } from './notification.service';
 
 @Module({
     controllers: [NotificationController],
-    providers: [NotificationService, ProposalCreatedListener],
+    providers: [NotificationService, ProposalListener],
 })
 export class NotificationModule {}

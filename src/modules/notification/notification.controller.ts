@@ -1,4 +1,4 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, ParseIntPipe, Query } from '@nestjs/common';
 import { ApiBasicAuth, ApiTags } from '@nestjs/swagger';
 import { BYPASS_PERMISSION } from '~/common/constants/constant';
 import { Permission } from '~/common/decorators/permission.decorator';
@@ -15,5 +15,23 @@ export class NotificationController {
     @Get()
     findAll(@Query() queries: FilterDto) {
         return this.notificationService.findAll({ ...queries });
+    }
+
+    @Permission(BYPASS_PERMISSION)
+    @Get('unread')
+    countUnread() {
+        return this.notificationService.countUnread();
+    }
+
+    @Permission(BYPASS_PERMISSION)
+    @Get('mark-as-read')
+    markAsRead(@Query('notificationId', new ParseIntPipe({ optional: true })) notificationId: string) {
+        return this.notificationService.markAsRead(notificationId);
+    }
+
+    @Permission(BYPASS_PERMISSION)
+    @Get('mark-all-as-read')
+    markAllAsRead() {
+        return this.notificationService.markAllAsRead();
     }
 }

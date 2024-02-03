@@ -63,7 +63,7 @@ export class StocktakeService {
         builder.leftJoinAndSelect('entity.updatedBy', 'updatedBy');
         builder.leftJoinAndSelect('entity.participants', 'participants');
         builder.leftJoinAndSelect('entity.details', 'details');
-        builder.leftJoinAndSelect('details.product', 'product');
+        builder.innerJoinAndSelect('details.product', 'product');
         builder.leftJoinAndSelect('product.unit', 'unit');
         builder.select([
             'entity',
@@ -129,7 +129,7 @@ export class StocktakeService {
         if (!this.utilService.isEmpty(queries.search))
             builder.andWhere(this.utilService.fullTextSearch({ fields: ['product.name'], keyword: queries.search }));
 
-        builder.leftJoinAndSelect('entity.product', 'product');
+        builder.innerJoinAndSelect('entity.product', 'product');
         builder.leftJoinAndSelect('product.unit', 'unit');
         builder.andWhere('entity.stocktakeId = :id', { id: queries.stocktakeId });
         builder.andWhere(this.utilService.getConditionsFromQuery(queries, ['productId']));

@@ -8,7 +8,7 @@ import { DatabaseService } from '~/database/typeorm/database.service';
 import { ProposalEntity } from '~/database/typeorm/entities/proposal.entity';
 import { CreateProposalDetailDto } from '~/modules/proposal/dto/create-proposal-detail.dto';
 import { UpdateProposalDetailDto } from '~/modules/proposal/dto/update-proposal-detail.dto';
-import { ProposalCreatedEvent } from '~/modules/proposal/events/proposal-created.event';
+import { ProposalEvent } from '~/modules/proposal/events/proposal.event';
 import { UtilService } from '~/shared/services';
 import { CreateProposalDto } from './dto/create-proposal.dto';
 import { UpdateProposalDto } from './dto/update-proposal.dto';
@@ -50,15 +50,18 @@ export class ProposalService {
 
     findOne(id: number) {
         const builder = this.database.proposal.createQueryBuilder('entity');
+        builder.leftJoinAndSelect('entity.repairRequest', 'repairRequest');
         builder.leftJoinAndSelect('entity.createdBy', 'createdBy');
         builder.leftJoinAndSelect('entity.updatedBy', 'updatedBy');
         builder.leftJoinAndSelect('entity.details', 'details');
-        builder.leftJoinAndSelect('details.product', 'product');
+        builder.innerJoinAndSelect('details.product', 'product');
         builder.leftJoinAndSelect('product.unit', 'unit');
 
         builder.where('entity.id = :id', { id });
         builder.select([
             'entity',
+            'repairRequest.id',
+            'repairRequest.name',
             'createdBy.id',
             'createdBy.fullName',
             'updatedBy.id',
@@ -100,7 +103,9 @@ export class ProposalService {
             userId: UserStorage.getId(),
         });
 
-        // TODO: Notify user who can approve this proposal
+        // Notify user who can approve this proposal
+        this.emitEvent('proposal.pending', { id });
+
         return { message: 'Đã trình đề xuất', data: { id } };
     }
 
@@ -114,14 +119,10 @@ export class ProposalService {
             to: PROPOSAL_STATUS.APPROVED,
         });
 
-        // TODO: Notify user who can create warehousing bill
+        // Notify user who can create warehousing bill
         // maybe use a table to store who can receive notification when a proposal is approved
         // or send notification to all users who have permission to create warehousing bill (fastest way)
-        const proposalCreatedEvent = new ProposalCreatedEvent();
-        proposalCreatedEvent.id = id;
-        proposalCreatedEvent.senderId = UserStorage.getId();
-        proposalCreatedEvent.receiverIds = [];
-        this.eventEmitter.emit('proposal.created', proposalCreatedEvent);
+        this.emitEvent('proposal.approved', { id });
 
         return { message: 'Đã duyệt đề xuất', data: { id } };
     }
@@ -136,7 +137,9 @@ export class ProposalService {
             comment,
         });
 
-        // TODO: Notify creator of this proposal
+        // Notify creator of this proposal
+        this.emitEvent('proposal.rejected', { id });
+
         return { message: 'Đã từ chối đề xuất', data: { id } };
     }
 
@@ -151,7 +154,9 @@ export class ProposalService {
             checkIfBillCreated: true,
         });
 
-        // TODO: Notify creator of this proposal
+        // Notify creator of this proposal
+        this.emitEvent('proposal.returned', { id });
+
         return { message: 'Đã trả lại đề xuất', data: { id } };
     }
 
@@ -159,7 +164,7 @@ export class ProposalService {
         const { builder, take, pagination } = this.utilService.getQueryBuilderAndPagination(this.database.proposalDetail, queries);
         builder.andWhere(this.utilService.fullTextSearch({ fields: ['product.name'], keyword: queries.search }));
 
-        builder.leftJoinAndSelect('entity.product', 'product');
+        builder.innerJoinAndSelect('entity.product', 'product');
         builder.leftJoinAndSelect('product.unit', 'unit');
         builder.andWhere('entity.proposalId = :id', { id: queries.proposalId });
         builder.andWhere(this.utilService.getConditionsFromQuery(queries, ['productId']));
@@ -285,5 +290,12 @@ export class ProposalService {
         await this.database.proposalDetail.save(details.map((detail) => ({ ...detail, proposalId: proposal.id })));
 
         return proposal;
+    }
+
+    private emitEvent(event: string, data: { id: number }) {
+        const proposalEvent = new ProposalEvent();
+        proposalEvent.id = data.id;
+        proposalEvent.senderId = UserStorage.getId();
+        this.eventEmitter.emit(event, proposalEvent);
     }
 }

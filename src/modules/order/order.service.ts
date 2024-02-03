@@ -55,7 +55,7 @@ export class OrderService {
         builder.leftJoinAndSelect('order.createdBy', 'createdBy');
         builder.leftJoinAndSelect('order.updatedBy', 'updatedBy');
         builder.leftJoinAndSelect('order.items', 'items');
-        builder.leftJoinAndSelect('items.product', 'product');
+        builder.innerJoinAndSelect('items.product', 'product');
         builder.select([
             'order',
             'proposal.id',
@@ -92,7 +92,7 @@ export class OrderService {
         const { builder, take, pagination } = this.utilService.getQueryBuilderAndPagination(this.database.orderItem, queries);
         builder.andWhere(this.utilService.fullTextSearch({ fields: ['product.name'], keyword: queries.search }));
 
-        builder.leftJoinAndSelect('entity.product', 'product');
+        builder.innerJoinAndSelect('entity.product', 'product');
         builder.leftJoinAndSelect('product.unit', 'unit');
         builder.andWhere('entity.orderId = :id', { id: queries.orderId });
         builder.andWhere(this.utilService.getConditionsFromQuery(queries, ['productId']));

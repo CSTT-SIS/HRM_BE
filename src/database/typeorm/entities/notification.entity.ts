@@ -1,5 +1,4 @@
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
-import { ColumnBooleanTransformer } from '~/database/typeorm/entities/transformer.entity';
 import { UserEntity } from '~/database/typeorm/entities/user.entity';
 import { AbstractEntity } from './abstract.entity';
 
@@ -17,7 +16,7 @@ export class NotificationEntity extends AbstractEntity {
     @Column({ name: 'type', type: 'varchar', length: 255, nullable: true })
     type: string;
 
-    @Column({ name: 'is_read', type: 'tinyint', default: false, transformer: new ColumnBooleanTransformer() })
+    @Column({ name: 'is_read', type: 'tinyint', default: 0, nullable: true })
     isRead: boolean;
 
     @Column({ name: 'receiver_id', type: 'int', unsigned: true, nullable: true })
