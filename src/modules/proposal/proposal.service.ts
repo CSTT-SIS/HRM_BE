@@ -32,9 +32,18 @@ export class ProposalService {
         builder.andWhere(this.utilService.fullTextSearch({ fields: ['name'], keyword: queries.search }));
         builder.andWhere(this.utilService.getConditionsFromQuery(queries, ['type', 'status']));
 
+        builder.leftJoinAndSelect('entity.repairRequest', 'repairRequest');
         builder.leftJoinAndSelect('entity.createdBy', 'createdBy');
         builder.leftJoinAndSelect('entity.updatedBy', 'updatedBy');
-        builder.select(['entity', 'createdBy.id', 'createdBy.fullName', 'updatedBy.id', 'updatedBy.fullName']);
+        builder.select([
+            'entity',
+            'repairRequest.id',
+            'repairRequest.name',
+            'createdBy.id',
+            'createdBy.fullName',
+            'updatedBy.id',
+            'updatedBy.fullName',
+        ]);
 
         const [result, total] = await builder.getManyAndCount();
         const totalPages = Math.ceil(total / take);
