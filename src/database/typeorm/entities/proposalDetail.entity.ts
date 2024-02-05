@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Relation, VirtualColumn } from 'typeorm';
 import { ProductEntity } from '~/database/typeorm/entities/product.entity';
 import { ProposalEntity } from '~/database/typeorm/entities/proposal.entity';
 import { ColumnNumericTransformer } from '~/database/typeorm/entities/transformer.entity';
@@ -33,6 +33,9 @@ export class ProposalDetailEntity extends AbstractEntity {
     // 9,999,999,999,999.999
     @Column({ name: 'price', type: 'decimal', precision: 16, scale: 3, nullable: true, transformer: new ColumnNumericTransformer() })
     price: number;
+
+    @VirtualColumn({ query: (alias) => `(${alias}.quantity * ${alias}.price)` })
+    total: number;
 
     /* RELATIONS */
     @ManyToOne(() => ProposalEntity, { createForeignKeyConstraints: false })
