@@ -435,7 +435,7 @@ export class WarehousingBillService {
                 if (wbType !== WAREHOUSING_BILL_TYPE.EXPORT)
                     throw new HttpException('Loại phiếu kho không hợp lệ, chỉ có thể tạo phiếu xuất kho từ phiếu sửa chữa', 400);
                 break;
-            case PROPOSAL_TYPE.EXPORT:
+            case PROPOSAL_TYPE.SUPPLY:
                 if (wbType !== WAREHOUSING_BILL_TYPE.EXPORT)
                     throw new HttpException('Loại phiếu kho không hợp lệ, chỉ có thể tạo phiếu xuất kho từ phiếu xuất hàng', 400);
                 break;
