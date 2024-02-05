@@ -39,8 +39,8 @@ export class InventoryEntity extends AbstractEntity {
     @Column({ name: 'created_by_id', type: 'int', unsigned: true, nullable: true })
     createdById: number;
 
-    @Column({ name: 'is_active', type: 'tinyint', unsigned: true, default: true })
-    isActive: boolean;
+    @Column({ name: 'expired_at', type: 'datetime', nullable: true })
+    expiredAt: Date;
 
     /* RELATIONS */
     @ManyToOne(() => WarehouseEntity, (warehouse) => warehouse.inventories, { createForeignKeyConstraints: false })

@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsNumber, IsOptional, IsString, Min } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsOptional, IsString, Matches, Min } from 'class-validator';
 import { IsIdExist } from '~/common/validators/is-id-exist.validator';
 
 export class ImportGoodDto {
@@ -23,4 +23,9 @@ export class ImportGoodDto {
     @IsOptional()
     @IsString({ message: 'Ghi chú phải là chuỗi' })
     note?: string;
+
+    @ApiProperty()
+    @IsOptional()
+    @Matches(/^(\d{4})-(\d{2})-(\d{2})$/, { message: 'Ngày hết hạn không đúng định dạng YYYY-MM-DD' })
+    expiredDate: Date;
 }
