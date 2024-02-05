@@ -1,31 +1,31 @@
 # Table of Contents
 
--   [Table of Contents](#table-of-contents)
-    -   [Technologies](#technologies)
-    -   [Installation \& Setup](#installation--setup)
-        -   [Install Redis:](#install-redis)
-        -   [Install packages:](#install-packages)
-    -   [Running the app](#running-the-app)
-    -   [Generate Modules](#generate-modules)
-    -   [Code First approach with TypeORM](#code-first-approach-with-typeorm)
-        -   [About the relation between entities (Important)](#about-the-relation-between-entities-important)
-    -   [Generate Entity \& Repository](#generate-entity--repository)
-    -   [How to use Repository](#how-to-use-repository)
-        -   [1. Inject Repository into Service directly.](#1-inject-repository-into-service-directly)
-        -   [2. Inject Repository into DatabaseService then use it in Service. (Recommended)](#2-inject-repository-into-databaseservice-then-use-it-in-service-recommended)
-    -   [Migration](#migration)
-    -   [Seeding Data](#seeding-data)
-    -   [Module Structure](#module-structure)
-    -   [Module Naming Convention](#module-naming-convention)
-    -   [RBAC (Role-Based Access Control)](#rbac-role-based-access-control)
-        -   [How to use RBAC](#how-to-use-rbac)
-    -   [Format of API Response](#format-of-api-response)
-        -   [Success Response](#success-response)
-        -   [Error Response](#error-response)
-    -   [Public Folder](#public-folder)
-    -   [Git Branches](#git-branches)
-    -   [API Documentation](#api-documentation)
-    -   [API Testing](#api-testing)
+- [Table of Contents](#table-of-contents)
+  - [Technologies](#technologies)
+  - [Installation \& Setup](#installation--setup)
+      - [Install Redis:](#install-redis)
+      - [Install packages:](#install-packages)
+  - [Running the app](#running-the-app)
+  - [Generate Modules](#generate-modules)
+  - [Code First approach with TypeORM](#code-first-approach-with-typeorm)
+      - [About the relation between entities (Important)](#about-the-relation-between-entities-important)
+  - [Generate Entity \& Repository](#generate-entity--repository)
+  - [How to use Repository](#how-to-use-repository)
+      - [1. Inject Repository into Service directly.](#1-inject-repository-into-service-directly)
+      - [2. Inject Repository into DatabaseService then use it in Service. (Recommended)](#2-inject-repository-into-databaseservice-then-use-it-in-service-recommended)
+  - [Migration](#migration)
+  - [Seeding Data](#seeding-data)
+  - [Module Structure](#module-structure)
+  - [Module Naming Convention](#module-naming-convention)
+  - [RBAC (Role-Based Access Control)](#rbac-role-based-access-control)
+    - [How to use RBAC](#how-to-use-rbac)
+  - [Format of API Response](#format-of-api-response)
+      - [Success Response](#success-response)
+      - [Error Response](#error-response)
+  - [Public Folder](#public-folder)
+  - [Git Branches](#git-branches)
+  - [API Documentation](#api-documentation)
+  - [API Testing](#api-testing)
 
 ## Technologies
 
@@ -91,7 +91,7 @@ Read more about [RESTful API naming convention](https://restfulapi.net/resource-
 Open terminal, go to project folder and run this command:
 
 ```bash
-$ node scripts/generate-module.js
+$ npm run generate:module
 ```
 
 Then, input module name and it will generate module for you.
@@ -181,7 +181,7 @@ Read more about [Relation](https://typeorm.io/#/relations)
 Entity:
 
 ```bash
-$ node scripts/generate-entity.js
+$ npm run generate:entity
 ```
 
 **Note:**
@@ -196,7 +196,7 @@ $ node scripts/generate-entity.js
 Repository:
 
 ```bash
-$ node scripts/generate-repository.js
+$ npm run generate:repository
 ```
 
 **Note:**
@@ -353,7 +353,7 @@ src
 
 When you create a new module, you need to follow the structure above.
 
-Use `generate-module.js` script to generate module and it will create files follow the structure for you.
+Use `npm run generate:module` to generate module and it will create files follow the structure for you.
 
 ## Module Naming Convention
 
