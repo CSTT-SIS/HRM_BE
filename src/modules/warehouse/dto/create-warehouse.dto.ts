@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsOptional, Length } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsOptional, Length } from 'class-validator';
 import { IsIdExist } from '~/common/validators/is-id-exist.validator';
 
 export class CreateWarehouseDto {
@@ -14,6 +14,7 @@ export class CreateWarehouseDto {
 
     @ApiProperty()
     @IsOptional()
+    @IsNumber({}, { message: 'Mã loại kho phải là số' })
     @IsIdExist({ entity: 'warehouseType' }, { message: 'Mã loại kho không tồn tại' })
     typeId: number;
 
@@ -24,4 +25,10 @@ export class CreateWarehouseDto {
     @ApiProperty()
     @IsOptional()
     address: string;
+
+    @ApiProperty()
+    @IsOptional()
+    @IsNumber({}, { message: 'Mã người quản lý phải là số' })
+    @IsIdExist({ entity: 'user' }, { message: 'Mã người quản lý không tồn tại' })
+    managerId: number;
 }
