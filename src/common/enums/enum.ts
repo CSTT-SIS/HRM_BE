@@ -52,6 +52,7 @@ export enum PROPOSAL_STATUS {
 export enum PROPOSAL_TYPE {
     PURCHASE = 'PURCHASE',
     REPAIR = 'REPAIR',
+    EXPORT = 'EXPORT',
     // ADJUSTMENT = 'ADJUSTMENT',
     // TRANSFER = 'TRANSFER',
     // STOCKING = 'STOCKING',
@@ -61,6 +62,7 @@ export enum PROPOSAL_TYPE {
 export enum PROPOSAL_TYPE_NAME {
     PURCHASE = 'Yêu cầu mua hàng',
     REPAIR = 'Yêu cầu sửa chữa',
+    EXPORT = 'Yêu cầu xuất hàng',
 }
 
 export enum WAREHOUSING_BILL_TYPE {

@@ -2,7 +2,7 @@ import { HttpException, Injectable } from '@nestjs/common';
 import moment from 'moment';
 import { In, IsNull, Not } from 'typeorm';
 import { FilterDto } from '~/common/dtos/filter.dto';
-import { ORDER_STATUS, PROPOSAL_STATUS, WAREHOUSING_BILL_STATUS, WAREHOUSING_BILL_TYPE } from '~/common/enums/enum';
+import { ORDER_STATUS, PROPOSAL_STATUS, PROPOSAL_TYPE, WAREHOUSING_BILL_STATUS, WAREHOUSING_BILL_TYPE } from '~/common/enums/enum';
 import { UserStorage } from '~/common/storages/user.storage';
 import { DatabaseService } from '~/database/typeorm/database.service';
 import { WarehousingBillEntity } from '~/database/typeorm/entities/warehousingBill.entity';
@@ -15,18 +15,7 @@ export class WarehousingBillService {
     constructor(private readonly utilService: UtilService, private readonly database: DatabaseService) {}
 
     async create(createWarehousingBillDto: CreateWarehousingBillDto) {
-        await this.utilService.checkRelationIdExist({
-            proposal: {
-                id: createWarehousingBillDto.proposalId,
-                status: PROPOSAL_STATUS.APPROVED,
-                errorMessage: 'Không tìm thấy phiếu đề xuất hoặc phiếu đề xuất chưa được duyệt',
-            },
-            warehousingBill: {
-                proposalId: createWarehousingBillDto.proposalId,
-                errorMessage: 'Phiếu đề xuất đã được tạo phiếu nhập kho',
-            },
-        });
-
+        await this.checkValidType(createWarehousingBillDto.proposalId, createWarehousingBillDto.type);
         await this.isQuantityValid(createWarehousingBillDto);
 
         // if warehousing bill type is IMPORT and orderId is null, it's mean that the bill is created from proposal
@@ -428,6 +417,28 @@ export class WarehousingBillService {
                 return actualQuantity;
             case WAREHOUSING_BILL_TYPE.EXPORT:
                 return -actualQuantity;
+        }
+    }
+
+    private async checkValidType(proposalId: number, wbType: WAREHOUSING_BILL_TYPE) {
+        const proposal = await this.database.proposal.findOneBy({ id: proposalId, status: PROPOSAL_STATUS.APPROVED });
+        if (!proposal) throw new HttpException('Không tìm thấy phiếu đề xuất hoặc phiếu đề xuất chưa được duyệt', 400);
+        const count = await this.database.warehousingBill.countBy({ proposalId });
+        if (count > 0) throw new HttpException('Phiếu đề xuất đã được tạo phiếu nhập kho', 400);
+
+        switch (proposal.type) {
+            case PROPOSAL_TYPE.PURCHASE:
+                if (wbType !== WAREHOUSING_BILL_TYPE.IMPORT)
+                    throw new HttpException('Loại phiếu kho không hợp lệ, chỉ có thể tạo phiếu nhập kho từ phiếu mua hàng', 400);
+                break;
+            case PROPOSAL_TYPE.REPAIR:
+                if (wbType !== WAREHOUSING_BILL_TYPE.EXPORT)
+                    throw new HttpException('Loại phiếu kho không hợp lệ, chỉ có thể tạo phiếu xuất kho từ phiếu sửa chữa', 400);
+                break;
+            case PROPOSAL_TYPE.EXPORT:
+                if (wbType !== WAREHOUSING_BILL_TYPE.EXPORT)
+                    throw new HttpException('Loại phiếu kho không hợp lệ, chỉ có thể tạo phiếu xuất kho từ phiếu xuất hàng', 400);
+                break;
         }
     }
 }
