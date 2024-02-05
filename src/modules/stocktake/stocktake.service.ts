@@ -113,13 +113,19 @@ export class StocktakeService {
         const entity = await this.database.stocktake.findOne({ where: { id, status: STOCKTAKE_STATUS.DRAFT } });
         if (!entity) throw new HttpException('Phiếu kiểm kê không tồn tại hoặc không ở trạng thái nháp', 400);
 
+        const stocktakeDetails = await this.database.stocktakeDetail.find({ where: { stocktakeId: id } });
         const products = await this.database.inventory.getOpeningQuantities(entity.warehouseId, entity.startDate, entity.endDate);
-        const details = products.map((product) => ({
-            stocktakeId: id,
-            productId: product.productId,
-            openingQuantity: parseFloat(product.opening || product.current),
-            createdById: UserStorage.getId(),
-        }));
+        const details = products.map((product) => {
+            const stocktakeDetail = stocktakeDetails.find((detail) => detail.productId === product.productId);
+            if (!stocktakeDetail) {
+                return {
+                    stocktakeId: id,
+                    productId: product.productId,
+                    openingQuantity: parseFloat(product.opening || product.current),
+                    createdById: UserStorage.getId(),
+                };
+            }
+        });
 
         return this.database.stocktakeDetail.save(this.database.stocktakeDetail.create(details));
     }
@@ -150,6 +156,9 @@ export class StocktakeService {
     async addDetail(id: number, createStocktakeDetailDto: CreateStocktakeDetailDto) {
         const entity = await this.database.stocktake.findOne({ where: { id, status: STOCKTAKE_STATUS.DRAFT } });
         if (!entity) throw new HttpException('Phiếu kiểm kê không tồn tại hoặc không ở trạng thái nháp', 400);
+        const count = await this.database.stocktakeDetail.countBy({ stocktakeId: id, productId: createStocktakeDetailDto.productId });
+        if (count) throw new HttpException('Sản phẩm đã tồn tại trong phiếu kiểm kê', 400);
+
         const product = await this.database.inventory.getOpeningQuantity(
             entity.warehouseId,
             createStocktakeDetailDto.productId,
