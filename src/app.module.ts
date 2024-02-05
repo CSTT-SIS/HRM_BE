@@ -3,7 +3,7 @@ import { MiddlewareConsumer, Module, OnModuleInit, RequestMethod } from '@nestjs
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { EventEmitterModule } from '@nestjs/event-emitter';
-import { I18nModule } from 'nestjs-i18n';
+import { AcceptLanguageResolver, HeaderResolver, I18nModule, QueryResolver } from 'nestjs-i18n';
 import { RedisModule } from 'nestjs-redis';
 import path from 'path';
 import { BYPASS_PERMISSION, ONLY_ADMIN } from '~/common/constants/constant';
@@ -22,6 +22,7 @@ import { AuthModule } from '~/modules/auth/auth.module';
 import { DropdownModule } from '~/modules/dropdown/dropdown.module';
 import { MailModule } from '~/modules/mail/mail.module';
 import { MediaModule } from '~/modules/media/media.module';
+import { NotificationModule } from '~/modules/notification/notification.module';
 import { OrderModule } from '~/modules/order/order.module';
 import { PermissionModule } from '~/modules/permission/permission.module';
 import { ProfileModule } from '~/modules/profile/profile.module';
@@ -44,7 +45,6 @@ import { UnitModule } from './modules/unit/unit.module';
 import { UserModule } from './modules/user/user.module';
 import { WarehouseTypeModule } from './modules/warehouse-type/warehouse-type.module';
 import { WarehouseModule } from './modules/warehouse/warehouse.module';
-import { NotificationModule } from '~/modules/notification/notification.module';
 
 @Module({
     imports: [
@@ -65,6 +65,7 @@ import { NotificationModule } from '~/modules/notification/notification.module';
                 path: path.join(__dirname, '/i18n/'),
                 watch: true,
             },
+            resolvers: [{ use: QueryResolver, options: ['lang'] }, AcceptLanguageResolver, new HeaderResolver(['x-lang'])],
         }),
         EventEmitterModule.forRoot(),
         DatabaseModule,
