@@ -192,13 +192,19 @@ export class ProposalService {
     }
 
     async addDetail(id: number, detail: CreateProposalDetailDto) {
-        await this.isProposalStatusValid({ id, statuses: [PROPOSAL_STATUS.DRAFT] });
+        const proposal = await this.isProposalStatusValid({ id, statuses: [PROPOSAL_STATUS.DRAFT] });
+        if (proposal.type === PROPOSAL_TYPE.PURCHASE && (detail.price === null || detail.price === undefined)) {
+            throw new HttpException('Giá sản phẩm không được để trống', 400);
+        }
         await this.verifyDetail(detail);
         return this.database.proposalDetail.save(this.database.proposalDetail.create({ ...detail, proposalId: id }));
     }
 
     async updateDetail(id: number, detailId: number, detail: UpdateProposalDetailDto) {
-        await this.isProposalStatusValid({ id, statuses: [PROPOSAL_STATUS.DRAFT] });
+        const proposal = await this.isProposalStatusValid({ id, statuses: [PROPOSAL_STATUS.DRAFT] });
+        if (proposal.type === PROPOSAL_TYPE.PURCHASE && (detail.price === null || detail.price === undefined)) {
+            throw new HttpException('Giá sản phẩm không được để trống', 400);
+        }
         await this.verifyDetail(detail);
         return this.database.proposalDetail.update({ id: detailId, proposalId: id }, detail);
     }
