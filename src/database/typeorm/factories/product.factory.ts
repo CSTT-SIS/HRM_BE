@@ -11,8 +11,6 @@ export default setSeederFactory(ProductEntity, (faker) => {
         .toUpperCase();
     entity.description = faker.commerce.productDescription();
     entity.categoryId = faker.number.int({ min: 1, max: 10 });
-    entity.price = Number(faker.commerce.price({ min: 10000, max: 100000000 }));
-    entity.tax = faker.number.int({ min: 0, max: 10 });
 
     return entity;
 });

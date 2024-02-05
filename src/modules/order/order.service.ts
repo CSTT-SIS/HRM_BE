@@ -188,7 +188,7 @@ export class OrderService {
                 orderId,
                 productId: proposalDetail.productId,
                 quantity: proposalDetail.quantity,
-                price: proposalDetail.product.price,
+                price: proposalDetail.price,
             });
         });
 

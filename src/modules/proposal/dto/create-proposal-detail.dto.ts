@@ -1,10 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsNumber, IsOptional, IsString, Min } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsOptional, IsString, Max, Min } from 'class-validator';
+import { IsIdExist } from '~/common/validators/is-id-exist.validator';
 
 export class CreateProposalDetailDto {
     @ApiProperty()
     @IsNotEmpty({ message: 'Sản phẩm không được để trống' })
     @IsNumber({}, { message: 'Sản phẩm phải là số' })
+    @IsIdExist({ entity: 'product' }, { message: 'Sản phẩm không tồn tại' })
     productId: number;
 
     @ApiProperty()
@@ -17,4 +19,11 @@ export class CreateProposalDetailDto {
     @IsOptional()
     @IsString({ message: 'Ghi chú phải là dạng chuỗi' })
     note?: string;
+
+    @ApiProperty({ type: 'number' })
+    @IsOptional()
+    @IsNumber({}, { message: 'Giá sản phẩm phải là số' })
+    @Min(0, { message: 'Đơn giá phải lớn hơn hoặc bằng 0' })
+    @Max(9999999999, { message: 'Giá sản phẩm không được lớn hơn 9,999,999,999' })
+    price: number;
 }

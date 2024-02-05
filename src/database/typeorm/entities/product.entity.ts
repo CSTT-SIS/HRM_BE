@@ -3,7 +3,6 @@ import { InventoryEntity } from '~/database/typeorm/entities/inventory.entity';
 import { MediaEntity } from '~/database/typeorm/entities/media.entity';
 import { ProductCategoryEntity } from '~/database/typeorm/entities/productCategory.entity';
 import { QuantityLimitEntity } from '~/database/typeorm/entities/quantityLimit.entity';
-import { ColumnNumericTransformer } from '~/database/typeorm/entities/transformer.entity';
 import { UnitEntity } from '~/database/typeorm/entities/unit.entity';
 import { AbstractEntity } from './abstract.entity';
 
@@ -31,13 +30,6 @@ export class ProductEntity extends AbstractEntity {
 
     @Column({ name: 'description', type: 'text', nullable: true })
     description: string;
-
-    // 9,999,999,999,999.999
-    @Column({ name: 'price', type: 'decimal', precision: 16, scale: 3, nullable: true, transformer: new ColumnNumericTransformer() })
-    price: number;
-
-    @Column({ name: 'tax', type: 'decimal', precision: 5, scale: 2, nullable: true, default: 0, transformer: new ColumnNumericTransformer() })
-    tax: number;
 
     /* RELATIONS */
     @ManyToOne(() => ProductCategoryEntity, (category) => category.products, { createForeignKeyConstraints: false })

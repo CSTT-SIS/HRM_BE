@@ -30,6 +30,10 @@ export class ProposalDetailEntity extends AbstractEntity {
     @Column({ name: 'note', type: 'text', nullable: true })
     note: string;
 
+    // 9,999,999,999,999.999
+    @Column({ name: 'price', type: 'decimal', precision: 16, scale: 3, nullable: true, transformer: new ColumnNumericTransformer() })
+    price: number;
+
     /* RELATIONS */
     @ManyToOne(() => ProposalEntity, { createForeignKeyConstraints: false })
     @JoinColumn({ name: 'proposal_id', referencedColumnName: 'id' })

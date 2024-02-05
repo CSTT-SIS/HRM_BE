@@ -34,6 +34,7 @@ export class StocktakeService {
         builder.leftJoinAndSelect('entity.createdBy', 'createdBy');
         builder.leftJoinAndSelect('entity.updatedBy', 'updatedBy');
         builder.leftJoinAndSelect('entity.participants', 'participants');
+        builder.leftJoinAndSelect('entity.warehouse', 'warehouse');
         builder.select([
             'entity',
             'createdBy.id',
@@ -42,6 +43,8 @@ export class StocktakeService {
             'updatedBy.fullName',
             'participants.id',
             'participants.fullName',
+            'warehouse.id',
+            'warehouse.name',
         ]);
 
         const [result, total] = await builder.getManyAndCount();
@@ -62,6 +65,7 @@ export class StocktakeService {
         builder.leftJoinAndSelect('entity.createdBy', 'createdBy');
         builder.leftJoinAndSelect('entity.updatedBy', 'updatedBy');
         builder.leftJoinAndSelect('entity.participants', 'participants');
+        builder.leftJoinAndSelect('entity.warehouse', 'warehouse');
         builder.leftJoinAndSelect('entity.details', 'details');
         builder.innerJoinAndSelect('details.product', 'product');
         builder.leftJoinAndSelect('product.unit', 'unit');
@@ -72,6 +76,8 @@ export class StocktakeService {
             'updatedBy.id',
             'updatedBy.fullName',
             'participants',
+            'warehouse.id',
+            'warehouse.name',
             'details.id',
             'details.productId',
             'details.openingQuantity',
@@ -81,8 +87,6 @@ export class StocktakeService {
             'product.id',
             'product.name',
             'product.code',
-            'product.price',
-            'product.tax',
             'unit.id',
             'unit.name',
         ]);
@@ -139,7 +143,7 @@ export class StocktakeService {
         builder.leftJoinAndSelect('product.unit', 'unit');
         builder.andWhere('entity.stocktakeId = :id', { id: queries.stocktakeId });
         builder.andWhere(this.utilService.getConditionsFromQuery(queries, ['productId']));
-        builder.select(['entity', 'product.id', 'product.name', 'product.code', 'product.price', 'product.tax', 'unit.id', 'unit.name']);
+        builder.select(['entity', 'product.id', 'product.name', 'product.code', 'unit.id', 'unit.name']);
 
         const [result, total] = await builder.getManyAndCount();
         const totalPages = Math.ceil(total / take);
