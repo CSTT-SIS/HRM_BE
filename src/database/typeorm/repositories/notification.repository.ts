@@ -11,12 +11,13 @@ export class NotificationRepository extends Repository<NotificationEntity> {
     }
 
     /**
-     * The function retrieves notifications based on the receiver's ID, with pagination support.
-     * @param data - The `data` parameter is an object that contains the following properties:
+     * The function retrieves notifications for a specific receiver, with pagination and language
+     * filtering.
+     * @param data - {
      * @returns an object with two properties: "data" and "pagination". The "data" property contains
-     * the result of the query, which is an array of notifications. The "pagination" property contains
-     * information about the pagination, including the current page, number of records per page, total
-     * number of records, and total number of pages.
+     * the result of the query, which is an array of notification objects. The "pagination" property
+     * contains information about the pagination of the query, including the current page, number of
+     * records per page, total number of records, and total number of pages.
      */
     async getNotificationByReceiverId(data: { receiverId: number; page?: number; perPage?: number; lang: string }) {
         const { receiverId, page = 1, perPage = 10 } = data;
