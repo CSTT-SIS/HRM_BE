@@ -20,8 +20,6 @@ export class NotificationRepository extends Repository<NotificationEntity> {
      */
     async getNotificationByReceiverId(data: { receiverId: number; page?: number; perPage?: number; lang: string }) {
         const { receiverId, page = 1, perPage = 10 } = data;
-        console.log(data);
-        console.log('receiverId', receiverId, 'page', page, 'perPage', perPage);
 
         const query = this.createQueryBuilder('notification')
             .where('notification.receiverId = :receiverId', { receiverId })
