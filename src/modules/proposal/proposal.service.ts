@@ -308,9 +308,9 @@ export class ProposalService {
     }
 
     private emitEvent(event: string, data: { id: number }) {
-        const proposalEvent = new ProposalEvent();
-        proposalEvent.id = data.id;
-        proposalEvent.senderId = UserStorage.getId();
-        this.eventEmitter.emit(event, proposalEvent);
+        const eventObj = new ProposalEvent();
+        eventObj.id = data.id;
+        eventObj.senderId = UserStorage.getId();
+        this.eventEmitter.emit(event, eventObj);
     }
 }

@@ -1,4 +1,5 @@
 import { HttpException, Injectable } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import moment from 'moment';
 import { In, IsNull, Not } from 'typeorm';
 import { FilterDto } from '~/common/dtos/filter.dto';
@@ -6,13 +7,14 @@ import { ORDER_STATUS, PROPOSAL_STATUS, PROPOSAL_TYPE, WAREHOUSING_BILL_STATUS, 
 import { UserStorage } from '~/common/storages/user.storage';
 import { DatabaseService } from '~/database/typeorm/database.service';
 import { WarehousingBillEntity } from '~/database/typeorm/entities/warehousingBill.entity';
+import { WarehousingBillEvent } from '~/modules/warehousing-bill/events/warehousing-bill.event';
 import { UtilService } from '~/shared/services';
 import { CreateWarehousingBillDto } from './dto/create-warehousing-bill.dto';
 import { UpdateWarehousingBillDto } from './dto/update-warehousing-bill.dto';
 
 @Injectable()
 export class WarehousingBillService {
-    constructor(private readonly utilService: UtilService, private readonly database: DatabaseService) {}
+    constructor(private readonly utilService: UtilService, private readonly database: DatabaseService, private eventEmitter: EventEmitter2) {}
 
     async create(createWarehousingBillDto: CreateWarehousingBillDto) {
         await this.checkValidType(createWarehousingBillDto.proposalId, createWarehousingBillDto.type);
@@ -38,6 +40,8 @@ export class WarehousingBillService {
         );
         this.createBillDetails(entity);
 
+        // emit an event to notify that the warehousing bill is created
+        this.emitEvent('warehousingBill.created', { id: entity.id });
         return entity;
     }
 
@@ -440,5 +444,12 @@ export class WarehousingBillService {
                     throw new HttpException('Loại phiếu kho không hợp lệ, chỉ có thể tạo phiếu xuất kho từ phiếu xuất hàng', 400);
                 break;
         }
+    }
+
+    private emitEvent(event: string, data: { id: number }) {
+        const eventObj = new WarehousingBillEvent();
+        eventObj.id = data.id;
+        eventObj.senderId = UserStorage.getId();
+        this.eventEmitter.emit(event, eventObj);
     }
 }
