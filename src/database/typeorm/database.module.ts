@@ -5,16 +5,27 @@ import { DataSource } from 'typeorm';
 import { DatabaseService } from '~/database/typeorm/database.service';
 import { AccountEntity } from '~/database/typeorm/entities/account.entity';
 import { ApprovalProcessEntity } from '~/database/typeorm/entities/approvalProcess.entity';
+import { AssetEntity } from '~/database/typeorm/entities/asset.entity';
+import { CalendarEntity } from '~/database/typeorm/entities/calendar.entity';
+import { ContractEntity } from '~/database/typeorm/entities/contract.entity';
 import { DepartmentEntity } from '~/database/typeorm/entities/department.entity';
+import { DepartmentTaskEntity } from '~/database/typeorm/entities/departmentTask.entity';
+import { DisciplineEntity } from '~/database/typeorm/entities/discipline.entity';
+import { DocumentEntity } from '~/database/typeorm/entities/document.entity';
+import { EmployeeLeaveRequestEntity } from '~/database/typeorm/entities/employeeLeaveRequest.entity';
+import { ForgottenTimekeepingRequestEntity } from '~/database/typeorm/entities/forgottenTimekeepingRequest.entity';
 import { InventoryEntity } from '~/database/typeorm/entities/inventory.entity';
 import { InventoryHistoryEntity } from '~/database/typeorm/entities/inventoryHistory.entity';
+import { LeaveApplicationEntity } from '~/database/typeorm/entities/leaveApplication.entity';
 import { MediaEntity } from '~/database/typeorm/entities/media.entity';
 import { NotificationEntity } from '~/database/typeorm/entities/notification.entity';
 import { NotificationDetailEntity } from '~/database/typeorm/entities/notificationDetail.entity';
 import { OrderEntity } from '~/database/typeorm/entities/order.entity';
 import { OrderItemEntity } from '~/database/typeorm/entities/orderItem.entity';
 import { OrderProgressTrackingEntity } from '~/database/typeorm/entities/orderProgressTracking.entity';
+import { OvertimeRequestEntity } from '~/database/typeorm/entities/overtimeRequest.entity';
 import { PermissionEntity } from '~/database/typeorm/entities/permission.entity';
+import { PositionEntity } from '~/database/typeorm/entities/position.entity';
 import { ProductEntity } from '~/database/typeorm/entities/product.entity';
 import { ProductCategoryEntity } from '~/database/typeorm/entities/productCategory.entity';
 import { ProductMetaEntity } from '~/database/typeorm/entities/productMeta.entity';
@@ -26,9 +37,18 @@ import { ReceiptEntity } from '~/database/typeorm/entities/receipt.entity';
 import { RepairDetailEntity } from '~/database/typeorm/entities/repairDetail.entity';
 import { RepairProgressEntity } from '~/database/typeorm/entities/repairProgress.entity';
 import { RepairRequestEntity } from '~/database/typeorm/entities/repairRequest.entity';
+import { ResignationFormEntity } from '~/database/typeorm/entities/resignationForm.entity';
+import { RewardEntity } from '~/database/typeorm/entities/reward.entity';
 import { RoleEntity } from '~/database/typeorm/entities/role.entity';
+import { SendDocumentEntity } from '~/database/typeorm/entities/sendDocument.entity';
+import { ShiftEntity } from '~/database/typeorm/entities/shift.entity';
+import { StaffEntity } from '~/database/typeorm/entities/staff.entity';
+import { StaffShiftEntity } from '~/database/typeorm/entities/staffShift.entity';
 import { StocktakeEntity } from '~/database/typeorm/entities/stocktake.entity';
 import { StocktakeDetailEntity } from '~/database/typeorm/entities/stocktakeDetail.entity';
+import { TaskEntity } from '~/database/typeorm/entities/task.entity';
+import { TextEmbryoEntity } from '~/database/typeorm/entities/textEmbryo.entity';
+import { TimeAttendanceEntity } from '~/database/typeorm/entities/timeAttendance.entity';
 import { UnitEntity } from '~/database/typeorm/entities/unit.entity';
 import { UserEntity } from '~/database/typeorm/entities/user.entity';
 import { UserLogEntity } from '~/database/typeorm/entities/userLog.entity';
@@ -107,6 +127,27 @@ const entities = [
     RepairProgressEntity,
     NotificationEntity,
     NotificationDetailEntity,
+    StaffEntity,
+    DepartmentEntity,
+    CalendarEntity,
+    ContractEntity,
+    PositionEntity,
+    LeaveApplicationEntity,
+    ShiftEntity,
+    StaffShiftEntity,
+    DisciplineEntity,
+    ResignationFormEntity,
+    EmployeeLeaveRequestEntity,
+    ForgottenTimekeepingRequestEntity,
+    OvertimeRequestEntity,
+    TimeAttendanceEntity,
+    TaskEntity,
+    DepartmentTaskEntity,
+    RewardEntity,
+    AssetEntity,
+    DocumentEntity,
+    SendDocumentEntity,
+    TextEmbryoEntity,
 ];
 
 const repositories = [
