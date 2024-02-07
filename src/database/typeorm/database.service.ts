@@ -8,6 +8,7 @@ import { InventoryRepository } from '~/database/typeorm/repositories/inventory.r
 import { InventoryHistoryRepository } from '~/database/typeorm/repositories/inventoryHistory.repository';
 import { MediaRepository } from '~/database/typeorm/repositories/media.repository';
 import { NotificationRepository } from '~/database/typeorm/repositories/notification.repository';
+import { NotificationDetailRepository } from '~/database/typeorm/repositories/notificationDetail.repository';
 import { OrderRepository } from '~/database/typeorm/repositories/order.repository';
 import { OrderItemRepository } from '~/database/typeorm/repositories/orderItem.repository';
 import { OrderProgressTrackingRepository } from '~/database/typeorm/repositories/orderProgressTracking.repository';
@@ -74,6 +75,7 @@ export class DatabaseService {
         public readonly repairDetail: RepairDetailRepository,
         public readonly repairProgress: RepairProgressRepository,
         public readonly notification: NotificationRepository,
+        public readonly notificationDetail: NotificationDetailRepository,
     ) {
         // load all departments to cache
         // this.loadDepartmentsToCache();
@@ -106,6 +108,6 @@ export class DatabaseService {
             [permission],
         );
 
-        return result.map((r) => r.id);
+        return result.map((r) => r?.id).filter((id) => id);
     }
 }

@@ -304,6 +304,9 @@ export class ProposalService {
         const proposal = await this.database.proposal.save(this.database.proposal.create({ ...createProposalDto, createdById: UserStorage.getId() }));
         await this.database.proposalDetail.save(details.map((detail) => ({ ...detail, proposalId: proposal.id })));
 
+        // notify who created repair request
+        this.emitEvent('proposal.created', { id: proposal.id });
+
         return proposal;
     }
 

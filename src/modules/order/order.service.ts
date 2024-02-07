@@ -1,4 +1,5 @@
 import { HttpException, Injectable } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { FilterDto } from '~/common/dtos/filter.dto';
 import { ORDER_STATUS, ORDER_TYPE, PROPOSAL_STATUS, PROPOSAL_TYPE } from '~/common/enums/enum';
 import { UserStorage } from '~/common/storages/user.storage';
@@ -8,18 +9,23 @@ import { OrderItemEntity } from '~/database/typeorm/entities/orderItem.entity';
 import { ProposalEntity } from '~/database/typeorm/entities/proposal.entity';
 import { CreateOrderItemDto } from '~/modules/order/dto/create-order-item.dto';
 import { UpdateOrderItemDto } from '~/modules/order/dto/update-order-item.dto';
+import { OrderEvent } from '~/modules/order/events/order.event';
 import { UtilService } from '~/shared/services';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 
 @Injectable()
 export class OrderService {
-    constructor(private readonly utilService: UtilService, private readonly database: DatabaseService) {}
+    constructor(private readonly utilService: UtilService, private readonly database: DatabaseService, private eventEmitter: EventEmitter2) {}
 
     async create(createOrderDto: CreateOrderDto) {
         const proposal = await this.getProposal(createOrderDto.proposalId, createOrderDto.providerId, createOrderDto.type);
         const entity = await this.database.order.save(this.database.order.create({ ...createOrderDto, createdById: UserStorage.getId() }));
         this.createOrderDetails(entity.id, proposal.id);
+
+        // emit event to who can change status
+        this.emitEvent('order.created', { id: entity.id });
+
         return entity;
     }
 
@@ -130,11 +136,11 @@ export class OrderService {
     }
 
     async placeOrder(id: number) {
-        return this.updateStatus({ id, from: [ORDER_STATUS.PENDING], to: ORDER_STATUS.ORDERED });
+        return this.updateStatus({ id, from: [ORDER_STATUS.PENDING], to: ORDER_STATUS.PLACED });
     }
 
     async shipping(id: number) {
-        return this.updateStatus({ id, from: [ORDER_STATUS.ORDERED], to: ORDER_STATUS.SHIPPING });
+        return this.updateStatus({ id, from: [ORDER_STATUS.PLACED], to: ORDER_STATUS.SHIPPING });
     }
 
     async receive(id: number) {
@@ -142,7 +148,7 @@ export class OrderService {
     }
 
     async cancel(id: number) {
-        return this.updateStatus({ id, from: [ORDER_STATUS.PENDING, ORDER_STATUS.ORDERED], to: ORDER_STATUS.CANCELLED });
+        return this.updateStatus({ id, from: [ORDER_STATUS.PENDING, ORDER_STATUS.PLACED], to: ORDER_STATUS.CANCELLED });
     }
 
     /**
@@ -216,6 +222,8 @@ export class OrderService {
     private async updateStatus(data: { id: number; from: ORDER_STATUS[]; to: ORDER_STATUS }) {
         await this.isStatusValid({ id: data.id, statuses: data.from });
         this.database.orderProgressTracking.save({ orderId: data.id, status: data.to, trackingDate: new Date() });
+        // emit event
+        this.emitEventByStatus(data.to, { id: data.id });
         return this.database.order.update(data.id, { status: data.to });
     }
 
@@ -228,5 +236,31 @@ export class OrderService {
     private async isProductAddedToProposal(orderId: number, productId: number) {
         const result = await this.database.order.isProductAddedToProposal(orderId, productId);
         if (!result) throw new HttpException('Sản phẩm chưa được thêm vào phiếu đề xuất', 400);
+    }
+
+    private emitEventByStatus(status: ORDER_STATUS, data: { id: number }) {
+        switch (status) {
+            case ORDER_STATUS.PLACED:
+                this.emitEvent('order.placed', data);
+                break;
+            case ORDER_STATUS.SHIPPING:
+                this.emitEvent('order.shipping', data);
+                break;
+            case ORDER_STATUS.RECEIVED:
+                this.emitEvent('order.received', data);
+                break;
+            case ORDER_STATUS.CANCELLED:
+                this.emitEvent('order.cancelled', data);
+                break;
+            default:
+                break;
+        }
+    }
+
+    private emitEvent(event: string, data: { id: number }) {
+        const eventObj = new OrderEvent();
+        eventObj.id = data.id;
+        eventObj.senderId = UserStorage.getId();
+        this.eventEmitter.emit(event, eventObj);
     }
 }

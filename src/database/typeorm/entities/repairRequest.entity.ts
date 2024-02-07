@@ -35,6 +35,9 @@ export class RepairRequestEntity extends AbstractEntity {
     @Column({ name: 'status', type: 'varchar', length: 50, nullable: true, default: REPAIR_REQUEST_STATUS.PENDING })
     status: string;
 
+    @Column({ name: 'created_by_id', type: 'int', unsigned: true, nullable: true })
+    createdById: number;
+
     /* RELATIONS */
     @ManyToOne(() => VehicleEntity, { createForeignKeyConstraints: false })
     @JoinColumn({ name: 'vehicle_id', referencedColumnName: 'id' })
@@ -49,4 +52,8 @@ export class RepairRequestEntity extends AbstractEntity {
 
     @OneToMany(() => RepairProgressEntity, (entity) => entity.repairRequest, { createForeignKeyConstraints: false })
     progresses: Relation<RepairProgressEntity>[];
+
+    @ManyToOne(() => UserEntity, { createForeignKeyConstraints: false })
+    @JoinColumn({ name: 'created_by_id', referencedColumnName: 'id' })
+    createdBy: Relation<UserEntity>;
 }

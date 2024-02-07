@@ -42,6 +42,7 @@ export class WarehousingBillService {
 
         // emit an event to notify that the warehousing bill is created
         this.emitEvent('warehousingBill.created', { id: entity.id });
+
         return entity;
     }
 
@@ -170,6 +171,9 @@ export class WarehousingBillService {
             }),
         );
 
+        // emit an event to notify that the warehousing bill is approved
+        this.emitEvent('warehousingBill.approved', { id });
+
         return { message: 'Duyệt phiếu kho thành công', data: { id } };
     }
 
@@ -185,6 +189,9 @@ export class WarehousingBillService {
                 to: PROPOSAL_STATUS.REJECTED,
             }),
         );
+
+        // emit an event to notify that the warehousing bill is rejected
+        this.emitEvent('warehousingBill.rejected', { id });
 
         return { message: 'Từ chối phiếu kho thành công', data: { id } };
     }
@@ -202,6 +209,9 @@ export class WarehousingBillService {
             }),
         );
 
+        // emit an event to notify that the warehousing bill is returned
+        this.emitEvent('warehousingBill.returned', { id });
+
         return { message: 'Trả phiếu kho thành công', data: { id } };
     }
 
@@ -211,6 +221,9 @@ export class WarehousingBillService {
         if (!result) throw new HttpException('Còn sản phẩm chưa được kiểm đếm: ' + nonTalliedProducts.join(', '), 400);
 
         await this.allDetailsTallied(bill.id, bill.proposalId, bill.orderId);
+
+        // emit an event to notify that the tallying process is completed
+        this.emitEvent('warehousingBill.finished', { id });
 
         return { message: 'Kiểm phiếu kho hoàn tất', data: { id } };
     }

@@ -1,4 +1,5 @@
 import { HttpException, Injectable } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { In } from 'typeorm';
 import { FilterDto } from '~/common/dtos/filter.dto';
 import { STOCKTAKE_STATUS } from '~/common/enums/enum';
@@ -7,13 +8,14 @@ import { DatabaseService } from '~/database/typeorm/database.service';
 import { CreateStocktakeDetailDto } from '~/modules/stocktake/dto/create-stocktake-detail.dto';
 import { TallyStocktakeDetailDto } from '~/modules/stocktake/dto/tally-stocktake-detail.dto';
 import { UpdateStocktakeDetailDto } from '~/modules/stocktake/dto/update-stocktake-detail.dto';
+import { StocktakeEvent } from '~/modules/stocktake/events/stocktake.event';
 import { UtilService } from '~/shared/services';
 import { CreateStocktakeDto } from './dto/create-stocktake.dto';
 import { UpdateStocktakeDto } from './dto/update-stocktake.dto';
 
 @Injectable()
 export class StocktakeService {
-    constructor(private readonly utilService: UtilService, private readonly database: DatabaseService) {}
+    constructor(private readonly utilService: UtilService, private readonly database: DatabaseService, private eventEmitter: EventEmitter2) {}
 
     async create(createStocktakeDto: CreateStocktakeDto) {
         const { participants, ...rest } = createStocktakeDto;
@@ -22,6 +24,10 @@ export class StocktakeService {
             this.database.stocktake.create({ ...rest, status: STOCKTAKE_STATUS.DRAFT, createdById: UserStorage.getId() }),
         );
         this.database.stocktake.addParticipants(entity.id, participants);
+
+        // notify all participants
+        this.emitEvent('stocktake.created', { id: entity.id });
+
         return entity;
     }
 
@@ -278,6 +284,10 @@ export class StocktakeService {
                 userId: UserStorage.getId(),
             }),
         );
+
+        // emit event
+        this.emitEventByStatus(data.to, { id: data.id });
+
         return this.database.stocktake.update(data.id, { status: data.to, updatedById: UserStorage.getId() });
     }
 
@@ -334,5 +344,32 @@ export class StocktakeService {
 
         this.database.inventory.save(updatedInventories);
         this.database.inventoryHistory.save(inventoryHistories);
+    }
+
+    private emitEventByStatus(status: STOCKTAKE_STATUS, data: { id: number }) {
+        switch (status) {
+            case STOCKTAKE_STATUS.DRAFT:
+                this.emitEvent('stocktake.cancelled', data);
+                break;
+            case STOCKTAKE_STATUS.IN_PROGRESS:
+                this.emitEvent('stocktake.started', data);
+                break;
+            case STOCKTAKE_STATUS.FINISHED:
+                this.emitEvent('stocktake.finished', data);
+                break;
+            case STOCKTAKE_STATUS.APPROVED:
+                this.emitEvent('stocktake.approved', data);
+                break;
+            case STOCKTAKE_STATUS.REJECTED:
+                this.emitEvent('stocktake.rejected', data);
+                break;
+        }
+    }
+
+    private emitEvent(event: string, data: { id: number }) {
+        const eventObj = new StocktakeEvent();
+        eventObj.id = data.id;
+        eventObj.senderId = UserStorage.getId();
+        this.eventEmitter.emit(event, eventObj);
     }
 }

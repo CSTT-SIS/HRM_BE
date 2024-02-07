@@ -18,7 +18,7 @@ export class NotificationRepository extends Repository<NotificationEntity> {
      * information about the pagination, including the current page, number of records per page, total
      * number of records, and total number of pages.
      */
-    async getNotificationByReceiverId(data: { receiverId: number; page?: number; perPage?: number }) {
+    async getNotificationByReceiverId(data: { receiverId: number; page?: number; perPage?: number; lang: string }) {
         const { receiverId, page = 1, perPage = 10 } = data;
         console.log(data);
         console.log('receiverId', receiverId, 'page', page, 'perPage', perPage);
@@ -27,7 +27,11 @@ export class NotificationRepository extends Repository<NotificationEntity> {
             .where('notification.receiverId = :receiverId', { receiverId })
             .orderBy('notification.createdAt', 'DESC')
             .skip((page - 1) * perPage)
-            .take(perPage);
+            .take(perPage)
+            .leftJoinAndSelect('notification.sender', 'sender')
+            .leftJoinAndSelect('notification.details', 'details')
+            .andWhere('details.lang = :lang', { lang: data.lang })
+            .select(['notification', 'sender.id', 'sender.fullName', 'details.title', 'details.content', 'details.lang']);
 
         const [result, total] = await query.getManyAndCount();
         const totalPages = Math.ceil(total / perPage);
