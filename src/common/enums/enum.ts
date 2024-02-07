@@ -126,3 +126,73 @@ export enum REPAIR_REQUEST_STATUS {
     COMPLETED = 'COMPLETED',
     CANCELLED = 'CANCELLED',
 }
+
+export enum STAFF_STATUS {
+    ACTIVE = 1,
+    INACTIVE = 0,
+}
+
+export enum CALENDAR_TYPE {
+    GENERAL = 1,
+    // ----
+}
+
+export enum CONTRACT_STATUS {
+    ACTIVE = 1,
+    INACTIVE = 0,
+}
+
+export enum CONTRACT_TYPE {
+    GENERAL = 1,
+    // ----
+}
+
+export enum CONTRACT_RESULT {
+    GENERAL = 1,
+    // ----
+}
+
+export enum LEAVE_STATUS {
+    PENDING = 1,
+    // ----
+}
+
+export enum SHIFT_TYPE {
+    MORNING = 1,
+    // ----
+}
+
+export enum RESIGNATION_STATUS {
+    PENDING = 1,
+    // ----
+}
+
+export enum EMPLOYEE_LEAVE_REQUEST_STATUS {
+    ACCEPT = 1,
+    // ----
+}
+
+export enum FORGOTTEN_TIMEKEEPING_REQUEST_STATUS {
+    ACCEPT = 1,
+    // ----
+}
+
+export enum OVERTIME_REQUEST_STATUS {
+    ACCEPT = 1,
+    // ----
+}
+
+export enum TIME_ATTENDANCE_STATUS {
+    ACCEPT = 1,
+    // ----
+}
+
+export enum TASK_PRIORITY {
+    HIGH = 1,
+    // ----
+}
+
+export enum ASSET_STATUS {
+    ACTIVE = 1,
+    // ----
+}
