@@ -22,6 +22,7 @@ export function bootstrapSwagger(app: INestApplication, appVersion: string): voi
                 tagsSorter: 'alpha',
                 // operationsSorter: 'alpha',
                 persistAuthorization: true,
+                docExpansion: 'none',
             },
         });
 
