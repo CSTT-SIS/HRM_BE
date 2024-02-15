@@ -6,6 +6,8 @@ import { FilterDto } from '~/common/dtos/filter.dto';
 import { ORDER_STATUS, PROPOSAL_STATUS, PROPOSAL_TYPE, WAREHOUSING_BILL_STATUS, WAREHOUSING_BILL_TYPE } from '~/common/enums/enum';
 import { UserStorage } from '~/common/storages/user.storage';
 import { DatabaseService } from '~/database/typeorm/database.service';
+import { InventoryEntity } from '~/database/typeorm/entities/inventory.entity';
+import { WarehouseEntity } from '~/database/typeorm/entities/warehouse.entity';
 import { WarehousingBillEntity } from '~/database/typeorm/entities/warehousingBill.entity';
 import { WarehousingBillEvent } from '~/modules/warehousing-bill/events/warehousing-bill.event';
 import { UtilService } from '~/shared/services';
@@ -295,35 +297,77 @@ export class WarehousingBillService {
     }
 
     /**
-     * Check if the quantity of products in the warehouse is enough \
-     * If the quantity is not enough, throw an error
-     * @param data - CreateWarehousingBillDto
+     * The function checks if the quantity of products in a warehousing bill is valid for an export
+     * type bill.
+     * @param {CreateWarehousingBillDto} data - The parameter `data` is of type
+     * `CreateWarehousingBillDto`. It contains the following properties:
      */
     private async isQuantityValid(data: CreateWarehousingBillDto) {
         if (data.type === WAREHOUSING_BILL_TYPE.EXPORT) {
-            const proposalDetails = await this.database.proposalDetail.getDetailByProposalId(data.proposalId);
-            const productIds = proposalDetails.map((detail) => detail.productId);
-            const productQuantitiesInDb = await this.database.inventory.getQuantityByProductIds(productIds, data.warehouseId);
-            const productQuantitiesNotEnough = productQuantitiesInDb.filter(
-                (productQuantity) =>
-                    productQuantity.quantity < proposalDetails.find((detail) => detail.productId === productQuantity.productId).quantity,
-            );
-            if (productQuantitiesNotEnough.length > 0) {
-                throw new HttpException(
-                    `Số lượng sản phẩm '${productQuantitiesNotEnough
-                        .map(
-                            (productQuantity) =>
-                                productQuantity.productId +
-                                ' (tồn: ' +
-                                productQuantity.quantity +
-                                ', đề xuất: ' +
-                                proposalDetails.find((detail) => detail.productId === productQuantity.productId).quantity +
-                                ')',
-                        )
-                        .join(', ')}' không đủ. Vui lòng kiểm tra lại.`,
-                    400,
-                );
-            }
+            const warehouse = await this.getWarehouseById(data.warehouseId);
+            const proposalDetails = await this.getProposalDetails(data.proposalId);
+            const productQuantitiesInDb = await this.getProductQuantitiesInDb(proposalDetails, data.warehouseId);
+
+            // this.checkIfProductsExistInWarehouse(warehouse, proposalDetails, productQuantitiesInDb);
+            this.checkIfProductQuantitiesAreEnough(proposalDetails, productQuantitiesInDb);
+        }
+    }
+
+    private async getWarehouseById(warehouseId: number) {
+        const warehouse = await this.database.warehouse.findOneBy({ id: warehouseId });
+        if (!warehouse) {
+            throw new HttpException('Không tìm thấy kho', 404);
+        }
+        return warehouse;
+    }
+
+    private async getProposalDetails(proposalId: number): Promise<{ productId: number; productName: string; quantity: number }[]> {
+        const proposalDetails = await this.database.proposalDetail.getDetailByProposalId(proposalId);
+        if (proposalDetails.length === 0) {
+            throw new HttpException('Không tìm thấy chi tiết đề xuất', 400);
+        }
+        return proposalDetails;
+    }
+
+    private async getProductQuantitiesInDb(proposalDetails: { productId: number; productName: string; quantity: number }[], warehouseId: number) {
+        const productIds = proposalDetails.map((detail) => detail.productId);
+        const productQuantitiesInDb = await this.database.inventory.getQuantityByProductIds(productIds, warehouseId);
+        if (productQuantitiesInDb.length === 0) {
+            throw new HttpException(`Kho không có sản phẩm`, 400);
+        }
+        return productQuantitiesInDb;
+    }
+
+    private checkIfProductsExistInWarehouse(
+        warehouse: WarehouseEntity,
+        proposalDetails: { productId: number; productName: string; quantity: number }[],
+        productQuantitiesInDb: { productId: number; productName: string; quantity: number }[],
+    ) {
+        const productsNotFound = proposalDetails.filter((detail) => !productQuantitiesInDb.some((product) => product.productId === detail.productId));
+        if (productsNotFound.length > 0) {
+            const productNames = productsNotFound.map((detail) => detail.productName).join(', ');
+            throw new HttpException(`Kho '${warehouse.name}' không có sản phẩm '${productNames}'`, 400);
+        }
+    }
+
+    private checkIfProductQuantitiesAreEnough(
+        proposalDetails: { productId: number; productName: string; quantity: number }[],
+        productQuantitiesInDb: { productId: number; productName: string; quantity: number }[],
+    ) {
+        const productQuantitiesNotEnough = productQuantitiesInDb.filter((productQuantity) => {
+            const proposalDetail = proposalDetails.find((detail) => detail.productId === productQuantity.productId);
+            return productQuantity.quantity < (proposalDetail ? proposalDetail.quantity : 0);
+        });
+        if (productQuantitiesNotEnough.length > 0) {
+            const errorMessage = productQuantitiesNotEnough
+                .map((productQuantity) => {
+                    const proposalDetail = proposalDetails.find((detail) => detail.productId === productQuantity.productId);
+                    return `(${productQuantity.productId}) ${productQuantity.productName} (tồn: ${productQuantity.quantity}, đề xuất: ${
+                        proposalDetail ? proposalDetail.quantity : 0
+                    })`;
+                })
+                .join(', ');
+            throw new HttpException(`Số lượng sản phẩm ${errorMessage} không đủ. Vui lòng kiểm tra lại.`, 400);
         }
     }
 
@@ -371,61 +415,93 @@ export class WarehousingBillService {
      * @returns void
      */
     private async updateInventory(warehousingBillId: number): Promise<void> {
-        const bill = await this.database.warehousingBill.findOne({
+        const bill = await this.getCompletedWarehousingBill(warehousingBillId);
+        if (!bill) return;
+
+        const billProducts = this.extractBillProducts(bill);
+
+        const inventories = await this.findInventoriesByProductIds(billProducts.map((product) => product.productId));
+        const { updatedInventories, newInventories } = this.updateOrCreateInventories(bill, billProducts, inventories);
+
+        await Promise.all([this.database.inventory.save(updatedInventories), this.database.inventory.save(newInventories)]);
+
+        const inventoryHistories = this.createInventoryHistories(bill, billProducts, updatedInventories, newInventories);
+        await this.database.inventoryHistory.save(inventoryHistories);
+    }
+
+    private async getCompletedWarehousingBill(warehousingBillId: number) {
+        return await this.database.warehousingBill.findOne({
             where: { id: warehousingBillId, status: WAREHOUSING_BILL_STATUS.COMPLETED },
             relations: ['details'],
         });
-        if (!bill) return;
+    }
 
-        const billProducts = bill.details.map((detail) => ({
+    private extractBillProducts(bill: WarehousingBillEntity) {
+        return bill.details.map((detail) => ({
             productId: detail.productId,
             actualQuantity: detail.actualQuantity,
         }));
+    }
 
-        const inventories = await this.database.inventory.findBy({ productId: In(billProducts.map((product) => product.productId)) });
-        const inventoryHistories = [];
-        const updatedInventories = billProducts.map((billProduct) => {
+    private findInventoriesByProductIds(productIds: number[]) {
+        return this.database.inventory.findBy({ productId: In(productIds) });
+    }
+
+    private updateOrCreateInventories(
+        bill: WarehousingBillEntity,
+        billProducts: { productId: number; actualQuantity: number }[],
+        inventories: InventoryEntity[],
+    ) {
+        const updatedInventories: Partial<InventoryEntity>[] = [];
+        const newInventories: Partial<InventoryEntity>[] = [];
+
+        billProducts.forEach((billProduct) => {
+            const inventory = inventories.find((inv) => inv.productId === billProduct.productId);
             const change = this.getChangeQuantity(bill.type, billProduct.actualQuantity);
-            const inventory = inventories.find((inventory) => inventory.productId === billProduct.productId);
+
             if (inventory) {
-                inventoryHistories.push(
-                    this.database.inventoryHistory.create({
-                        inventoryId: inventory.id,
-                        from: inventory.quantity,
-                        to: inventory.quantity + change,
-                        change: change,
-                        updatedById: UserStorage.getId(),
-                        type: bill.type,
-                        note: JSON.stringify({ proposalId: bill.proposalId, warehousingBillId: bill.id }),
-                    }),
-                );
-                return {
+                updatedInventories.push({
                     ...inventory,
                     quantity: inventory.quantity + change,
-                };
+                });
+            } else {
+                newInventories.push({
+                    productId: billProduct.productId,
+                    warehouseId: bill.warehouseId,
+                    quantity: change,
+                    createdById: UserStorage.getId(),
+                });
             }
-
-            inventoryHistories.push(
-                this.database.inventoryHistory.create({
-                    inventoryId: inventory.id,
-                    from: 0,
-                    to: change,
-                    change: change,
-                    updatedById: UserStorage.getId(),
-                    type: bill.type,
-                    note: JSON.stringify({ proposalId: bill.proposalId, warehousingBillId: bill.id }),
-                }),
-            );
-            return {
-                productId: billProduct.productId,
-                warehouseId: bill.warehouseId,
-                quantity: change,
-                createdById: UserStorage.getId(),
-            };
         });
 
-        this.database.inventory.save(updatedInventories);
-        this.database.inventoryHistory.save(inventoryHistories);
+        return { updatedInventories, newInventories };
+    }
+
+    private createInventoryHistories(
+        bill: WarehousingBillEntity,
+        billProducts: any[],
+        updatedInventories: Partial<InventoryEntity>[],
+        newInventories: Partial<InventoryEntity>[],
+    ) {
+        const inventoryHistories = [];
+
+        billProducts.forEach((billProduct, index) => {
+            const inventory =
+                updatedInventories.find((inv) => inv.productId === billProduct.productId) ||
+                newInventories.find((inv) => inv.productId === billProduct.productId);
+            const change = this.getChangeQuantity(bill.type, billProduct.actualQuantity);
+            inventoryHistories.push({
+                inventoryId: inventory.id,
+                from: inventory.quantity - change,
+                to: inventory.quantity,
+                change: change,
+                updatedById: UserStorage.getId(),
+                type: bill.type,
+                note: JSON.stringify({ proposalId: bill.proposalId, warehousingBillId: bill.id }),
+            });
+        });
+
+        return inventoryHistories;
     }
 
     private getChangeQuantity(billType: WAREHOUSING_BILL_TYPE, actualQuantity: number) {

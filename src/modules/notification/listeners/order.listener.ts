@@ -32,7 +32,7 @@ export class OrderListener {
                     content: `Order '${entity.name}' has been created`,
                 },
                 {
-                    lang: 'la',
+                    lang: 'lo',
                     title: `ສັນຍາລັກ '${entity.name}' ຖືກສ້າງແລ້ວ`,
                     content: `ສັນຍາລັກ '${entity.name}' ຖືກສ້າງແລ້ວ`,
                 },
@@ -65,7 +65,7 @@ export class OrderListener {
                     content: `Order '${entity.name}' has been placed`,
                 },
                 {
-                    lang: 'la',
+                    lang: 'lo',
                     title: `ສັນຍາລັກ '${entity.name}' ຖືກສັ່ງຊື້ແລ້ວ`,
                     content: `ສັນຍາລັກ '${entity.name}' ຖືກສັ່ງຊື້ແລ້ວ`,
                 },
@@ -98,7 +98,7 @@ export class OrderListener {
                     content: `Order '${entity.name}' is being shipped`,
                 },
                 {
-                    lang: 'la',
+                    lang: 'lo',
                     title: `ສັນຍາລັກ '${entity.name}' ກ່ອນການຈັດສົນ`,
                     content: `ສັນຍາລັກ '${entity.name}' ກ່ອນການຈັດສົນ`,
                 },
@@ -131,7 +131,7 @@ export class OrderListener {
                     content: `Order '${entity.name}' has been received`,
                 },
                 {
-                    lang: 'la',
+                    lang: 'lo',
                     title: `ສັນຍາລັກ '${entity.name}' ຖືກຮັບແລ້ວ`,
                     content: `ສັນຍາລັກ '${entity.name}' ຖືກຮັບແລ້ວ`,
                 },
@@ -164,7 +164,7 @@ export class OrderListener {
                     content: `Order '${entity.name}' has been cancelled`,
                 },
                 {
-                    lang: 'la',
+                    lang: 'lo',
                     title: `ສັນຍາລັກ '${entity.name}' ຖືກຍົກເລີກ`,
                     content: `ສັນຍາລັກ '${entity.name}' ຖືກຍົກເລີກ`,
                 },

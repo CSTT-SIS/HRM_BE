@@ -12,9 +12,9 @@ function getMailConfig() {
                 },
             },
             defaults: {
-                from: `"Drain System Management" <${process.env.MAIL_FROM}>`,
+                from: `"HRM" <${process.env.MAIL_FROM}>`,
             },
-        }
+        },
     };
 }
 

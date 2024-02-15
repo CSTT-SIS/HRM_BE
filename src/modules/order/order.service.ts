@@ -19,7 +19,7 @@ export class OrderService {
     constructor(private readonly utilService: UtilService, private readonly database: DatabaseService, private eventEmitter: EventEmitter2) {}
 
     async create(createOrderDto: CreateOrderDto) {
-        const proposal = await this.getProposal(createOrderDto.proposalId, createOrderDto.providerId, createOrderDto.type);
+        const proposal = await this.isProposalValid(createOrderDto.proposalId, createOrderDto.providerId, createOrderDto.type);
         const entity = await this.database.order.save(this.database.order.create({ ...createOrderDto, createdById: UserStorage.getId() }));
         this.createOrderDetails(entity.id, proposal.id);
 
@@ -84,7 +84,7 @@ export class OrderService {
 
     async update(id: number, updateOrderDto: UpdateOrderDto) {
         await this.isStatusValid({ id, statuses: [ORDER_STATUS.PENDING] });
-        await this.getProposal(updateOrderDto.proposalId, updateOrderDto.providerId, updateOrderDto.type);
+        await this.isProposalValid(updateOrderDto.proposalId, updateOrderDto.providerId, updateOrderDto.type);
         return this.database.order.update(id, updateOrderDto);
     }
 
@@ -152,7 +152,7 @@ export class OrderService {
     }
 
     /**
-     * The function `getProposal` retrieves a proposal from the database based on the provided proposal
+     * The function `isProposalValid` retrieves a proposal from the database based on the provided proposal
      * ID, provider ID, and order type, and performs various checks and validations before returning
      * the proposal.
      * @param {number} proposalId - The ID of the proposal you want to retrieve.
@@ -162,7 +162,7 @@ export class OrderService {
      * representing different types of orders.
      * @returns a Promise that resolves to a ProposalEntity.
      */
-    private async getProposal(proposalId: number, providerId: number, orderType: ORDER_TYPE): Promise<ProposalEntity> {
+    private async isProposalValid(proposalId: number, providerId: number, orderType: ORDER_TYPE): Promise<ProposalEntity> {
         const proposal = await this.database.proposal.findOne({ where: { id: proposalId } });
         if (!proposal) throw new HttpException('Phiếu đề xuất không tồn tại', 400);
         if (proposal.status !== PROPOSAL_STATUS.APPROVED) throw new HttpException('Phiếu đề xuất chưa được duyệt', 400);

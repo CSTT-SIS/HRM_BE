@@ -33,7 +33,7 @@ export class RepairRequestListener {
                     content: `Repair request '${entity.name}' has been created`,
                 },
                 {
-                    lang: 'la',
+                    lang: 'lo',
                     title: `ຄຳຮ້ອງຂໍສິນຄ້າຄົງຄັງ '${entity.name}' ຖືກສ້າງແລ້ວ`,
                     content: `ຄຳຮ້ອງຂໍສິນຄ້າຄົງຄັງ '${entity.name}' ຖືກສ້າງແລ້ວ`,
                 },
@@ -66,7 +66,7 @@ export class RepairRequestListener {
                     content: `Repair request '${entity.name}' has been received`,
                 },
                 {
-                    lang: 'la',
+                    lang: 'lo',
                     title: `ຄຳຮ້ອງຂໍສິນຄ້າຄົງຄັງ '${entity.name}' ຖືກຮັບແລ້ວ`,
                     content: `ຄຳຮ້ອງຂໍສິນຄ້າຄົງຄັງ '${entity.name}' ຖືກຮັບແລ້ວ`,
                 },
@@ -99,7 +99,7 @@ export class RepairRequestListener {
                     content: `Repair request '${entity.name}' has been completed`,
                 },
                 {
-                    lang: 'la',
+                    lang: 'lo',
                     title: `ຄຳຮ້ອງຂໍສິນຄ້າຄົງຄັງ '${entity.name}' ຖືກສຳເລັດ`,
                     content: `ຄຳຮ້ອງຂໍສິນຄ້າຄົງຄັງ '${entity.name}' ຖືກສຳເລັດ`,
                 },

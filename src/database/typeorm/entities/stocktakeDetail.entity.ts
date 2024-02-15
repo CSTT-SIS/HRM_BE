@@ -21,7 +21,6 @@ export class StocktakeDetailEntity extends AbstractEntity {
         type: 'decimal',
         precision: 12,
         scale: 2,
-        unsigned: true,
         nullable: true,
         transformer: new ColumnNumericTransformer(),
     })
@@ -32,7 +31,6 @@ export class StocktakeDetailEntity extends AbstractEntity {
         type: 'decimal',
         precision: 12,
         scale: 2,
-        unsigned: true,
         nullable: true,
         transformer: new ColumnNumericTransformer(),
     })

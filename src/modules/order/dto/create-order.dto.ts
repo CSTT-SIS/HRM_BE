@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsNumber, Matches } from 'class-validator';
+import { Transform } from 'class-transformer';
+import { IsEnum, IsNotEmpty, IsNumber, Matches } from 'class-validator';
 import { ORDER_TYPE } from '~/common/enums/enum';
 import { IsIdExist } from '~/common/validators/is-id-exist.validator';
 
@@ -18,6 +19,8 @@ export class CreateOrderDto {
 
     @ApiProperty({ type: 'string', description: 'type' })
     @IsNotEmpty({ message: 'Loại không được để trống' })
+    @Transform(({ value }) => ('' + value).toUpperCase())
+    @IsEnum(ORDER_TYPE, { message: 'Loại đơn hàng không hợp lệ' })
     type: ORDER_TYPE;
 
     @ApiProperty({ type: 'string', description: 'name' })

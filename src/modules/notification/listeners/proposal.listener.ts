@@ -34,7 +34,7 @@ export class ProposalListener {
                         content: `Proposal '${entity.name}' has been created`,
                     },
                     {
-                        lang: 'la',
+                        lang: 'lo',
                         title: `ຄຳປະກາດ '${entity.name}' ແມ່ນລໍຖ້າການອະນຸມັດ`,
                         content: `ຄຳປະກາດ '${entity.name}' ແມ່ນລໍຖ້າການອະນຸມັດ`,
                     },
@@ -68,7 +68,7 @@ export class ProposalListener {
                     content: `Proposal '${entity.name}' is pending approval`,
                 },
                 {
-                    lang: 'la',
+                    lang: 'lo',
                     title: `ຄຳປະກາດ '${entity.name}' ແມ່ນລໍຖ້າການອະນຸມັດ`,
                     content: `ຄຳປະກາດ '${entity.name}' ແມ່ນລໍຖ້າການອະນຸມັດ`,
                 },
@@ -108,7 +108,7 @@ export class ProposalListener {
                     content: `Proposal '${entity.name}' has been approved`,
                 },
                 {
-                    lang: 'la',
+                    lang: 'lo',
                     title: `ຄຳປະກາດ '${entity.name}' ໄດ້ຮັບອະນຸມັດແລ້ວ`,
                     content: `ຄຳປະກາດ '${entity.name}' ໄດ້ຮັບອະນຸມັດແລ້ວ`,
                 },
@@ -140,7 +140,7 @@ export class ProposalListener {
                     content: `Proposal '${entity.name}' has been rejected`,
                 },
                 {
-                    lang: 'la',
+                    lang: 'lo',
                     title: `ຄຳປະກາດ '${entity.name}' ໄດ້ຖືກປະຕິບັດ`,
                     content: `ຄຳປະກາດ '${entity.name}' ໄດ້ຖືກປະຕິບັດ`,
                 },
@@ -172,7 +172,7 @@ export class ProposalListener {
                     content: `Proposal '${entity.name}' has been returned`,
                 },
                 {
-                    lang: 'la',
+                    lang: 'lo',
                     title: `ຄຳປະກາດ '${entity.name}' ໄດ້ຖືກສົ່ງຄືນ`,
                     content: `ຄຳປະກາດ '${entity.name}' ໄດ້ຖືກສົ່ງຄືນ`,
                 },

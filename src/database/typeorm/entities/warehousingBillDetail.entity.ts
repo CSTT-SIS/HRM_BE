@@ -35,7 +35,6 @@ export class WarehousingBillDetailEntity extends AbstractEntity {
         type: 'decimal',
         precision: 12,
         scale: 2,
-        unsigned: true,
         nullable: true,
         transformer: new ColumnNumericTransformer(),
     })

@@ -45,6 +45,7 @@ import { UnitModule } from './modules/unit/unit.module';
 import { UserModule } from './modules/user/user.module';
 import { WarehouseTypeModule } from './modules/warehouse-type/warehouse-type.module';
 import { WarehouseModule } from './modules/warehouse/warehouse.module';
+import { StatisticModule } from '~/modules/statistic/statistic.module';
 
 @Module({
     imports: [
@@ -93,6 +94,7 @@ import { WarehouseModule } from './modules/warehouse/warehouse.module';
         DropdownModule,
         RepairRequestModule,
         NotificationModule,
+        StatisticModule,
     ],
     controllers: [AppController],
     providers: [

@@ -33,7 +33,7 @@ export class WarehousingBillListener {
                     content: `Warehousing bill '${entity.name}' is pending approval`,
                 },
                 {
-                    lang: 'la',
+                    lang: 'lo',
                     title: `ໃບບິນເກັບເງິນ '${entity.name}' ແມ່ນລໍຖ້າການອະນຸມັດ`,
                     content: `ໃບບິນເກັບເງິນ '${entity.name}' ແມ່ນລໍຖ້າການອະນຸມັດ`,
                 },
@@ -66,7 +66,7 @@ export class WarehousingBillListener {
                     content: `Warehousing bill '${entity.name}' has been approved`,
                 },
                 {
-                    lang: 'la',
+                    lang: 'lo',
                     title: `ໃບບິນເກັບເງິນ '${entity.name}' ແມ່ນອະນຸມັດ`,
                     content: `ໃບບິນເກັບເງິນ '${entity.name}' ແມ່ນອະນຸມັດ`,
                 },
@@ -98,7 +98,7 @@ export class WarehousingBillListener {
                     content: `Warehousing bill '${entity.name}' has been rejected`,
                 },
                 {
-                    lang: 'la',
+                    lang: 'lo',
                     title: `ໃບບິນເກັບເງິນ '${entity.name}' ໄດ້ຖືກປະຕິເສດ`,
                     content: `ໃບບິນເກັບເງິນ '${entity.name}' ໄດ້ຖືກປະຕິເສດ`,
                 },
@@ -130,7 +130,7 @@ export class WarehousingBillListener {
                     content: `Warehousing bill '${entity.name}' has been returned`,
                 },
                 {
-                    lang: 'la',
+                    lang: 'lo',
                     title: `ໃບບິນເກັບເງິນ '${entity.name}' ໄດ້ຖືກສົ່ງຄືນ`,
                     content: `ໃບບິນເກັບເງິນ '${entity.name}' ໄດ້ຖືກສົ່ງຄືນ`,
                 },
@@ -164,7 +164,7 @@ export class WarehousingBillListener {
                         content: `Proposal '${proposal.name}' has been finished`,
                     },
                     {
-                        lang: 'la',
+                        lang: 'lo',
                         title: `ຄຳປະກາດ '${proposal.name}' ໄດ້ສຳເລັດແລ້ວ`,
                         content: `ຄຳປະກາດ '${proposal.name}' ໄດ້ສຳເລັດແລ້ວ`,
                     },
@@ -191,7 +191,7 @@ export class WarehousingBillListener {
                     content: `Warehousing bill '${entity.name}' has been finished`,
                 },
                 {
-                    lang: 'la',
+                    lang: 'lo',
                     title: `ໃບບິນເກັບເງິນ '${entity.name}' ໄດ້ສຳເລັດແລ້ວ`,
                     content: `ໃບບິນເກັບເງິນ '${entity.name}' ໄດ້ສຳເລັດແລ້ວ`,
                 },

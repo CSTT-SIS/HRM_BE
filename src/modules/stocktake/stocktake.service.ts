@@ -2,7 +2,7 @@ import { HttpException, Injectable } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { In } from 'typeorm';
 import { FilterDto } from '~/common/dtos/filter.dto';
-import { STOCKTAKE_STATUS } from '~/common/enums/enum';
+import { INVENTORY_HISTORY_TYPE, STOCKTAKE_STATUS } from '~/common/enums/enum';
 import { UserStorage } from '~/common/storages/user.storage';
 import { DatabaseService } from '~/database/typeorm/database.service';
 import { CreateStocktakeDetailDto } from '~/modules/stocktake/dto/create-stocktake-detail.dto';
@@ -313,7 +313,7 @@ export class StocktakeService {
                         to: inventory.quantity + change,
                         change: change,
                         updatedById: UserStorage.getId(),
-                        type: 'STOCKTAKE',
+                        type: INVENTORY_HISTORY_TYPE.STOCKTAKE,
                         note: JSON.stringify({ stocktakeId: id, stocktakeDetailId: product.detailId }),
                     }),
                 );
@@ -323,26 +323,10 @@ export class StocktakeService {
                 };
             }
 
-            inventoryHistories.push(
-                this.database.inventoryHistory.create({
-                    inventoryId: inventory.id,
-                    from: 0,
-                    to: change,
-                    change: change,
-                    updatedById: UserStorage.getId(),
-                    type: 'STOCKTAKE',
-                    note: JSON.stringify({ stocktakeId: id, stocktakeDetailId: product.detailId }),
-                }),
-            );
-            return {
-                productId: product.productId,
-                warehouseId: entity.warehouseId,
-                quantity: change,
-                createdById: UserStorage.getId(),
-            };
+            return null;
         });
 
-        this.database.inventory.save(updatedInventories);
+        this.database.inventory.save(updatedInventories.filter((inventory) => inventory !== null));
         this.database.inventoryHistory.save(inventoryHistories);
     }
 

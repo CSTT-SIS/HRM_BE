@@ -33,7 +33,7 @@ export class StocktakeListener {
                     content: `Stocktake '${entity.name}' has been created`,
                 },
                 {
-                    lang: 'la',
+                    lang: 'lo',
                     title: `ຄຳຮ້ອງຂໍສິນຄ້າຄົງຄັງ '${entity.name}' ຖືກສ້າງແລ້ວ`,
                     content: `ຄຳຮ້ອງຂໍສິນຄ້າຄົງຄັງ '${entity.name}' ຖືກສ້າງແລ້ວ`,
                 },
@@ -66,7 +66,7 @@ export class StocktakeListener {
                     content: `Stocktake '${entity.name}' has been started`,
                 },
                 {
-                    lang: 'la',
+                    lang: 'lo',
                     title: `ຄຳຮ້ອງຂໍສິນຄ້າຄົງຄັງ '${entity.name}' ຖືກເລີ່ມຕົ້ນ`,
                     content: `ຄຳຮ້ອງຂໍສິນຄ້າຄົງຄັງ '${entity.name}' ຖືກເລີ່ມຕົ້ນ`,
                 },
@@ -99,7 +99,7 @@ export class StocktakeListener {
                     content: `Stocktake '${entity.name}' has been cancelled`,
                 },
                 {
-                    lang: 'la',
+                    lang: 'lo',
                     title: `ຄຳຮ້ອງຂໍສິນຄ້າຄົງຄັງ '${entity.name}' ຖືກຍົກເລີກ`,
                     content: `ຄຳຮ້ອງຂໍສິນຄ້າຄົງຄັງ '${entity.name}' ຖືກຍົກເລີກ`,
                 },
@@ -132,7 +132,7 @@ export class StocktakeListener {
                     content: `Stocktake '${entity.name}' has been finished`,
                 },
                 {
-                    lang: 'la',
+                    lang: 'lo',
                     title: `ຄຳຮ້ອງຂໍສິນຄ້າຄົງຄັງ '${entity.name}' ຖືກສົ່ງສິ່ງ`,
                     content: `ຄຳຮ້ອງຂໍສິນຄ້າຄົງຄັງ '${entity.name}' ຖືກສົ່ງສິ່ງ`,
                 },
@@ -164,7 +164,7 @@ export class StocktakeListener {
                     content: `Stocktake '${entity.name}' has been approved`,
                 },
                 {
-                    lang: 'la',
+                    lang: 'lo',
                     title: `ຄຳຮ້ອງຂໍສິນຄ້າຄົງຄັງ '${entity.name}' ຖືກອະນຸຍາດ`,
                     content: `ຄຳຮ້ອງຂໍສິນຄ້າຄົງຄັງ '${entity.name}' ຖືກອະນຸຍາດ`,
                 },
@@ -196,7 +196,7 @@ export class StocktakeListener {
                     content: `Stocktake '${entity.name}' has been rejected`,
                 },
                 {
-                    lang: 'la',
+                    lang: 'lo',
                     title: `ຄຳຮ້ອງຂໍສິນຄ້າຄົງຄັງ '${entity.name}' ຖືກປະຕິຍາດ`,
                     content: `ຄຳຮ້ອງຂໍສິນຄ້າຄົງຄັງ '${entity.name}' ຖືກປະຕິຍາດ`,
                 },

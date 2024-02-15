@@ -10,10 +10,12 @@ export class ProposalDetailRepository extends Repository<ProposalDetailEntity> {
         super(ProposalDetailEntity, dataSource.createEntityManager());
     }
 
-    getDetailByProposalId(proposalId: number): Promise<{ id: number; productId: number; quantity: number }[]> {
+    getDetailByProposalId(proposalId: number): Promise<{ productId: number; productName: string; quantity: number }[]> {
         return this.createQueryBuilder('proposalDetail')
+            .leftJoin('proposalDetail.product', 'product')
             .select('proposalDetail.productId', 'productId')
             .addSelect('proposalDetail.quantity', 'quantity')
+            .addSelect('product.name', 'productName')
             .where('proposalDetail.proposalId = :proposalId', { proposalId })
             .getRawMany();
     }

@@ -24,8 +24,8 @@ export class InventoryEntity extends AbstractEntity {
         type: 'decimal',
         precision: 12,
         scale: 2,
-        unsigned: true,
         nullable: true,
+        default: 0,
         transformer: new ColumnNumericTransformer(),
     })
     quantity: number;
