@@ -1,4 +1,4 @@
-import { Controller, Get, Param, ParseIntPipe, Query } from '@nestjs/common';
+import { Controller, Get, Param, ParseIntPipe, Patch, Query } from '@nestjs/common';
 import { ApiBasicAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { BYPASS_PERMISSION } from '~/common/constants/constant';
 import { Permission } from '~/common/decorators/permission.decorator';
@@ -25,7 +25,7 @@ export class NotificationController {
     }
 
     @Permission(BYPASS_PERMISSION)
-    @Get('mark-all-as-read')
+    @Patch('mark-all-as-read')
     markAllAsRead() {
         return this.notificationService.markAllAsRead();
     }
@@ -38,7 +38,7 @@ export class NotificationController {
     }
 
     @Permission(BYPASS_PERMISSION)
-    @Get(':id/mark-as-read')
+    @Patch(':id/mark-as-read')
     markAsRead(@Param('id') id: string) {
         return this.notificationService.markAsRead(+id);
     }
