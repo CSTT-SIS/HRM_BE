@@ -24,7 +24,8 @@ export class NotificationRepository extends Repository<NotificationEntity> {
 
         const query = this.createQueryBuilder('notification')
             .where('notification.receiverId = :receiverId', { receiverId })
-            .orderBy('notification.createdAt', 'DESC')
+            .orderBy('notification.isRead', 'ASC')
+            .addOrderBy('notification.createdAt', 'DESC')
             .skip((page - 1) * perPage)
             .take(perPage)
             .leftJoinAndSelect('notification.sender', 'sender')
