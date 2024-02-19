@@ -32,7 +32,6 @@ import { UserRepository } from '~/database/typeorm/repositories/user.repository'
 import { UserLogRepository } from '~/database/typeorm/repositories/userLog.repository';
 import { VehicleRepository } from '~/database/typeorm/repositories/vehicle.repository';
 import { WarehouseRepository } from '~/database/typeorm/repositories/warehouse.repository';
-import { WarehouseTypeRepository } from '~/database/typeorm/repositories/warehouseType.repository';
 import { WarehousingBillRepository } from '~/database/typeorm/repositories/warehousingBill.repository';
 import { WarehousingBillDetailRepository } from '~/database/typeorm/repositories/warehousingBillDetail.repository';
 import { CacheService } from '~/shared/services/cache.service';
@@ -50,7 +49,6 @@ export class DatabaseService {
         public readonly role: RoleRepository,
         public readonly userLog: UserLogRepository,
         public readonly warehouse: WarehouseRepository,
-        public readonly warehouseType: WarehouseTypeRepository,
         public readonly provider: ProviderRepository,
         public readonly product: ProductRepository,
         public readonly productCategory: ProductCategoryRepository,

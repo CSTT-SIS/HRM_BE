@@ -14,12 +14,6 @@ export class CreateWarehouseDto {
 
     @ApiProperty()
     @IsOptional()
-    @IsNumber({}, { message: 'Mã loại kho phải là số' })
-    @IsIdExist({ entity: 'warehouseType' }, { message: 'Mã loại kho không tồn tại' })
-    typeId: number;
-
-    @ApiProperty()
-    @IsOptional()
     description: string;
 
     @ApiProperty()

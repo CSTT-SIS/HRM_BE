@@ -19,16 +19,6 @@ import { UtilService } from '~/shared/services';
 export class DropdownService {
     constructor(private readonly utilService: UtilService, private readonly database: DatabaseService) {}
 
-    warehouseType(queries: FilterDto) {
-        return this.getDropdown({
-            entity: 'warehouseType',
-            queries,
-            label: 'name',
-            value: 'id',
-            fulltext: true,
-        });
-    }
-
     product(queries: FilterDto & { categoryId: number }) {
         return this.getDropdown({
             entity: 'product',

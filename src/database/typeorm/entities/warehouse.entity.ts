@@ -1,7 +1,6 @@
 import { Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, Relation } from 'typeorm';
 import { InventoryEntity } from '~/database/typeorm/entities/inventory.entity';
 import { UserEntity } from '~/database/typeorm/entities/user.entity';
-import { WarehouseTypeEntity } from '~/database/typeorm/entities/warehouseType.entity';
 import { AbstractEntity } from './abstract.entity';
 
 @Entity({ name: 'warehouses' })
@@ -23,9 +22,6 @@ export class WarehouseEntity extends AbstractEntity {
     @Column({ name: 'code', type: 'varchar', length: 255, nullable: true })
     code: string;
 
-    @Column({ name: 'type_id', type: 'int', unsigned: true, nullable: true })
-    typeId: number;
-
     @Column({ name: 'description', type: 'text', nullable: true })
     description: string;
 
@@ -36,10 +32,6 @@ export class WarehouseEntity extends AbstractEntity {
     managerId: number;
 
     /* RELATIONS */
-    @ManyToOne(() => WarehouseTypeEntity, (type) => type.warehouses, { nullable: true, createForeignKeyConstraints: false })
-    @JoinColumn({ name: 'type_id', referencedColumnName: 'id' })
-    type: Relation<WarehouseTypeEntity>;
-
     @OneToMany(() => InventoryEntity, (inventory) => inventory.warehouse, { createForeignKeyConstraints: false })
     inventories: Relation<InventoryEntity>[];
 

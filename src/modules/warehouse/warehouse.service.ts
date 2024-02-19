@@ -25,9 +25,6 @@ export class WarehouseService {
         builder.andWhere(this.utilService.relationQuerySearch({ typeId: queries.typeId }));
         builder.andWhere(this.utilService.fullTextSearch({ fields: ['name'], keyword: queries.search }));
 
-        builder.leftJoinAndSelect('entity.type', 'type');
-        builder.select(['entity', 'type.id', 'type.name']);
-
         const [result, total] = await builder.getManyAndCount();
         const totalPages = Math.ceil(total / take);
         return {
@@ -41,7 +38,7 @@ export class WarehouseService {
     }
 
     findOne(id: number) {
-        return this.database.warehouse.findOne({ where: { id }, relations: ['type'] });
+        return this.database.warehouse.findOne({ where: { id } });
     }
 
     async update(id: number, updateWarehouseDto: UpdateWarehouseDto) {

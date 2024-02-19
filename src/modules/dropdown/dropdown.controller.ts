@@ -11,13 +11,6 @@ import { DropdownService } from './dropdown.service';
 export class DropdownController {
     constructor(private readonly dropdownService: DropdownService) {}
 
-    @Permission('warehouseType:findAll')
-    @Get('warehouse-type')
-    @ApiQuery({ type: FilterDto })
-    warehouseType(@Query() queries) {
-        return this.dropdownService.warehouseType({ ...queries });
-    }
-
     @Permission('product:findAll')
     @Get('product')
     @ApiQuery({ type: FilterDto })
