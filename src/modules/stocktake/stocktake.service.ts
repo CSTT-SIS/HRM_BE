@@ -131,7 +131,7 @@ export class StocktakeService {
                 return {
                     stocktakeId: id,
                     productId: product.productId,
-                    openingQuantity: parseFloat(product.opening || product.current),
+                    openingQuantity: parseFloat(product.opening || product.current) || 0,
                     createdById: UserStorage.getId(),
                 };
             }
@@ -181,7 +181,7 @@ export class StocktakeService {
             this.database.stocktakeDetail.create({
                 ...createStocktakeDetailDto,
                 stocktakeId: id,
-                openingQuantity: parseFloat(product.opening || product.current),
+                openingQuantity: product.opening || product.current,
                 createdById: UserStorage.getId(),
             }),
         );
@@ -200,7 +200,7 @@ export class StocktakeService {
 
         return this.database.stocktakeDetail.update(detailId, {
             ...updateStocktakeDetailDto,
-            openingQuantity: parseFloat(product.opening || product.current),
+            openingQuantity: product.opening || product.current,
             updatedById: UserStorage.getId(),
         });
     }

@@ -63,7 +63,7 @@ export class InventoryRepository extends Repository<InventoryEntity> {
         return builder.getRawMany();
     }
 
-    getOpeningQuantity(warehouseId: number, productId: number, startDate: Date, endDate: Date): Promise<{ current: string; opening: string }> {
+    async getOpeningQuantity(warehouseId: number, productId: number, startDate: Date, endDate: Date): Promise<{ current: number; opening: number }> {
         const builder = this.createQueryBuilder('entity')
             .leftJoin('entity.histories', 'histories', 'histories.createdAt BETWEEN :startDate AND :endDate', {
                 startDate: moment(startDate).format('YYYY-MM-DD'),
@@ -73,6 +73,11 @@ export class InventoryRepository extends Repository<InventoryEntity> {
             .andWhere('entity.productId = :productId', { productId })
             .select(['entity.quantity as current', 'histories.from as opening']);
 
-        return builder.getRawOne();
+        const res = builder.getRawOne();
+
+        return {
+            current: parseFloat(res['current']) || 0,
+            opening: parseFloat(res['opening']) || 0,
+        };
     }
 }
