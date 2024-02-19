@@ -2,6 +2,7 @@ import { Global, Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
+import { RoleEntity } from '~/database/typeorm/entities/role.entity';
 import { DatabaseService } from '~/database/typeorm/database.service';
 import { AccountEntity } from '~/database/typeorm/entities/account.entity';
 import { ApprovalProcessEntity } from '~/database/typeorm/entities/approvalProcess.entity';
@@ -9,7 +10,6 @@ import { DepartmentEntity } from '~/database/typeorm/entities/department.entity'
 import { InventoryEntity } from '~/database/typeorm/entities/inventory.entity';
 import { InventoryHistoryEntity } from '~/database/typeorm/entities/inventoryHistory.entity';
 import { MediaEntity } from '~/database/typeorm/entities/media.entity';
-import { NotificationEntity } from '~/database/typeorm/entities/notification.entity';
 import { NotificationDetailEntity } from '~/database/typeorm/entities/notificationDetail.entity';
 import { OrderEntity } from '~/database/typeorm/entities/order.entity';
 import { OrderItemEntity } from '~/database/typeorm/entities/orderItem.entity';
@@ -22,17 +22,11 @@ import { ProposalEntity } from '~/database/typeorm/entities/proposal.entity';
 import { ProposalDetailEntity } from '~/database/typeorm/entities/proposalDetail.entity';
 import { ProviderEntity } from '~/database/typeorm/entities/provider.entity';
 import { QuantityLimitEntity } from '~/database/typeorm/entities/quantityLimit.entity';
-import { ReceiptEntity } from '~/database/typeorm/entities/receipt.entity';
-import { RepairDetailEntity } from '~/database/typeorm/entities/repairDetail.entity';
-import { RepairProgressEntity } from '~/database/typeorm/entities/repairProgress.entity';
-import { RepairRequestEntity } from '~/database/typeorm/entities/repairRequest.entity';
-import { RoleEntity } from '~/database/typeorm/entities/role.entity';
 import { StocktakeEntity } from '~/database/typeorm/entities/stocktake.entity';
 import { StocktakeDetailEntity } from '~/database/typeorm/entities/stocktakeDetail.entity';
 import { UnitEntity } from '~/database/typeorm/entities/unit.entity';
 import { UserEntity } from '~/database/typeorm/entities/user.entity';
 import { UserLogEntity } from '~/database/typeorm/entities/userLog.entity';
-import { VehicleEntity } from '~/database/typeorm/entities/vehicle.entity';
 import { WarehouseEntity } from '~/database/typeorm/entities/warehouse.entity';
 import { WarehouseTypeEntity } from '~/database/typeorm/entities/warehouseType.entity';
 import { WarehousingBillEntity } from '~/database/typeorm/entities/warehousingBill.entity';
@@ -56,17 +50,12 @@ import { ProposalRepository } from '~/database/typeorm/repositories/proposal.rep
 import { ProposalDetailRepository } from '~/database/typeorm/repositories/proposalDetail.repository';
 import { ProviderRepository } from '~/database/typeorm/repositories/provider.repository';
 import { QuantityLimitRepository } from '~/database/typeorm/repositories/quantityLimit.repository';
-import { ReceiptRepository } from '~/database/typeorm/repositories/receipt.repository';
-import { RepairDetailRepository } from '~/database/typeorm/repositories/repairDetail.repository';
-import { RepairProgressRepository } from '~/database/typeorm/repositories/repairProgress.repository';
-import { RepairRequestRepository } from '~/database/typeorm/repositories/repairRequest.repository';
 import { RoleRepository } from '~/database/typeorm/repositories/role.repository';
 import { StocktakeRepository } from '~/database/typeorm/repositories/stocktake.repository';
 import { StocktakeDetailRepository } from '~/database/typeorm/repositories/stocktakeDetail.repository';
 import { UnitRepository } from '~/database/typeorm/repositories/unit.repository';
 import { UserRepository } from '~/database/typeorm/repositories/user.repository';
 import { UserLogRepository } from '~/database/typeorm/repositories/userLog.repository';
-import { VehicleRepository } from '~/database/typeorm/repositories/vehicle.repository';
 import { WarehouseRepository } from '~/database/typeorm/repositories/warehouse.repository';
 import { WarehouseTypeRepository } from '~/database/typeorm/repositories/warehouseType.repository';
 import { WarehousingBillRepository } from '~/database/typeorm/repositories/warehousingBill.repository';
@@ -82,7 +71,6 @@ import { RepairRequestRepository } from '~/database/typeorm/repositories/repairR
 import { RepairDetailRepository } from '~/database/typeorm/repositories/repairDetail.repository';
 import { RepairProgressRepository } from '~/database/typeorm/repositories/repairProgress.repository';
 import { NotificationEntity } from '~/database/typeorm/entities/notification.entity';
-import { NotificationRepository } from '~/database/typeorm/repositories/notification.repository';
 import { StaffEntity } from '~/database/typeorm/entities/staff.entity';
 import { CalendarEntity } from '~/database/typeorm/entities/calendar.entity';
 import { ContractEntity } from '~/database/typeorm/entities/contract.entity';
@@ -138,6 +126,7 @@ const entities = [
     RepairDetailEntity,
     RepairProgressEntity,
     NotificationEntity,
+    NotificationDetailEntity,
     StaffEntity,
     DepartmentEntity,
     CalendarEntity,
@@ -158,7 +147,7 @@ const entities = [
     AssetEntity,
     DocumentEntity,
     SendDocumentEntity,
-    TextEmbryoEntity
+    TextEmbryoEntity,
 ];
 
 const repositories = [
