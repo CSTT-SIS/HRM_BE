@@ -29,7 +29,7 @@ export class TimeAttendanceEntity extends AbstractEntity {
     @Column({ name: 'absence_reason', type: 'varchar', length: 255, nullable: true })
     absenceReason: string;
 
-    @Column({ name: 'supporting_documents', type: 'string', nullable: true })
+    @Column({ name: 'supporting_documents', type: 'varchar', length: 255, nullable: true })
     supportingDocuments: string;
 
     @Column({ name: 'status', type: 'varchar', length: 255, nullable: true })

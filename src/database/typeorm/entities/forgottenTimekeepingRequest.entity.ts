@@ -17,7 +17,7 @@ export class ForgottenTimekeepingRequestEntity extends AbstractEntity {
     @Column({ name: 'forget_date', type: 'date', nullable: true })
     forgetDate: Date;
 
-    @Column({ name: 'supporting_documents', type: 'string', nullable: true })
+    @Column({ name: 'supporting_documents', type: 'varchar', length: 255, nullable: true })
     supportingDocuments: string;
 
     @Column({ name: 'status', type: 'varchar', length: 255, nullable: true })

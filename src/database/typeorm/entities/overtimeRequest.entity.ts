@@ -26,7 +26,7 @@ export class OvertimeRequestEntity extends AbstractEntity {
     @Column({ name: 'overtime_amount', type: 'float', nullable: true })
     overtimeAmount: number;
 
-    @Column({ name: 'supporting_documents', type: 'string', nullable: true })
+    @Column({ name: 'supporting_documents', type: 'varchar', length: 255, nullable: true })
     supportingDocuments: string;
 
     @Column({ name: 'status', type: 'varchar', length: 255, nullable: true })
