@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 import { WAREHOUSING_BILL_TYPE } from '~/common/enums/enum';
 import { IsIdExist } from '~/common/validators/is-id-exist.validator';
 
@@ -26,7 +26,7 @@ export class CreateWarehousingBillDto {
 
     @ApiProperty({ type: 'string', required: true })
     @IsNotEmpty({ message: 'Loại phiếu không được để trống' })
-    @IsString({ message: 'Loại phiếu phải là chuỗi' })
+    @IsEnum(WAREHOUSING_BILL_TYPE, { message: 'Loại phiếu không hợp lệ' })
     type: WAREHOUSING_BILL_TYPE;
 
     @ApiProperty({ type: 'string', required: false })

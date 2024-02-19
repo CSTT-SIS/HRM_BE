@@ -1,17 +1,20 @@
 import { HttpException, Injectable } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import moment from 'moment';
 import { FilterDto } from '~/common/dtos/filter.dto';
 import { REPAIR_REQUEST_STATUS } from '~/common/enums/enum';
+import { UserStorage } from '~/common/storages/user.storage';
 import { DatabaseService } from '~/database/typeorm/database.service';
 import { CreateRepairDetailDto } from '~/modules/repair-request/dto/create-repair-detail.dto';
 import { UpdateRepairDetailDto } from '~/modules/repair-request/dto/update-repair-detail.dto';
+import { RepairRequestEvent } from '~/modules/repair-request/events/repair-request.event';
 import { UtilService } from '~/shared/services';
 import { CreateRepairRequestDto } from './dto/create-repair-request.dto';
 import { UpdateRepairRequestDto } from './dto/update-repair-request.dto';
 
 @Injectable()
 export class RepairRequestService {
-    constructor(private readonly utilService: UtilService, private readonly database: DatabaseService) {}
+    constructor(private readonly utilService: UtilService, private readonly database: DatabaseService, private eventEmitter: EventEmitter2) {}
 
     async create(createRepairRequestDto: CreateRepairRequestDto) {
         const { vehicleRegistrationNumber, ...rest } = createRepairRequestDto;
@@ -23,6 +26,7 @@ export class RepairRequestService {
                 name: `[${registrationNumber}] ${moment().unix()}`,
                 vehicleId: vehicle.id,
                 startDate: new Date(),
+                createdById: UserStorage.getId(),
             }),
         );
         this.database.repairProgress.save(
@@ -33,6 +37,9 @@ export class RepairRequestService {
                 trackingDate: entity.createdAt,
             }),
         );
+
+        // notify who can create proposal
+        this.emitEvent('repairRequest.created', { id: entity.id });
 
         return entity;
     }
@@ -155,6 +162,10 @@ export class RepairRequestService {
                 trackingDate: new Date(),
             }),
         );
+
+        // notify who can complete request
+        this.emitEvent('repairRequest.inProgress', { id });
+
         return this.database.repairRequest.update(id, { status: REPAIR_REQUEST_STATUS.IN_PROGRESS });
     }
 
@@ -171,6 +182,10 @@ export class RepairRequestService {
                 trackingDate: new Date(),
             }),
         );
+
+        // notify who created request
+        this.emitEvent('repairRequest.completed', { id });
+
         return this.database.repairRequest.update(id, { status: REPAIR_REQUEST_STATUS.COMPLETED, endDate: new Date() });
     }
 
@@ -186,5 +201,12 @@ export class RepairRequestService {
         if (!repairRequest) throw new HttpException('Không tìm thấy phiếu sửa chữa', 404);
         if (!data.statuses.includes(repairRequest.status)) throw new HttpException('Trạng thái không hợp lệ', 400);
         return repairRequest;
+    }
+
+    private emitEvent(event: string, data: { id: number }) {
+        const eventObj = new RepairRequestEvent();
+        eventObj.id = data.id;
+        eventObj.senderId = UserStorage.getId();
+        this.eventEmitter.emit(event, eventObj);
     }
 }

@@ -35,10 +35,7 @@ export enum CACHE_TIME {
 export enum INVENTORY_HISTORY_TYPE {
     IMPORT = 'IMPORT',
     EXPORT = 'EXPORT',
-    ADJUSTMENT = 'ADJUSTMENT',
-    TRANSFER = 'TRANSFER',
-    STOCKING = 'STOCKING',
-    REPLENISHMENT = 'REPLENISHMENT',
+    STOCKTAKE = 'STOCKTAKE',
 }
 
 export enum PROPOSAL_STATUS {
@@ -97,17 +94,17 @@ export enum STOCKTAKE_STATUS {
 
 export enum ORDER_TYPE {
     PURCHASE = 'PURCHASE',
-    SALE = 'SALE',
+    // SALE = 'SALE',
 }
 
 export enum ORDER_TYPE_NAME {
-    PURCHASE = 'Đơn hàng mua',
-    SALE = 'Đơn hàng bán',
+    PURCHASE = 'Đơn nhập hàng',
+    // SALE = 'Đơn bán hàng',
 }
 
 export enum ORDER_STATUS {
     PENDING = 'PENDING',
-    ORDERED = 'ORDERED',
+    PLACED = 'PLACED',
     SHIPPING = 'SHIPPING',
     RECEIVED = 'RECEIVED',
     CANCELLED = 'CANCELLED',
@@ -118,6 +115,12 @@ export enum DAMAGE_LEVEL {
     MINOR = 'MINOR',
     MODERATE = 'MODERATE',
     SEVERE = 'SEVERE',
+}
+
+export enum DAMAGE_LEVEL_NAME {
+    MINOR = 'Nhẹ',
+    MODERATE = 'Trung bình',
+    SEVERE = 'Nặng',
 }
 
 export enum REPAIR_REQUEST_STATUS {

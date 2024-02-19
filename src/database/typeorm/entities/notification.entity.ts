@@ -1,4 +1,5 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, Relation } from 'typeorm';
+import { NotificationDetailEntity } from '~/database/typeorm/entities/notificationDetail.entity';
 import { UserEntity } from '~/database/typeorm/entities/user.entity';
 import { AbstractEntity } from './abstract.entity';
 
@@ -6,12 +7,6 @@ import { AbstractEntity } from './abstract.entity';
 export class NotificationEntity extends AbstractEntity {
     @PrimaryGeneratedColumn('increment', { name: 'id', type: 'int', unsigned: true })
     id: number;
-
-    @Column({ name: 'title', type: 'varchar', length: 255, nullable: true })
-    title: string;
-
-    @Column({ name: 'content', type: 'text', nullable: true })
-    content: string;
 
     @Column({ name: 'type', type: 'varchar', length: 255, nullable: true })
     type: string;
@@ -28,6 +23,12 @@ export class NotificationEntity extends AbstractEntity {
     @Column({ name: 'link', type: 'text', nullable: true })
     link: string;
 
+    @Column({ name: 'entity', type: 'varchar', length: 255, nullable: true })
+    entity: string;
+
+    @Column({ name: 'entity_id', type: 'int', unsigned: true, nullable: true })
+    entityId: number;
+
     /* RELATIONS */
     @ManyToOne(() => UserEntity, { createForeignKeyConstraints: false })
     @JoinColumn({ name: 'receiver_id', referencedColumnName: 'id' })
@@ -36,4 +37,7 @@ export class NotificationEntity extends AbstractEntity {
     @ManyToOne(() => UserEntity, { createForeignKeyConstraints: false })
     @JoinColumn({ name: 'sender_id', referencedColumnName: 'id' })
     sender: Relation<UserEntity>;
+
+    @OneToMany(() => NotificationDetailEntity, (entity) => entity.notification, { createForeignKeyConstraints: false })
+    details: Relation<NotificationDetailEntity>[];
 }

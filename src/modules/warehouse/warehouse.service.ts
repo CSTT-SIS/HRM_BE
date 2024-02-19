@@ -111,7 +111,6 @@ export class WarehouseService {
                     ...data,
                     warehouseId: id,
                     createdById: UserStorage.getId(),
-                    note: INVENTORY_HISTORY_TYPE.IMPORT,
                 }),
             );
             this.database.inventoryHistory.save(

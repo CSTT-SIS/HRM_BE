@@ -15,7 +15,17 @@ export class OrderItemEntity extends AbstractEntity {
     @Column({ name: 'product_id', type: 'int', unsigned: true, nullable: true })
     productId: number;
 
-    @Column({ name: 'quantity', type: 'int', unsigned: true, nullable: true })
+    // 9999999999.99
+    @Column({
+        name: 'quantity',
+        type: 'decimal',
+        precision: 12,
+        scale: 2,
+        nullable: true,
+        unsigned: true,
+        default: 0,
+        transformer: new ColumnNumericTransformer(),
+    })
     quantity: number;
 
     // 9,999,999,999,999.999

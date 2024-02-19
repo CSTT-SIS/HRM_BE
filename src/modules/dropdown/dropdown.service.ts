@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { FilterDto } from '~/common/dtos/filter.dto';
 import {
+    DAMAGE_LEVEL,
+    DAMAGE_LEVEL_NAME,
     ORDER_STATUS,
     ORDER_TYPE,
     ORDER_TYPE_NAME,
@@ -142,6 +144,10 @@ export class DropdownService {
             value: 'id',
             fulltext: true,
         });
+    }
+
+    damageLevel() {
+        return Object.values(DAMAGE_LEVEL).map((item) => ({ value: item, label: DAMAGE_LEVEL_NAME[item] }));
     }
 
     private async getDropdown(data: {

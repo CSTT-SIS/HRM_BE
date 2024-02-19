@@ -20,10 +20,15 @@ export class InventoryRepository extends Repository<InventoryEntity> {
         return Number(result.quantity) || 0;
     }
 
-    async getQuantityByProductIds(productIds: number[], warehouseId?: number): Promise<{ productId: number; quantity: number }[]> {
+    async getQuantityByProductIds(
+        productIds: number[],
+        warehouseId?: number,
+    ): Promise<{ productId: number; quantity: number; productName: string }[]> {
         const builder = this.createQueryBuilder('inventory')
+            .leftJoin('inventory.product', 'product')
             .select('inventory.productId', 'productId')
             .addSelect('SUM(inventory.quantity)', 'quantity')
+            .addSelect('product.name', 'productName')
             .where('inventory.productId IN (:...productIds)', { productIds })
             .groupBy('inventory.productId');
 

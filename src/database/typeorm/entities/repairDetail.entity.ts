@@ -1,6 +1,7 @@
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
 import { ProductEntity } from '~/database/typeorm/entities/product.entity';
 import { RepairRequestEntity } from '~/database/typeorm/entities/repairRequest.entity';
+import { ColumnNumericTransformer } from '~/database/typeorm/entities/transformer.entity';
 import { AbstractEntity } from './abstract.entity';
 
 @Entity({ name: 'repair_details' })
@@ -20,7 +21,16 @@ export class RepairDetailEntity extends AbstractEntity {
     @Column({ name: 'replacement_part_id', type: 'int', unsigned: true, nullable: true })
     replacementPartId: number;
 
-    @Column({ name: 'quantity', type: 'int', unsigned: true, nullable: true })
+    @Column({
+        name: 'quantity',
+        type: 'decimal',
+        precision: 12,
+        scale: 2,
+        unsigned: true,
+        nullable: true,
+        default: 0,
+        transformer: new ColumnNumericTransformer(),
+    })
     quantity: number;
 
     /* RELATIONS */

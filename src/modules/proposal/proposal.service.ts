@@ -304,13 +304,16 @@ export class ProposalService {
         const proposal = await this.database.proposal.save(this.database.proposal.create({ ...createProposalDto, createdById: UserStorage.getId() }));
         await this.database.proposalDetail.save(details.map((detail) => ({ ...detail, proposalId: proposal.id })));
 
+        // notify who created repair request
+        this.emitEvent('proposal.created', { id: proposal.id });
+
         return proposal;
     }
 
     private emitEvent(event: string, data: { id: number }) {
-        const proposalEvent = new ProposalEvent();
-        proposalEvent.id = data.id;
-        proposalEvent.senderId = UserStorage.getId();
-        this.eventEmitter.emit(event, proposalEvent);
+        const eventObj = new ProposalEvent();
+        eventObj.id = data.id;
+        eventObj.senderId = UserStorage.getId();
+        this.eventEmitter.emit(event, eventObj);
     }
 }

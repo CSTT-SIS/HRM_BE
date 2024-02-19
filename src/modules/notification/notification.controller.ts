@@ -1,5 +1,5 @@
-import { Controller, Get, ParseIntPipe, Query } from '@nestjs/common';
-import { ApiBasicAuth, ApiTags } from '@nestjs/swagger';
+import { Controller, Get, Param, ParseIntPipe, Patch, Query } from '@nestjs/common';
+import { ApiBasicAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { BYPASS_PERMISSION } from '~/common/constants/constant';
 import { Permission } from '~/common/decorators/permission.decorator';
 import { FilterDto } from '~/common/dtos/filter.dto';
@@ -13,8 +13,9 @@ export class NotificationController {
 
     @Permission(BYPASS_PERMISSION)
     @Get()
-    findAll(@Query() queries: FilterDto) {
-        return this.notificationService.findAll({ ...queries });
+    @ApiQuery({ name: 'lang', required: false })
+    findAll(@Query() queries: FilterDto, @Query('lang') lang: string) {
+        return this.notificationService.findAll({ ...queries, lang });
     }
 
     @Permission(BYPASS_PERMISSION)
@@ -24,14 +25,21 @@ export class NotificationController {
     }
 
     @Permission(BYPASS_PERMISSION)
-    @Get('mark-as-read')
-    markAsRead(@Query('notificationId', new ParseIntPipe({ optional: true })) notificationId: string) {
-        return this.notificationService.markAsRead(notificationId);
+    @Patch('mark-all-as-read')
+    markAllAsRead() {
+        return this.notificationService.markAllAsRead();
     }
 
     @Permission(BYPASS_PERMISSION)
-    @Get('mark-all-as-read')
-    markAllAsRead() {
-        return this.notificationService.markAllAsRead();
+    @Get(':id')
+    @ApiQuery({ name: 'lang', required: false })
+    findOne(@Param('id', ParseIntPipe) id: string, @Query('lang') lang: string) {
+        return this.notificationService.findOne(id, lang);
+    }
+
+    @Permission(BYPASS_PERMISSION)
+    @Patch(':id/mark-as-read')
+    markAsRead(@Param('id') id: string) {
+        return this.notificationService.markAsRead(+id);
     }
 }
