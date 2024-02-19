@@ -39,3 +39,4 @@ package-lock.json
 .env
 .vscode
 swagger-spec.json
+yarn.lock
