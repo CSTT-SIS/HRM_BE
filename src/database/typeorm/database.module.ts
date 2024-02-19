@@ -71,6 +71,38 @@ import { WarehouseRepository } from '~/database/typeorm/repositories/warehouse.r
 import { WarehouseTypeRepository } from '~/database/typeorm/repositories/warehouseType.repository';
 import { WarehousingBillRepository } from '~/database/typeorm/repositories/warehousingBill.repository';
 import { WarehousingBillDetailRepository } from '~/database/typeorm/repositories/warehousingBillDetail.repository';
+import { ReceiptEntity } from '~/database/typeorm/entities/receipt.entity';
+import { ReceiptRepository } from '~/database/typeorm/repositories/receipt.repository';
+import { VehicleEntity } from '~/database/typeorm/entities/vehicle.entity';
+import { RepairRequestEntity } from '~/database/typeorm/entities/repairRequest.entity';
+import { RepairDetailEntity } from '~/database/typeorm/entities/repairDetail.entity';
+import { RepairProgressEntity } from '~/database/typeorm/entities/repairProgress.entity';
+import { VehicleRepository } from '~/database/typeorm/repositories/vehicle.repository';
+import { RepairRequestRepository } from '~/database/typeorm/repositories/repairRequest.repository';
+import { RepairDetailRepository } from '~/database/typeorm/repositories/repairDetail.repository';
+import { RepairProgressRepository } from '~/database/typeorm/repositories/repairProgress.repository';
+import { NotificationEntity } from '~/database/typeorm/entities/notification.entity';
+import { NotificationRepository } from '~/database/typeorm/repositories/notification.repository';
+import { StaffEntity } from '~/database/typeorm/entities/staff.entity';
+import { CalendarEntity } from '~/database/typeorm/entities/calendar.entity';
+import { ContractEntity } from '~/database/typeorm/entities/contract.entity';
+import { PositionEntity } from '~/database/typeorm/entities/position.entity';
+import { LeaveApplicationEntity } from '~/database/typeorm/entities/leaveApplication.entity';
+import { ShiftEntity } from '~/database/typeorm/entities/shift.entity';
+import { StaffShiftEntity } from '~/database/typeorm/entities/staffShift.entity';
+import { DisciplineEntity } from '~/database/typeorm/entities/discipline.entity';
+import { ResignationFormEntity } from '~/database/typeorm/entities/resignationForm.entity';
+import { EmployeeLeaveRequestEntity } from '~/database/typeorm/entities/employeeLeaveRequest.entity';
+import { ForgottenTimekeepingRequestEntity } from '~/database/typeorm/entities/forgottenTimekeepingRequest.entity';
+import { OvertimeRequestEntity } from '~/database/typeorm/entities/overtimeRequest.entity';
+import { TimeAttendanceEntity } from '~/database/typeorm/entities/timeAttendance.entity';
+import { TaskEntity } from '~/database/typeorm/entities/task.entity';
+import { DepartmentTaskEntity } from '~/database/typeorm/entities/departmentTask.entity';
+import { RewardEntity } from '~/database/typeorm/entities/reward.entity';
+import { AssetEntity } from '~/database/typeorm/entities/asset.entity';
+import { DocumentEntity } from '~/database/typeorm/entities/document.entity';
+import { SendDocumentEntity } from '~/database/typeorm/entities/sendDocument.entity';
+import { TextEmbryoEntity } from '~/database/typeorm/entities/textEmbryo.entity';
 
 const entities = [
     RoleEntity,
@@ -106,7 +138,27 @@ const entities = [
     RepairDetailEntity,
     RepairProgressEntity,
     NotificationEntity,
-    NotificationDetailEntity,
+    StaffEntity,
+    DepartmentEntity,
+    CalendarEntity,
+    ContractEntity,
+    PositionEntity,
+    LeaveApplicationEntity,
+    ShiftEntity,
+    StaffShiftEntity,
+    DisciplineEntity,
+    ResignationFormEntity,
+    EmployeeLeaveRequestEntity,
+    ForgottenTimekeepingRequestEntity,
+    OvertimeRequestEntity,
+    TimeAttendanceEntity,
+    TaskEntity,
+    DepartmentTaskEntity,
+    RewardEntity,
+    AssetEntity,
+    DocumentEntity,
+    SendDocumentEntity,
+    TextEmbryoEntity
 ];
 
 const repositories = [
