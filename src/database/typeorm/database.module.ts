@@ -54,7 +54,6 @@ import { UserEntity } from '~/database/typeorm/entities/user.entity';
 import { UserLogEntity } from '~/database/typeorm/entities/userLog.entity';
 import { VehicleEntity } from '~/database/typeorm/entities/vehicle.entity';
 import { WarehouseEntity } from '~/database/typeorm/entities/warehouse.entity';
-import { WarehouseTypeEntity } from '~/database/typeorm/entities/warehouseType.entity';
 import { WarehousingBillEntity } from '~/database/typeorm/entities/warehousingBill.entity';
 import { WarehousingBillDetailEntity } from '~/database/typeorm/entities/warehousingBillDetail.entity';
 import { AccountRepository } from '~/database/typeorm/repositories/account.repository';
@@ -88,7 +87,6 @@ import { UserRepository } from '~/database/typeorm/repositories/user.repository'
 import { UserLogRepository } from '~/database/typeorm/repositories/userLog.repository';
 import { VehicleRepository } from '~/database/typeorm/repositories/vehicle.repository';
 import { WarehouseRepository } from '~/database/typeorm/repositories/warehouse.repository';
-import { WarehouseTypeRepository } from '~/database/typeorm/repositories/warehouseType.repository';
 import { WarehousingBillRepository } from '~/database/typeorm/repositories/warehousingBill.repository';
 import { WarehousingBillDetailRepository } from '~/database/typeorm/repositories/warehousingBillDetail.repository';
 
@@ -101,7 +99,6 @@ const entities = [
     DepartmentEntity,
     WarehouseEntity,
     UserLogEntity,
-    WarehouseTypeEntity,
     ProviderEntity,
     ProductEntity,
     ProductCategoryEntity,
@@ -159,7 +156,6 @@ const repositories = [
     RoleRepository,
     WarehouseRepository,
     UserLogRepository,
-    WarehouseTypeRepository,
     ProviderRepository,
     ProductRepository,
     ProductCategoryRepository,
