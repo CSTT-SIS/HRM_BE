@@ -1,8 +1,8 @@
-import { Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
-import { CONTRACT_STATUS, CONTRACT_TYPE, CONTRACT_RESULT } from '~/common/enums/enum';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
+import { CONTRACT_RESULT, CONTRACT_STATUS, CONTRACT_TYPE } from '~/common/enums/enum';
 import { AbstractEntity } from './abstract.entity';
-import { StaffEntity } from './staff.entity';
 import { PositionEntity } from './position.entity';
+import { StaffEntity } from './staff.entity';
 
 @Entity({ name: 'contracts' })
 export class ContractEntity extends AbstractEntity {
@@ -12,7 +12,7 @@ export class ContractEntity extends AbstractEntity {
     @Column({ name: 'description', type: 'varchar', length: 255, nullable: true })
     description: string;
 
-    @Column({ name: 'contract_type', type: 'int', enum: CONTRACT_TYPE, unsigned: true, nullable: true })
+    @Column({ name: 'contract_type', type: 'enum', enum: CONTRACT_TYPE, nullable: true })
     contractType: CONTRACT_TYPE;
 
     @Column({ name: 'signing_day', type: 'date', nullable: true })
@@ -27,7 +27,7 @@ export class ContractEntity extends AbstractEntity {
     @Column({ type: 'enum', enum: CONTRACT_STATUS, default: CONTRACT_STATUS.ACTIVE })
     status: CONTRACT_STATUS;
 
-    @Column({ name: 'result', type: 'int', enum: CONTRACT_RESULT, unsigned: true, nullable: true })
+    @Column({ name: 'result', type: 'enum', enum: CONTRACT_RESULT, nullable: true })
     result: CONTRACT_RESULT;
 
     @Column({ name: 'termination_day', type: 'date', nullable: true })
