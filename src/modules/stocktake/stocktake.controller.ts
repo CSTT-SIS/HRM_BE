@@ -63,8 +63,6 @@ export class StocktakeController {
     @Permission('stocktake:addDetail')
     @Post(':id/add-detail')
     addDetail(@Param('id', ParseIntPipe) id: string, @Body() createStocktakeDetailDto: CreateStocktakeDetailDto) {
-        console.log(id, +id, typeof id, typeof +id);
-
         return this.stocktakeService.addDetail(+id, createStocktakeDetailDto);
     }
 
