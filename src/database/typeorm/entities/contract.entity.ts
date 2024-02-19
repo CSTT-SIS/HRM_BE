@@ -12,7 +12,7 @@ export class ContractEntity extends AbstractEntity {
     @Column({ name: 'description', type: 'varchar', length: 255, nullable: true })
     description: string;
 
-    @Column({ name: 'contract_type', enum: CONTRACT_TYPE, unsigned: true, nullable: true })
+    @Column({ name: 'contract_type', type: 'int', enum: CONTRACT_TYPE, unsigned: true, nullable: true })
     contractType: CONTRACT_TYPE;
 
     @Column({ name: 'signing_day', type: 'date', nullable: true })
@@ -27,7 +27,7 @@ export class ContractEntity extends AbstractEntity {
     @Column({ type: 'enum', enum: CONTRACT_STATUS, default: CONTRACT_STATUS.ACTIVE })
     status: CONTRACT_STATUS;
 
-    @Column({ name: 'result', enum: CONTRACT_RESULT, unsigned: true, nullable: true })
+    @Column({ name: 'result', type: 'int', enum: CONTRACT_RESULT, unsigned: true, nullable: true })
     result: CONTRACT_RESULT;
 
     @Column({ name: 'termination_day', type: 'date', nullable: true })
