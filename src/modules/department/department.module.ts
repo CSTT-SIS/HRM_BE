@@ -3,10 +3,11 @@ import { DepartmentRepository } from '~/database/typeorm/repositories/department
 import { UserRepository } from '~/database/typeorm/repositories/user.repository';
 import { DepartmentController } from './department.controller';
 import { DepartmentService } from './department.service';
+import { MediaService } from '../media/media.service';
 
 @Module({
     imports: [],
     controllers: [DepartmentController],
-    providers: [DepartmentService, DepartmentRepository, UserRepository],
+    providers: [DepartmentService, DepartmentRepository, UserRepository, MediaService],
 })
 export class DepartmentModule {}

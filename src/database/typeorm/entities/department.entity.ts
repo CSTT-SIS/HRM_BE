@@ -8,6 +8,7 @@ import { AssetEntity } from './asset.entity';
 import { DocumentEntity } from './document.entity';
 import { SendDocumentEntity } from './sendDocument.entity';
 import { TextEmbryoEntity } from './textEmbryo.entity';
+import { MediaEntity } from './media.entity';
 
 @Entity({ name: 'departments' })
 export class DepartmentEntity extends AbstractEntity {
@@ -21,11 +22,11 @@ export class DepartmentEntity extends AbstractEntity {
     @Column({ name: 'description', type: 'varchar', length: 500, nullable: true })
     description: string;
 
-    @Column({ name: 'head_of_department', type: 'int', unsigned: true, nullable: true })
-    headOfDepartment: number;
+    @Column({ name: 'head_of_department_id', type: 'int', unsigned: true, nullable: true })
+    headOfDepartmentId: number;
 
-    @Column({ name: 'avatar', type: 'varchar', length: 255, nullable: true })
-    avatar: string;
+    @Column({ name: 'media_id', type: 'int', unsigned: true, nullable: true })
+    avatarId: number;
 
     @Column({ name: 'parent_id', type: 'int', unsigned: true, nullable: true })
     parentId: number;
@@ -40,6 +41,24 @@ export class DepartmentEntity extends AbstractEntity {
     })
     @JoinColumn({ name: 'parent_id', referencedColumnName: 'id' })
     parent: Relation<DepartmentEntity>;
+
+    @ManyToOne(() => MediaEntity, (entity: MediaEntity) => entity.departments, {
+        nullable: true,
+        onDelete: 'SET NULL',
+        onUpdate: 'CASCADE',
+        createForeignKeyConstraints: false,
+    })
+    @JoinColumn({ name: 'media_id', referencedColumnName: 'id' })
+    avatar: Relation<MediaEntity>;
+
+    @ManyToOne(() => StaffEntity, (entity: StaffEntity) => entity.id, {
+        nullable: true,
+        onDelete: 'SET NULL',
+        onUpdate: 'CASCADE',
+        createForeignKeyConstraints: false,
+    })
+    @JoinColumn({ name: 'head_of_department_id', referencedColumnName: 'id' })
+    headOfDepartment: Relation<StaffEntity>;
 
     @OneToMany(() => DepartmentEntity, (entity: DepartmentEntity) => entity.parent, {
         nullable: true,
