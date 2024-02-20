@@ -3,7 +3,9 @@
 import { Injectable } from '@nestjs/common';
 import moment from 'moment';
 import { DataSource, Repository } from 'typeorm';
+import { UserStorage } from '~/common/storages/user.storage';
 import { InventoryEntity } from '~/database/typeorm/entities/inventory.entity';
+import { InventoryHistoryEntity } from '~/database/typeorm/entities/inventoryHistory.entity';
 
 @Injectable()
 export class InventoryRepository extends Repository<InventoryEntity> {
@@ -79,5 +81,56 @@ export class InventoryRepository extends Repository<InventoryEntity> {
             current: parseFloat(res['current']) || 0,
             opening: parseFloat(res['opening']) || 0,
         };
+    }
+
+    async increaseQuantity(productId: number, warehouseId: number, amount: number): Promise<boolean> {
+        // const res = await this.createQueryBuilder('inventory')
+        //     .update()
+        //     .set({ quantity: () => `quantity + ${amount}` })
+        //     .where('productId = :productId', { productId })
+        //     .andWhere('warehouseId = :warehouseId', { warehouseId })
+        //     .execute();
+
+        const res = await this.increment({ productId, warehouseId }, 'quantity', amount);
+
+        if (res.affected > 0) {
+            this.writeHistory(productId, warehouseId, amount, 'increase', 'Increase quantity');
+            return true;
+        }
+
+        return false;
+    }
+
+    async decreaseQuantity(productId: number, warehouseId: number, amount: number): Promise<boolean> {
+        // const res = await this.createQueryBuilder('inventory')
+        //     .update()
+        //     .set({ quantity: () => `quantity - ${amount}` })
+        //     .where('productId = :productId', { productId })
+        //     .andWhere('warehouseId = :warehouseId', { warehouseId })
+        //     .execute();
+
+        const res = await this.decrement({ productId, warehouseId }, 'quantity', amount);
+
+        if (res.affected > 0) {
+            this.writeHistory(productId, warehouseId, amount, 'decrease', 'Decrease quantity');
+            return true;
+        }
+
+        return false;
+    }
+
+    private async writeHistory(productId: number, warehouseId: number, change: number, type: string, note: string) {
+        const invetory = await this.findOneBy({ productId, warehouseId });
+        if (invetory) {
+            this.dataSource.getRepository(InventoryHistoryEntity).save({
+                inventoryId: invetory.id,
+                from: invetory.quantity - change,
+                to: invetory.quantity,
+                change,
+                note,
+                updatedById: UserStorage.getId(),
+                type,
+            });
+        }
     }
 }
