@@ -91,6 +91,7 @@ import { AssetEntity } from '~/database/typeorm/entities/asset.entity';
 import { DocumentEntity } from '~/database/typeorm/entities/document.entity';
 import { SendDocumentEntity } from '~/database/typeorm/entities/sendDocument.entity';
 import { TextEmbryoEntity } from '~/database/typeorm/entities/textEmbryo.entity';
+import { StaffRepository } from '~/database/typeorm/repositories/staff.repository';
 
 const entities = [
     RoleEntity,
@@ -148,6 +149,7 @@ const entities = [
     DocumentEntity,
     SendDocumentEntity,
     TextEmbryoEntity,
+    StaffEntity,
 ];
 
 const repositories = [
@@ -185,6 +187,7 @@ const repositories = [
     RepairProgressRepository,
     NotificationRepository,
     NotificationDetailRepository,
+    StaffRepository,
 ];
 
 @Global()

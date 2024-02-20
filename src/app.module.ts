@@ -46,6 +46,7 @@ import { UserModule } from './modules/user/user.module';
 import { WarehouseTypeModule } from './modules/warehouse-type/warehouse-type.module';
 import { WarehouseModule } from './modules/warehouse/warehouse.module';
 import { StatisticModule } from '~/modules/statistic/statistic.module';
+import { HumanModule } from '~/modules/human/human.module';
 
 @Module({
     imports: [
@@ -95,6 +96,7 @@ import { StatisticModule } from '~/modules/statistic/statistic.module';
         RepairRequestModule,
         NotificationModule,
         StatisticModule,
+        HumanModule,
     ],
     controllers: [AppController],
     providers: [
