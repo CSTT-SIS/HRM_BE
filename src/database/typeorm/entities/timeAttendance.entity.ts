@@ -1,4 +1,4 @@
-import { Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
 import { TIME_ATTENDANCE_STATUS } from '~/common/enums/enum';
 import { AbstractEntity } from './abstract.entity';
 import { StaffEntity } from './staff.entity';
