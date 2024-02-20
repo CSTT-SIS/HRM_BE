@@ -15,7 +15,7 @@ export class StatisticService {
 
         return (await builder.getRawMany()).map((item) => ({
             name: item.productCategory_name,
-            products: Number(item.count),
+            products: [Number(item.count)],
         }));
     }
 
@@ -28,7 +28,7 @@ export class StatisticService {
 
         return (await builder.getRawMany()).map((item) => ({
             name: item.warehouse_name,
-            products: Number(item.products),
+            products: [Number(item.products)],
         }));
     }
 
@@ -39,7 +39,7 @@ export class StatisticService {
         builder.groupBy('order.type');
         return (await builder.getRawMany()).map((item) => ({
             type: ORDER_TYPE_NAME[item.order_type],
-            count: Number(item.count),
+            count: [Number(item.count)],
         }));
     }
 
@@ -50,7 +50,7 @@ export class StatisticService {
         builder.groupBy('order.status');
         return (await builder.getRawMany()).map((item) => ({
             status: item.order_status,
-            count: Number(item.count),
+            count: [Number(item.count)],
         }));
     }
 
@@ -60,7 +60,7 @@ export class StatisticService {
         builder.groupBy('repairRequest.status');
         return (await builder.getRawMany()).map((item) => ({
             status: item.repairRequest_status,
-            count: Number(item.count),
+            count: [Number(item.count)],
         }));
     }
 
@@ -70,7 +70,7 @@ export class StatisticService {
         builder.groupBy('proposal.type');
         return (await builder.getRawMany()).map((item) => ({
             type: PROPOSAL_TYPE_NAME[item.proposal_type],
-            count: Number(item.count),
+            count: [Number(item.count)],
         }));
     }
 
@@ -80,7 +80,7 @@ export class StatisticService {
         builder.groupBy('proposal.status');
         return (await builder.getRawMany()).map((item) => ({
             status: item.proposal_status,
-            count: Number(item.count),
+            count: [Number(item.count)],
         }));
     }
 
@@ -91,7 +91,7 @@ export class StatisticService {
         if (type) builder.where('warehousingBill.type = :type', { type });
         return (await builder.getRawMany()).map((item) => ({
             type: WAREHOUSING_BILL_TYPE_NAME[item.warehousingBill_type],
-            count: Number(item.count),
+            count: [Number(item.count)],
         }));
     }
 
@@ -103,7 +103,7 @@ export class StatisticService {
         return (await builder.getRawMany()).map((item) => ({
             type: WAREHOUSING_BILL_TYPE_NAME[item.warehousingBill_type],
             status: item.warehousingBill_status,
-            count: Number(item.count),
+            count: [Number(item.count)],
         }));
     }
 
@@ -116,7 +116,7 @@ export class StatisticService {
         if (warehouseId) builder.where('inventories.warehouseId = :warehouseId', { warehouseId });
         return (await builder.getRawMany()).map((item) => ({
             name: item.product_name,
-            quantity: Number(item.quantity),
+            quantity: [Number(item.quantity)],
             warehouseId: item.inventories_warehouse_id,
             warehouseName: item.warehouse_name,
         }));
