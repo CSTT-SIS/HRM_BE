@@ -10,4 +10,16 @@ export class CreateDepartmentDto {
     @ApiProperty()
     @IsOptional()
     description: string;
+
+    @ApiProperty()
+    @IsOptional()
+    headOfDepartmentId: number;
+
+    @ApiProperty()
+    @IsOptional()
+    parentId: number;
+
+    @ApiProperty()
+    @IsOptional()
+    avatarId: number;
 }

@@ -3,6 +3,7 @@ import { MEDIA_TYPE } from '~/common/enums/enum';
 import { ProductEntity } from '~/database/typeorm/entities/product.entity';
 import { UserEntity } from '~/database/typeorm/entities/user.entity';
 import { AbstractEntity } from './abstract.entity';
+import { DepartmentEntity } from './department.entity';
 
 @Entity({ name: 'medias' })
 export class MediaEntity extends AbstractEntity {
@@ -24,4 +25,7 @@ export class MediaEntity extends AbstractEntity {
 
     @OneToMany(() => ProductEntity, (entity: ProductEntity) => entity.media, { createForeignKeyConstraints: false })
     products: Relation<ProductEntity>[];
+
+    @OneToMany(() => DepartmentEntity, (entity: DepartmentEntity) => entity.avatar, { createForeignKeyConstraints: false })
+    departments: Relation<DepartmentEntity>[];
 }
