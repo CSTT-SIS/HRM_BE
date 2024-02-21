@@ -1,16 +1,17 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { DatabaseService } from '~/database/typeorm/database.service';
 import { UtilService } from '~/shared/services';
 import { CreateHumanDto } from './dto/create-human.dto';
 import { UpdateHumanDto } from './dto/update-human.dto';
 import { FilterDto } from '~/common/dtos/filter.dto';
+import { HUMAN_DASHBOARD_TYPE } from '~/common/enums/enum';
 
 @Injectable()
 export class HumanService {
     constructor(private readonly utilService: UtilService, private readonly database: DatabaseService) {}
 
-    create(createHumanDto: CreateHumanDto) {
-        return this.database.staff.save(this.database.staff.create(createHumanDto));
+    create(file: Express.Multer.File, createHumanDto: CreateHumanDto) {
+        return this.database.staff.save(this.database.staff.create({ ...createHumanDto, avatar: file ? file.filename : '' }));
     }
 
     async findAll(queries: FilterDto) {
@@ -39,11 +40,27 @@ export class HumanService {
         return builder.getOne();
     }
 
-    update(id: number, updateHumanDto: UpdateHumanDto) {
-        return this.database.staff.update(id, updateHumanDto);
+    update(id: number, file: Express.Multer.File, updateHumanDto: UpdateHumanDto) {
+        return this.database.staff.update(id, { ...updateHumanDto, avatar: file ? file.filename : '' });
     }
 
     remove(id: number) {
         return this.database.staff.delete(id);
+    }
+
+    dashboard(type: string) {
+        if (type === HUMAN_DASHBOARD_TYPE.SEX) {
+            return this.database.staff.getStatisBySex();
+        }
+
+        if (type === HUMAN_DASHBOARD_TYPE.SENIORITY) {
+            return this.database.staff.getStatisBySeniority();
+        }
+
+        if (type === HUMAN_DASHBOARD_TYPE.BY_MONTH) {
+            return this.database.staff.getStatisByMonth();
+        }
+
+        throw new BadRequestException('Loại thống kê không hợp lệ!');
     }
 }

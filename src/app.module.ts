@@ -30,6 +30,7 @@ import { ProposalModule } from '~/modules/proposal/proposal.module';
 import { RepairRequestModule } from '~/modules/repair-request/repair-request.module';
 import { RoleModule } from '~/modules/role/role.module';
 import { SocketModule } from '~/modules/socket/socket.module';
+import { StatisticModule } from '~/modules/statistic/statistic.module';
 import { StocktakeModule } from '~/modules/stocktake/stocktake.module';
 import { WarehousingBillModule } from '~/modules/warehousing-bill/warehousing-bill.module';
 import { UtilService } from '~/shared/services';
@@ -43,10 +44,9 @@ import { ProductModule } from './modules/product/product.module';
 import { ProviderModule } from './modules/provider/provider.module';
 import { UnitModule } from './modules/unit/unit.module';
 import { UserModule } from './modules/user/user.module';
-import { WarehouseTypeModule } from './modules/warehouse-type/warehouse-type.module';
 import { WarehouseModule } from './modules/warehouse/warehouse.module';
-import { StatisticModule } from '~/modules/statistic/statistic.module';
 import { HumanModule } from '~/modules/human/human.module';
+import { CalendarModule } from '~/modules/calendar/calendar.module';
 
 @Module({
     imports: [
@@ -86,7 +86,6 @@ import { HumanModule } from '~/modules/human/human.module';
         ProviderModule,
         ProductModule,
         ProductCategoryModule,
-        WarehouseTypeModule,
         UnitModule,
         ProposalModule,
         WarehousingBillModule,
@@ -97,6 +96,7 @@ import { HumanModule } from '~/modules/human/human.module';
         NotificationModule,
         StatisticModule,
         HumanModule,
+        CalendarModule,
     ],
     controllers: [AppController],
     providers: [

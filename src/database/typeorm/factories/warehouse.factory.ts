@@ -10,7 +10,6 @@ export default setSeederFactory(WarehouseEntity, (faker) => {
         .join('')
         .toUpperCase();
     entity.address = faker.location.streetAddress();
-    entity.typeId = faker.number.int({ min: 1, max: 5 });
     entity.description = faker.commerce.productDescription();
 
     return entity;

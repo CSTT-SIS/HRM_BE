@@ -40,6 +40,7 @@ export class StaffEntity extends AbstractEntity {
     @Column({ name: 'email', type: 'varchar', length: 255, nullable: true, unique: true })
     email: string;
 
+    //1: Nam, 2: Nữ
     @Column({ name: 'sex', type: 'int', nullable: true })
     sex: number;
 
