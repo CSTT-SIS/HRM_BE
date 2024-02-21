@@ -9,7 +9,7 @@ export class StatisticService {
 
     async productCategory() {
         const builder = this.database.productCategory.createQueryBuilder('productCategory');
-        builder.select(['productCategory.name', 'COUNT(productCategory.id) as count']);
+        builder.select(['productCategory.name', 'COUNT(products.id) as count']);
         builder.leftJoin('productCategory.products', 'products');
         builder.groupBy('productCategory.id');
 

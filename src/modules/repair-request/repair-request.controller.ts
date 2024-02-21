@@ -2,7 +2,7 @@ import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query 
 import { ApiBasicAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Permission } from '~/common/decorators/permission.decorator';
 import { FilterDto } from '~/common/dtos/filter.dto';
-import { CreateRepairDetailDto } from '~/modules/repair-request/dto/create-repair-detail.dto';
+import { CreateRepairDetailDto, CreateRepairDetailsDto } from '~/modules/repair-request/dto/create-repair-detail.dto';
 import { UpdateRepairDetailDto } from '~/modules/repair-request/dto/update-repair-detail.dto';
 import { CreateRepairRequestDto } from './dto/create-repair-request.dto';
 import { UpdateRepairRequestDto } from './dto/update-repair-request.dto';
@@ -46,7 +46,7 @@ export class RepairRequestController {
     }
 
     @Permission('repairRequest:getDetails')
-    @Get(':id/get-details')
+    @Get(':id/detail')
     @ApiQuery({ type: FilterDto })
     @ApiQuery({ name: 'replacementPartId', required: false })
     getDetails(
@@ -58,19 +58,25 @@ export class RepairRequestController {
     }
 
     @Permission('repairRequest:addDetail')
-    @Post(':id/details')
+    @Post(':id/detail')
     addDetail(@Param('id', ParseIntPipe) id: string, @Body() body: CreateRepairDetailDto) {
         return this.repairRequestService.addDetail(+id, body);
     }
 
+    @Permission('repairRequest:addDetail')
+    @Post(':id/add-details')
+    addDetails(@Param('id', ParseIntPipe) id: string, @Body() body: CreateRepairDetailsDto) {
+        return this.repairRequestService.addDetails(+id, body);
+    }
+
     @Permission('repairRequest:updateDetail')
-    @Patch(':id/details/:detailId')
+    @Patch(':id/detail/:detailId')
     updateDetail(@Param('id', ParseIntPipe) id: string, @Param('detailId', ParseIntPipe) detailId: string, @Body() body: UpdateRepairDetailDto) {
         return this.repairRequestService.updateDetail(+id, +detailId, body);
     }
 
     @Permission('repairRequest:removeDetail')
-    @Delete(':id/details/:detailId')
+    @Delete(':id/detail/:detailId')
     removeDetail(@Param('id', ParseIntPipe) id: string, @Param('detailId', ParseIntPipe) detailId: string) {
         return this.repairRequestService.removeDetail(+id, +detailId);
     }

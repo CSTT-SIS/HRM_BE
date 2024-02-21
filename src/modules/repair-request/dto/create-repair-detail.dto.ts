@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsNumber, IsOptional, IsString, Min } from 'class-validator';
+import { ArrayNotEmpty, IsNotEmpty, IsNumber, IsOptional, IsString, Min } from 'class-validator';
 import { IsIdExist } from '~/common/validators/is-id-exist.validator';
 
 export class CreateRepairDetailDto {
@@ -24,4 +24,10 @@ export class CreateRepairDetailDto {
     @IsNumber({}, { message: 'Số lượng phải là số' })
     @Min(1, { message: 'Số lượng phải lớn hơn 0' })
     quantity: number;
+}
+
+export class CreateRepairDetailsDto {
+    @ApiProperty({ type: [CreateRepairDetailDto] })
+    @ArrayNotEmpty({ message: 'Danh sách linh kiện không được để trống' })
+    details: CreateRepairDetailDto[];
 }
