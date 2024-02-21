@@ -1,11 +1,12 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import moment from 'moment';
+import { In } from 'typeorm';
 import { FilterDto } from '~/common/dtos/filter.dto';
 import { REPAIR_REQUEST_STATUS } from '~/common/enums/enum';
 import { UserStorage } from '~/common/storages/user.storage';
 import { DatabaseService } from '~/database/typeorm/database.service';
-import { CreateRepairDetailDto } from '~/modules/repair-request/dto/create-repair-detail.dto';
+import { CreateRepairDetailDto, CreateRepairDetailsDto } from '~/modules/repair-request/dto/create-repair-detail.dto';
 import { UpdateRepairDetailDto } from '~/modules/repair-request/dto/update-repair-detail.dto';
 import { RepairRequestEvent } from '~/modules/repair-request/events/repair-request.event';
 import { UtilService } from '~/shared/services';
@@ -136,11 +137,19 @@ export class RepairRequestService {
 
     async addDetail(id: number, data: CreateRepairDetailDto) {
         await this.isStatusValid({ id, statuses: [REPAIR_REQUEST_STATUS.PENDING] });
+        await this.verifyDetail(id, data);
         return this.database.repairDetail.save(this.database.repairDetail.create({ ...data, repairRequestId: id }));
+    }
+
+    async addDetails(id: number, data: CreateRepairDetailsDto) {
+        await this.isStatusValid({ id, statuses: [REPAIR_REQUEST_STATUS.PENDING] });
+        await this.verifyDetails(id, data.details);
+        return this.database.repairDetail.save(data.details.map((item) => ({ ...item, repairRequestId: id })));
     }
 
     async updateDetail(id: number, detailId: number, data: UpdateRepairDetailDto) {
         await this.isStatusValid({ id, statuses: [REPAIR_REQUEST_STATUS.PENDING] });
+        await this.verifyDetail(id, data);
         return this.database.repairDetail.update({ id: detailId, repairRequestId: id }, data);
     }
 
@@ -201,6 +210,28 @@ export class RepairRequestService {
         if (!repairRequest) throw new HttpException('Không tìm thấy phiếu sửa chữa', 404);
         if (!data.statuses.includes(repairRequest.status)) throw new HttpException('Trạng thái không hợp lệ', 400);
         return repairRequest;
+    }
+
+    private async verifyDetails(
+        requestId: number,
+        details: { brokenPart?: string; description?: string; replacementPartId: number; quantity: number }[],
+    ) {
+        const replacementParts = await this.database.product.findBy({ id: In(details.map((item) => item.replacementPartId)) });
+        if (replacementParts.length !== details.length) throw new HttpException('Linh kiện không tồn tại', 400);
+        if (details.some((item) => item.quantity < 1)) throw new HttpException('Số lượng không hợp lệ', 400);
+
+        const isDuplicate = await this.database.repairDetail.findOneBy({
+            repairRequestId: requestId,
+            replacementPartId: In(details.map((item) => item.replacementPartId)),
+        });
+        if (isDuplicate) throw new HttpException('Sản phẩm đã được thêm vào danh sách', 400);
+
+        // CONSIDER: check if replacementPart in stock
+    }
+
+    private async verifyDetail(id: number, detail: { brokenPart?: string; description?: string; replacementPartId?: number; quantity?: number }) {
+        const isDuplicate = await this.database.repairDetail.findOneBy({ repairRequestId: id, replacementPartId: detail.replacementPartId });
+        if (isDuplicate) throw new HttpException('Sản phẩm đã được thêm vào danh sách', 400);
     }
 
     private emitEvent(event: string, data: { id: number }) {

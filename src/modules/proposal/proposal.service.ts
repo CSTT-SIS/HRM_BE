@@ -6,7 +6,7 @@ import { PROPOSAL_STATUS, PROPOSAL_TYPE } from '~/common/enums/enum';
 import { UserStorage } from '~/common/storages/user.storage';
 import { DatabaseService } from '~/database/typeorm/database.service';
 import { ProposalEntity } from '~/database/typeorm/entities/proposal.entity';
-import { CreateProposalDetailDto } from '~/modules/proposal/dto/create-proposal-detail.dto';
+import { CreateProposalDetailDto, CreateProposalDetailsDto } from '~/modules/proposal/dto/create-proposal-detail.dto';
 import { UpdateProposalDetailDto } from '~/modules/proposal/dto/update-proposal-detail.dto';
 import { ProposalEvent } from '~/modules/proposal/events/proposal.event';
 import { UtilService } from '~/shared/services';
@@ -196,8 +196,21 @@ export class ProposalService {
         if (proposal.type === PROPOSAL_TYPE.PURCHASE && (detail.price === null || detail.price === undefined)) {
             throw new HttpException('Giá sản phẩm không được để trống', 400);
         }
-        await this.verifyDetail(detail);
+        await this.verifyDetail(id, detail);
         return this.database.proposalDetail.save(this.database.proposalDetail.create({ ...detail, proposalId: id }));
+    }
+
+    async addDetails(id: number, dto: CreateProposalDetailsDto) {
+        const proposal = await this.isProposalStatusValid({ id, statuses: [PROPOSAL_STATUS.DRAFT] });
+        if (proposal.type === PROPOSAL_TYPE.PURCHASE) {
+            for (const detail of dto.details) {
+                if (detail.price === null || detail.price === undefined) {
+                    throw new HttpException('Giá sản phẩm không được để trống', 400);
+                }
+            }
+        }
+        await this.verifyDetails(id, dto.details);
+        return this.database.proposalDetail.save(dto.details.map((detail) => ({ ...detail, proposalId: id })));
     }
 
     async updateDetail(id: number, detailId: number, detail: UpdateProposalDetailDto) {
@@ -205,7 +218,7 @@ export class ProposalService {
         if (proposal.type === PROPOSAL_TYPE.PURCHASE && (detail.price === null || detail.price === undefined)) {
             throw new HttpException('Giá sản phẩm không được để trống', 400);
         }
-        await this.verifyDetail(detail);
+        await this.verifyDetail(id, detail);
         return this.database.proposalDetail.update({ id: detailId, proposalId: id }, detail);
     }
 
@@ -244,7 +257,7 @@ export class ProposalService {
         return entity;
     }
 
-    private async verifyDetails(details: { productId: number; quantity: number; note?: string }[]) {
+    private async verifyDetails(proposalId: number, details: { productId: number; quantity: number; note?: string }[]) {
         const productIds = details.map((detail) => detail.productId).filter((productId) => productId);
         const productQuantities = details.map((detail) => detail.quantity).filter((quantity) => quantity);
         if (productIds.length === 0) throw new HttpException('Sản phẩm không được để trống', 400);
@@ -254,14 +267,18 @@ export class ProposalService {
         const products = await this.database.product.find({ select: ['id'], where: { id: In(productIds) } });
         const productIdsInDb = products.map((product) => product.id);
         const productIdsNotInDb = productIds.filter((productId) => !productIdsInDb.includes(productId));
-
         if (productIdsNotInDb.length > 0) throw new HttpException(`Sản phẩm ${productIdsNotInDb.join(', ')} không tồn tại`, 400);
+
+        if (proposalId) {
+            const isDuplicate = await this.database.proposalDetail.findOneBy({ proposalId, productId: In(productIds) });
+            if (isDuplicate) throw new HttpException('Sản phẩm đã được thêm vào đề xuất', 400);
+        }
     }
 
-    private async verifyDetail(detail: { productId?: number; quantity?: number; note?: string }) {
+    private async verifyDetail(proposalId: number, detail: { productId?: number; quantity?: number; note?: string }) {
         if (detail?.productId) {
-            const product = await this.database.product.countBy({ id: detail.productId });
-            if (!product) throw new HttpException(`Sản phẩm ${detail.productId} không tồn tại`, 400);
+            const isDuplicate = await this.database.proposalDetail.findOneBy({ proposalId, productId: detail.productId });
+            if (isDuplicate) throw new HttpException('Sản phẩm đã được thêm vào đề xuất', 400);
         }
     }
 
@@ -300,7 +317,7 @@ export class ProposalService {
             quantity: detail.quantity,
         }));
 
-        await this.verifyDetails(details);
+        await this.verifyDetails(null, details);
         const proposal = await this.database.proposal.save(this.database.proposal.create({ ...createProposalDto, createdById: UserStorage.getId() }));
         await this.database.proposalDetail.save(details.map((detail) => ({ ...detail, proposalId: proposal.id })));
 

@@ -3,7 +3,7 @@ import { ApiBasicAuth, ApiBody, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Permission } from '~/common/decorators/permission.decorator';
 import { FilterDto } from '~/common/dtos/filter.dto';
 import { PROPOSAL_STATUS, PROPOSAL_TYPE } from '~/common/enums/enum';
-import { CreateProposalDetailDto } from '~/modules/proposal/dto/create-proposal-detail.dto';
+import { CreateProposalDetailDto, CreateProposalDetailsDto } from '~/modules/proposal/dto/create-proposal-detail.dto';
 import { UpdateProposalDetailDto } from '~/modules/proposal/dto/update-proposal-detail.dto';
 import { CreateProposalDto } from './dto/create-proposal.dto';
 import { UpdateProposalDto } from './dto/update-proposal.dto';
@@ -108,6 +108,12 @@ export class ProposalController {
     @Post(':id/add-detail')
     addDetail(@Param('id', ParseIntPipe) id: string, @Body() body: CreateProposalDetailDto) {
         return this.proposalService.addDetail(+id, body);
+    }
+
+    @Permission('proposal:addDetail')
+    @Post(':id/add-details')
+    addDetails(@Param('id', ParseIntPipe) id: string, @Body() body: CreateProposalDetailsDto) {
+        return this.proposalService.addDetails(+id, body);
     }
 
     @Permission('proposal:updateDetail')
