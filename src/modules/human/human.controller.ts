@@ -35,14 +35,15 @@ export class HumanController {
 
     @Permission('human:dashboard')
     @Get('dashboard')
+    @ApiQuery({ type: FilterDto })
     @ApiQuery({
         name: 'type',
         enum: HUMAN_DASHBOARD_TYPE,
         description: 'SEX: Theo giới tính, SENIORITY: Thâm niên, BY_MONTH: Tình hình biến động theo tháng',
         required: true,
     })
-    dashboard(@Query('type') type: string) {
-        return this.humanService.dashboard(type);
+    dashboard(@Query() queries, @Query('type') type: string) {
+        return this.humanService.dashboard(queries, type);
     }
 
     @Permission('human:findOne')

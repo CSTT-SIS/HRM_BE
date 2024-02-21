@@ -26,19 +26,25 @@ export class StaffRepository extends Repository<StaffEntity> {
 
     async getStatisBySeniority() {
         const result = this.query(`
-            SELECT s.sex AS sex,
-            COUNT(*) AS quantity
-            FROM staffs s
-            GROUP BY s.sex 
+            SELECT b.time1 AS seniority, 
+            COUNT(*) AS quantity 
+            FROM (SELECT a.staff_id, 
+                SUM(total_time) AS time1 
+                FROM (SELECT contracts.staff_id, 
+                    IFNULL(YEAR(contracts.end_day) - YEAR(contracts.start_day), 
+                    YEAR(CURDATE()) - YEAR(contracts.start_day)) AS total_time 
+                    FROM contracts) AS a 
+                    GROUP BY a.staff_id) AS b 
+                    GROUP BY b.time1;
         `);
 
         return (await result).map((item) => ({
-            sex: item.sex === 1 ? 'Nam' : 'Nữ',
+            seniority: item.seniority,
             quantity: Number(item.quantity),
         }));
     }
 
     async getStatisByMonth() {
-        return {};
+        return [];
     }
 }

@@ -18,7 +18,7 @@ export class HumanService {
         const { builder, take, pagination } = this.utilService.getQueryBuilderAndPagination(this.database.staff, queries);
 
         // change to `rawQuerySearch` if entity don't have fulltext indices
-        builder.andWhere(this.utilService.fullTextSearch({ fields: ['name'], keyword: queries.search }));
+        builder.andWhere(this.utilService.rawQuerySearch({ fields: ['fullName'], keyword: queries.search }));
 
         builder.select(['entity']);
 
@@ -48,7 +48,7 @@ export class HumanService {
         return this.database.staff.delete(id);
     }
 
-    dashboard(type: string) {
+    async dashboard(queries: FilterDto, type: string) {
         if (type === HUMAN_DASHBOARD_TYPE.SEX) {
             return this.database.staff.getStatisBySex();
         }

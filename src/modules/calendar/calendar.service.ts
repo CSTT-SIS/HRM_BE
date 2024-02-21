@@ -13,11 +13,15 @@ export class CalendarService {
         return this.database.calendar.save(this.database.calendar.create(createCalendarDto));
     }
 
+    createByUserLogin(createCalendarDto: CreateCalendarDto) {
+        return this.database.calendar.save(this.database.calendar.create(createCalendarDto));
+    }
+
     async findAll(queries: FilterDto) {
         const { builder, take, pagination } = this.utilService.getQueryBuilderAndPagination(this.database.calendar, queries);
 
         // change to `rawQuerySearch` if entity don't have fulltext indices
-        builder.andWhere(this.utilService.fullTextSearch({ fields: ['name'], keyword: queries.search }));
+        builder.andWhere(this.utilService.rawQuerySearch({ fields: ['content'], keyword: queries.search }));
 
         builder.select(['entity']);
 
