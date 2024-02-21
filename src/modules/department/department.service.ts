@@ -1,17 +1,21 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, Injectable } from '@nestjs/common';
 import { FilterDto } from '~/common/dtos/filter.dto';
 import { DepartmentRepository } from '~/database/typeorm/repositories/department.repository';
 import { UserRepository } from '~/database/typeorm/repositories/user.repository';
 import { UtilService } from '~/shared/services';
 import { CreateDepartmentDto } from './dto/create-department.dto';
 import { UpdateDepartmentDto } from './dto/update-department.dto';
+import { DatabaseService } from '~/database/typeorm/database.service';
+import { MediaService } from '~/modules/media/media.service';
 
 @Injectable()
 export class DepartmentService {
     constructor(
         private readonly departmentRepository: DepartmentRepository,
         private readonly userRepository: UserRepository,
+        private readonly mediaService: MediaService,
         private readonly utilService: UtilService,
+        private readonly database: DatabaseService,
     ) {}
 
     create(createDepartmentDto: CreateDepartmentDto) {
@@ -25,7 +29,32 @@ export class DepartmentService {
             builder.andWhere(this.utilService.fullTextSearch({ fields: ['name'], keyword: queries.search }));
         }
 
-        builder.select(['entity']);
+        builder.leftJoinAndSelect('entity.avatar', 'avatar');
+        builder.leftJoinAndSelect('entity.staffs', 'staffs');
+        builder.leftJoinAndSelect('entity.headOfDepartment', 'headOfDepartment');
+        builder.leftJoinAndSelect('entity.parent', 'parent');
+        builder.leftJoinAndSelect('entity.children', 'children');
+        builder.leftJoinAndSelect('entity.calendars', 'calendars');
+        builder.leftJoinAndSelect('entity.departmentTasks', 'departmentTasks');
+        builder.leftJoinAndSelect('entity.assets', 'assets');
+        builder.leftJoinAndSelect('entity.documents', 'documents');
+        builder.leftJoinAndSelect('entity.sendDocuments', 'sendDocuments');
+        builder.leftJoinAndSelect('entity.textEmbryos', 'textEmbryos');
+
+        builder.select([
+            'entity',
+            'avatar',
+            'staffs',
+            'headOfDepartment',
+            'parent',
+            'children',
+            'calendars',
+            'departmentTasks',
+            'assets',
+            'documents',
+            'sendDocuments',
+            'textEmbryos',
+        ]);
 
         const [result, total] = await builder.getManyAndCount();
         const totalPages = Math.ceil(total / take);
@@ -40,16 +69,24 @@ export class DepartmentService {
     }
 
     findOne(id: number) {
-        return this.departmentRepository.findOneBy({ id });
+        return this.departmentRepository.findOneDepartmentWithAllRelationsById(id);
     }
 
     update(id: number, updateDepartmentDto: UpdateDepartmentDto) {
         return this.departmentRepository.update(id, updateDepartmentDto);
     }
 
-    remove(id: number) {
+    async remove(id: number) {
         // set null for all user in this department
-        this.userRepository.update({ departmentId: id }, { departmentId: null });
+        const department = await this.database.department.findOneBy({ id });
+        if (!department) {
+            throw new HttpException('Không tìm thấy phòng ban', 404);
+        }
+
+        if (department.avatarId) {
+            await this.mediaService.remove(department.avatarId);
+        }
+
         return this.departmentRepository.delete(id);
     }
 }
