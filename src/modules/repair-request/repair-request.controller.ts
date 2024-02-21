@@ -46,7 +46,7 @@ export class RepairRequestController {
     }
 
     @Permission('repairRequest:getDetails')
-    @Get(':id/get-details')
+    @Get(':id/detail')
     @ApiQuery({ type: FilterDto })
     @ApiQuery({ name: 'replacementPartId', required: false })
     getDetails(
@@ -58,7 +58,7 @@ export class RepairRequestController {
     }
 
     @Permission('repairRequest:addDetail')
-    @Post(':id/details')
+    @Post(':id/detail')
     addDetail(@Param('id', ParseIntPipe) id: string, @Body() body: CreateRepairDetailDto) {
         return this.repairRequestService.addDetail(+id, body);
     }
@@ -70,13 +70,13 @@ export class RepairRequestController {
     }
 
     @Permission('repairRequest:updateDetail')
-    @Patch(':id/details/:detailId')
+    @Patch(':id/detail/:detailId')
     updateDetail(@Param('id', ParseIntPipe) id: string, @Param('detailId', ParseIntPipe) detailId: string, @Body() body: UpdateRepairDetailDto) {
         return this.repairRequestService.updateDetail(+id, +detailId, body);
     }
 
     @Permission('repairRequest:removeDetail')
-    @Delete(':id/details/:detailId')
+    @Delete(':id/detail/:detailId')
     removeDetail(@Param('id', ParseIntPipe) id: string, @Param('detailId', ParseIntPipe) detailId: string) {
         return this.repairRequestService.removeDetail(+id, +detailId);
     }
