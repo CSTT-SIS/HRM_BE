@@ -72,7 +72,7 @@ export class RepairRequestService {
         builder.leftJoinAndSelect('entity.vehicle', 'vehicle');
         builder.leftJoinAndSelect('entity.repairBy', 'repairBy');
         builder.leftJoinAndSelect('entity.details', 'details');
-        builder.innerJoinAndSelect('details.replacementPart', 'replacementPart');
+        builder.leftJoinAndSelect('details.replacementPart', 'replacementPart');
         builder.leftJoinAndSelect('entity.progresses', 'progresses');
         builder.leftJoinAndSelect('progresses.repairBy', 'progressRepairBy');
 
@@ -117,7 +117,7 @@ export class RepairRequestService {
         const { builder, take, pagination } = this.utilService.getQueryBuilderAndPagination(this.database.repairDetail, queries);
         builder.andWhere(this.utilService.fullTextSearch({ fields: ['replacementPart.name'], keyword: queries.search }));
 
-        builder.innerJoinAndSelect('entity.replacementPart', 'replacementPart');
+        builder.leftJoinAndSelect('entity.replacementPart', 'replacementPart');
         builder.leftJoinAndSelect('replacementPart.unit', 'unit');
         builder.andWhere('entity.repairRequestId = :id', { id: queries.requestId });
         builder.andWhere(this.utilService.getConditionsFromQuery(queries, ['replacementPartId']));
