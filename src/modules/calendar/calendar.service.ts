@@ -17,9 +17,10 @@ export class CalendarService {
         return this.database.calendar.save(this.database.calendar.create(createCalendarDto));
     }
 
-    async findAll(queries: FilterDto) {
+    async findAll(queries: FilterDto & { departmentId: string }) {
         const { builder, take, pagination } = this.utilService.getQueryBuilderAndPagination(this.database.calendar, queries);
 
+        builder.andWhere(this.utilService.getConditionsFromQuery(queries, ['departmentId']));
         // change to `rawQuerySearch` if entity don't have fulltext indices
         builder.andWhere(this.utilService.rawQuerySearch({ fields: ['content'], keyword: queries.search }));
 

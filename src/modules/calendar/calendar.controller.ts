@@ -20,9 +20,10 @@ export class CalendarController {
 
     @Permission('calendar:findAll')
     @Get()
+    @ApiQuery({ name: 'departmentId', required: false, type: Number })
     @ApiQuery({ type: FilterDto })
-    findAll(@Query() queries) {
-        return this.calendarService.findAll({ ...queries });
+    findAll(@Query() queries, @Query('departmentId', new ParseIntPipe({ optional: true })) departmentId: string) {
+        return this.calendarService.findAll({ ...queries, departmentId });
     }
 
     @Permission('calendar:findOne')
