@@ -1,7 +1,7 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import moment from 'moment';
-import { In } from 'typeorm';
+import { In, Not } from 'typeorm';
 import { FilterDto } from '~/common/dtos/filter.dto';
 import { REPAIR_REQUEST_STATUS } from '~/common/enums/enum';
 import { UserStorage } from '~/common/storages/user.storage';
@@ -149,7 +149,7 @@ export class RepairRequestService {
 
     async updateDetail(id: number, detailId: number, data: UpdateRepairDetailDto) {
         await this.isStatusValid({ id, statuses: [REPAIR_REQUEST_STATUS.PENDING] });
-        await this.verifyDetail(id, data);
+        await this.verifyDetail(id, data, detailId);
         return this.database.repairDetail.update({ id: detailId, repairRequestId: id }, data);
     }
 
@@ -229,8 +229,16 @@ export class RepairRequestService {
         // CONSIDER: check if replacementPart in stock
     }
 
-    private async verifyDetail(id: number, detail: { brokenPart?: string; description?: string; replacementPartId?: number; quantity?: number }) {
-        const isDuplicate = await this.database.repairDetail.findOneBy({ repairRequestId: id, replacementPartId: detail.replacementPartId });
+    private async verifyDetail(
+        id: number,
+        detail: { brokenPart?: string; description?: string; replacementPartId?: number; quantity?: number },
+        detailId?: number,
+    ) {
+        const isDuplicate = await this.database.repairDetail.findOneBy({
+            repairRequestId: id,
+            replacementPartId: detail.replacementPartId,
+            id: detailId ? Not(detailId) : undefined,
+        });
         if (isDuplicate) throw new HttpException('Sản phẩm đã được thêm vào danh sách', 400);
     }
 
