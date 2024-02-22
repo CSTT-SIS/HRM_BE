@@ -91,6 +91,7 @@ import { WarehousingBillRepository } from '~/database/typeorm/repositories/wareh
 import { WarehousingBillDetailRepository } from '~/database/typeorm/repositories/warehousingBillDetail.repository';
 import { StaffRepository } from '~/database/typeorm/repositories/staff.repository';
 import { CalendarRepository } from '~/database/typeorm/repositories/calendar.repository';
+import { EmployeeLeaveRequestRepository } from '~/database/typeorm/repositories/employeeLeaveRequest.repository';
 
 const entities = [
     RoleEntity,
@@ -148,7 +149,8 @@ const entities = [
     SendDocumentEntity,
     TextEmbryoEntity,
     StaffEntity,
-];
+];
+
 const repositories = [
     DepartmentRepository,
     UserRepository,
@@ -185,6 +187,7 @@ const repositories = [
     NotificationDetailRepository,
     StaffRepository,
     CalendarRepository,
+    EmployeeLeaveRequestRepository,
 ];
 
 @Global()

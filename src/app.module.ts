@@ -47,6 +47,7 @@ import { UserModule } from './modules/user/user.module';
 import { WarehouseModule } from './modules/warehouse/warehouse.module';
 import { HumanModule } from '~/modules/human/human.module';
 import { CalendarModule } from '~/modules/calendar/calendar.module';
+import { LetterModule } from '~/modules/letter/letter.module';
 
 @Module({
     imports: [
@@ -97,6 +98,7 @@ import { CalendarModule } from '~/modules/calendar/calendar.module';
         StatisticModule,
         HumanModule,
         CalendarModule,
+        LetterModule,
     ],
     controllers: [AppController],
     providers: [
