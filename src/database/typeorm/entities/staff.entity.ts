@@ -13,6 +13,7 @@ import { OvertimeRequestEntity } from './overtimeRequest.entity';
 import { TimeAttendanceEntity } from './timeAttendance.entity';
 import { TaskEntity } from './task.entity';
 import { RewardEntity } from './reward.entity';
+import { CalendarEntity } from './calendar.entity';
 
 @Entity({ name: 'staffs' })
 export class StaffEntity extends AbstractEntity {
@@ -180,4 +181,10 @@ export class StaffEntity extends AbstractEntity {
         createForeignKeyConstraints: false,
     })
     rewards: Relation<RewardEntity>[];
+
+    @OneToMany(() => CalendarEntity, (entity: CalendarEntity) => entity.department, {
+        nullable: true,
+        createForeignKeyConstraints: false,
+    })
+    calendars: Relation<CalendarEntity>[];
 }
