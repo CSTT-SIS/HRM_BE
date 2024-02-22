@@ -1,7 +1,9 @@
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
 import { InventoryEntity } from '~/database/typeorm/entities/inventory.entity';
+import { ProductEntity } from '~/database/typeorm/entities/product.entity';
 import { ColumnNumericTransformer } from '~/database/typeorm/entities/transformer.entity';
 import { UserEntity } from '~/database/typeorm/entities/user.entity';
+import { WarehouseEntity } from '~/database/typeorm/entities/warehouse.entity';
 import { AbstractEntity } from './abstract.entity';
 
 @Entity({ name: 'inventory_histories' })
@@ -11,6 +13,12 @@ export class InventoryHistoryEntity extends AbstractEntity {
 
     @Column({ name: 'inventory_id', type: 'int', unsigned: true, nullable: true })
     inventoryId: number;
+
+    @Column({ name: 'warehouse_id', type: 'int', unsigned: true, nullable: true })
+    warehouseId: number;
+
+    @Column({ name: 'product_id', type: 'int', unsigned: true, nullable: true })
+    productId: number;
 
     @Column({ name: 'from', type: 'decimal', precision: 12, scale: 2, nullable: true, transformer: new ColumnNumericTransformer() })
     from: number;
@@ -34,6 +42,14 @@ export class InventoryHistoryEntity extends AbstractEntity {
     @ManyToOne(() => InventoryEntity, (entity) => entity.histories, { createForeignKeyConstraints: false })
     @JoinColumn({ name: 'inventory_id', referencedColumnName: 'id' })
     inventory: Relation<InventoryEntity>;
+
+    @ManyToOne(() => WarehouseEntity, (warehouse) => warehouse.inventories, { createForeignKeyConstraints: false })
+    @JoinColumn({ name: 'warehouse_id', referencedColumnName: 'id' })
+    warehouse: Relation<WarehouseEntity>;
+
+    @ManyToOne(() => ProductEntity, (product) => product.inventories, { createForeignKeyConstraints: false })
+    @JoinColumn({ name: 'product_id', referencedColumnName: 'id' })
+    product: Relation<ProductEntity>;
 
     @ManyToOne(() => UserEntity, (entity) => entity.invetoryHistories, { createForeignKeyConstraints: false })
     @JoinColumn({ name: 'updated_by_id', referencedColumnName: 'id' })

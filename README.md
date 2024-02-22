@@ -1,31 +1,32 @@
 # Table of Contents
 
-- [Table of Contents](#table-of-contents)
-  - [Technologies](#technologies)
-  - [Installation \& Setup](#installation--setup)
-      - [Install Redis:](#install-redis)
-      - [Install packages:](#install-packages)
-  - [Running the app](#running-the-app)
-  - [Generate Modules](#generate-modules)
-  - [Code First approach with TypeORM](#code-first-approach-with-typeorm)
-      - [About the relation between entities (Important)](#about-the-relation-between-entities-important)
-  - [Generate Entity \& Repository](#generate-entity--repository)
-  - [How to use Repository](#how-to-use-repository)
-      - [1. Inject Repository into Service directly.](#1-inject-repository-into-service-directly)
-      - [2. Inject Repository into DatabaseService then use it in Service. (Recommended)](#2-inject-repository-into-databaseservice-then-use-it-in-service-recommended)
-  - [Migration](#migration)
-  - [Seeding Data](#seeding-data)
-  - [Module Structure](#module-structure)
-  - [Module Naming Convention](#module-naming-convention)
-  - [RBAC (Role-Based Access Control)](#rbac-role-based-access-control)
-    - [How to use RBAC](#how-to-use-rbac)
-  - [Format of API Response](#format-of-api-response)
-      - [Success Response](#success-response)
-      - [Error Response](#error-response)
-  - [Public Folder](#public-folder)
-  - [Git Branches](#git-branches)
-  - [API Documentation](#api-documentation)
-  - [API Testing](#api-testing)
+-   [Table of Contents](#table-of-contents)
+    -   [Technologies](#technologies)
+    -   [Installation \& Setup](#installation--setup)
+        -   [Install Redis:](#install-redis)
+        -   [Install packages:](#install-packages)
+    -   [Running the app](#running-the-app)
+    -   [Generate Modules](#generate-modules)
+    -   [Code First approach with TypeORM](#code-first-approach-with-typeorm)
+        -   [About the relation between entities (Important)](#about-the-relation-between-entities-important)
+    -   [Generate Entity \& Repository](#generate-entity--repository)
+    -   [How to use Repository](#how-to-use-repository)
+        -   [1. Inject Repository into Service directly.](#1-inject-repository-into-service-directly)
+        -   [2. Inject Repository into DatabaseService then use it in Service. (Recommended)](#2-inject-repository-into-databaseservice-then-use-it-in-service-recommended)
+    -   [Migration](#migration)
+    -   [Seeding Data](#seeding-data)
+    -   [Module Structure](#module-structure)
+    -   [Module Naming Convention](#module-naming-convention)
+    -   [RBAC (Role-Based Access Control)](#rbac-role-based-access-control)
+        -   [How to use RBAC](#how-to-use-rbac)
+    -   [Upload media file](#upload-media-file)
+    -   [Format of API Response](#format-of-api-response)
+        -   [Success Response](#success-response)
+        -   [Error Response](#error-response)
+    -   [Public Folder](#public-folder)
+    -   [Git Branches](#git-branches)
+    -   [API Documentation](#api-documentation)
+    -   [API Testing](#api-testing)
 
 ## Technologies
 
@@ -420,6 +421,12 @@ If you want to bypass RBAC, you can pass `BYPASS_PERMISSION` into `@Permission` 
 ```
 
 **IMPORTANT:** You have to use `@Permission` decorator in every API. If you don't use `@Permission` decorator, the API will be blocked by default.
+
+## Upload media file
+
+To upload media file, you can use `/media/upload` api with `multipart/form-data` content type.
+
+Go to Swagger API Documentation: [http://localhost:8080/docs/#/Media](http://localhost:8080/docs/#/Media)
 
 ## Format of API Response
 

@@ -1,6 +1,6 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { In } from 'typeorm';
+import { In, Not } from 'typeorm';
 import { FilterDto } from '~/common/dtos/filter.dto';
 import { PROPOSAL_STATUS, PROPOSAL_TYPE } from '~/common/enums/enum';
 import { UserStorage } from '~/common/storages/user.storage';
@@ -63,7 +63,7 @@ export class ProposalService {
         builder.leftJoinAndSelect('entity.createdBy', 'createdBy');
         builder.leftJoinAndSelect('entity.updatedBy', 'updatedBy');
         builder.leftJoinAndSelect('entity.details', 'details');
-        builder.innerJoinAndSelect('details.product', 'product');
+        builder.leftJoinAndSelect('details.product', 'product');
         builder.leftJoinAndSelect('product.unit', 'unit');
 
         builder.where('entity.id = :id', { id });
@@ -173,7 +173,7 @@ export class ProposalService {
         const { builder, take, pagination } = this.utilService.getQueryBuilderAndPagination(this.database.proposalDetail, queries);
         builder.andWhere(this.utilService.fullTextSearch({ fields: ['product.name'], keyword: queries.search }));
 
-        builder.innerJoinAndSelect('entity.product', 'product');
+        builder.leftJoinAndSelect('entity.product', 'product');
         builder.leftJoinAndSelect('product.unit', 'unit');
         builder.andWhere('entity.proposalId = :id', { id: queries.proposalId });
         builder.andWhere(this.utilService.getConditionsFromQuery(queries, ['productId']));
@@ -218,7 +218,7 @@ export class ProposalService {
         if (proposal.type === PROPOSAL_TYPE.PURCHASE && (detail.price === null || detail.price === undefined)) {
             throw new HttpException('Giá sản phẩm không được để trống', 400);
         }
-        await this.verifyDetail(id, detail);
+        await this.verifyDetail(id, detail, detailId);
         return this.database.proposalDetail.update({ id: detailId, proposalId: id }, detail);
     }
 
@@ -275,9 +275,13 @@ export class ProposalService {
         }
     }
 
-    private async verifyDetail(proposalId: number, detail: { productId?: number; quantity?: number; note?: string }) {
+    private async verifyDetail(proposalId: number, detail: { productId?: number; quantity?: number; note?: string }, detailId?: number) {
         if (detail?.productId) {
-            const isDuplicate = await this.database.proposalDetail.findOneBy({ proposalId, productId: detail.productId });
+            const isDuplicate = await this.database.proposalDetail.findOneBy({
+                proposalId,
+                productId: detail.productId,
+                id: detailId ? Not(detailId) : undefined,
+            });
             if (isDuplicate) throw new HttpException('Sản phẩm đã được thêm vào đề xuất', 400);
         }
     }
