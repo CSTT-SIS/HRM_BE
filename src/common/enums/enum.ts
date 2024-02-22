@@ -205,3 +205,9 @@ export enum ASSET_STATUS {
     ACTIVE = 1,
     // ----
 }
+
+export enum LETTER_TYPE {
+    LATE = 'LATE',
+    SOON = 'SOON',
+    // ----
+}
