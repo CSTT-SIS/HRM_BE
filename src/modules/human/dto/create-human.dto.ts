@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsNotEmpty, IsNumber, IsNumberString, IsOptional, IsString, Length } from 'class-validator';
+import { IsDateString, IsEmail, IsNotEmpty, IsNumber, IsNumberString, IsOptional, IsString, Length } from 'class-validator';
 import { IsIdExist } from '~/common/validators/is-id-exist.validator';
 
 export class CreateHumanDto {
@@ -17,9 +17,9 @@ export class CreateHumanDto {
     @IsOptional()
     avatar: Express.Multer.File;
 
-    @ApiProperty({ type: 'string', description: 'Ngày sinh', required: false })
+    @ApiProperty({ type: 'string', format: 'date', description: 'Ngày sinh', required: false })
     @IsOptional()
-    @IsString()
+    @IsDateString()
     birthDay: Date;
 
     @ApiProperty({ type: 'string', description: 'Địa chỉ', required: false })

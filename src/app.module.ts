@@ -48,6 +48,7 @@ import { WarehouseModule } from './modules/warehouse/warehouse.module';
 import { HumanModule } from '~/modules/human/human.module';
 import { CalendarModule } from '~/modules/calendar/calendar.module';
 import { LetterModule } from '~/modules/letter/letter.module';
+import { ForgottenTimekeepingModule } from '~/modules/forgotten-timekeeping/forgotten-timekeeping.module';
 
 @Module({
     imports: [
@@ -99,6 +100,7 @@ import { LetterModule } from '~/modules/letter/letter.module';
         HumanModule,
         CalendarModule,
         LetterModule,
+        ForgottenTimekeepingModule,
     ],
     controllers: [AppController],
     providers: [

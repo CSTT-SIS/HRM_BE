@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsNumber, IsOptional, IsString, Length } from 'class-validator';
+import { IsDateString, IsNotEmpty, IsNumber, IsOptional, IsString, Length } from 'class-validator';
 import { EMPLOYEE_LEAVE_REQUEST_STATUS } from '~/common/enums/enum';
 import { IsIdExist } from '~/common/validators/is-id-exist.validator';
 
@@ -9,14 +9,14 @@ export class CreateLetterDto {
     @Length(1, 255, { message: 'Lý do phải từ 1-255 ký tự' })
     reason: string;
 
-    @ApiProperty({ type: 'string', description: 'Ngày bắt đầu', required: false })
+    @ApiProperty({ type: 'string', format: 'date', description: 'Ngày bắt đầu', required: false })
     @IsOptional()
-    @IsString()
+    @IsDateString()
     startDay: Date;
 
-    @ApiProperty({ type: 'string', description: 'Ngày kết thúc', required: false })
+    @ApiProperty({ type: 'string', format: 'date', description: 'Ngày kết thúc', required: false })
     @IsOptional()
-    @IsString()
+    @IsDateString()
     endDay: Date;
 
     @ApiProperty({ enum: EMPLOYEE_LEAVE_REQUEST_STATUS, description: 'Trạng thái', required: false })
@@ -29,9 +29,9 @@ export class CreateLetterDto {
     @IsIdExist({ entity: 'staff' }, { message: 'Id người duyệt đơn không tồn tại' })
     approverId: number;
 
-    @ApiProperty({ type: 'string', description: 'Ngày duyệt', required: false })
+    @ApiProperty({ type: 'string', format: 'date', description: 'Ngày duyệt', required: false })
     @IsOptional()
-    @IsString()
+    @IsDateString()
     approverDate: Date;
 
     @ApiProperty({ type: 'string', description: 'Ghi chú', required: false })

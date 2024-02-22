@@ -38,6 +38,7 @@ import { CacheService } from '~/shared/services/cache.service';
 import { StaffRepository } from '~/database/typeorm/repositories/staff.repository';
 import { CalendarRepository } from '~/database/typeorm/repositories/calendar.repository';
 import { EmployeeLeaveRequestRepository } from '~/database/typeorm/repositories/employeeLeaveRequest.repository';
+import { ForgottenTimekeepingRequestRepository } from '~/database/typeorm/repositories/forgottenTimekeepingRequest.repository';
 
 @Injectable()
 export class DatabaseService {
@@ -80,6 +81,7 @@ export class DatabaseService {
         public readonly staff: StaffRepository,
         public readonly calendar: CalendarRepository,
         public readonly employeeLeaveRequest: EmployeeLeaveRequestRepository,
+        public readonly forgottentimekeepingrequest: ForgottenTimekeepingRequestRepository,
     ) {
         // load all departments to cache
         // this.loadDepartmentsToCache();

@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsNumber, IsOptional, IsString, Length } from 'class-validator';
+import { IsDateString, IsNotEmpty, IsNumber, IsOptional, IsString, Length } from 'class-validator';
 import { CALENDAR_TYPE } from '~/common/enums/enum';
 import { IsIdExist } from '~/common/validators/is-id-exist.validator';
 
@@ -13,11 +13,13 @@ export class CreateCalendarDto {
     @IsOptional()
     description: string;
 
-    @ApiProperty({ type: 'string', description: 'Thời gian', required: true })
-    @IsString()
+    @ApiProperty({ type: 'string', format: 'date', description: 'Thời gian', required: true })
+    @IsNotEmpty()
+    @IsDateString()
     time: Date;
 
     @ApiProperty({ enum: CALENDAR_TYPE, description: 'Loại lịch', required: true })
+    @IsNotEmpty()
     @IsNumber()
     type: CALENDAR_TYPE;
 
