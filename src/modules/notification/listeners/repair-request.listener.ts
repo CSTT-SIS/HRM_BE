@@ -20,7 +20,7 @@ export class RepairRequestListener {
             senderId: event.senderId,
             receiverIds: [...receiverIds, entity.repairById],
             type: 'repairRequest',
-            link: `/product-management/repair`,
+            link: `/warehouse-process/repair`,
             details: [
                 {
                     lang: 'vi',
@@ -53,7 +53,7 @@ export class RepairRequestListener {
             senderId: event.senderId,
             receiverIds: [...receiverIds, entity.repairById, entity.createdById],
             type: 'repairRequest',
-            link: `/product-management/repair`,
+            link: `/warehouse-process/repair`,
             details: [
                 {
                     lang: 'vi',
@@ -86,7 +86,7 @@ export class RepairRequestListener {
             senderId: event.senderId,
             receiverIds: [entity.createdById, entity.repairById, proposal?.createdById],
             type: 'repairRequest',
-            link: `/product-management/repair`,
+            link: `/warehouse-process/repair`,
             details: [
                 {
                     lang: 'vi',

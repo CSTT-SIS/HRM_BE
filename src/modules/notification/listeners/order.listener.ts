@@ -19,7 +19,7 @@ export class OrderListener {
             senderId: event.senderId,
             receiverIds,
             type: 'order',
-            link: `/product-management/order`,
+            link: `/warehouse-process/order`,
             details: [
                 {
                     lang: 'vi',
@@ -52,7 +52,7 @@ export class OrderListener {
             senderId: event.senderId,
             receiverIds: [...receiverIds, entity.createdById],
             type: 'order',
-            link: `/product-management/order`,
+            link: `/warehouse-process/order`,
             details: [
                 {
                     lang: 'vi',
@@ -85,7 +85,7 @@ export class OrderListener {
             senderId: event.senderId,
             receiverIds: [...receiverIds, entity.createdById],
             type: 'order',
-            link: `/product-management/order`,
+            link: `/warehouse-process/order`,
             details: [
                 {
                     lang: 'vi',
@@ -118,7 +118,7 @@ export class OrderListener {
             senderId: event.senderId,
             receiverIds: [...receiverIds, entity.createdById],
             type: 'order',
-            link: `/product-management/order`,
+            link: `/warehouse-process/order`,
             details: [
                 {
                     lang: 'vi',
@@ -151,7 +151,7 @@ export class OrderListener {
             senderId: event.senderId,
             receiverIds: [...receiverIds, entity.createdById],
             type: 'order',
-            link: `/product-management/order`,
+            link: `/warehouse-process/order`,
             details: [
                 {
                     lang: 'vi',
