@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, Injectable } from '@nestjs/common';
 import { FilterDto } from '~/common/dtos/filter.dto';
 import { UserStorage } from '~/common/storages/user.storage';
 import { DatabaseService } from '~/database/typeorm/database.service';
@@ -47,11 +47,22 @@ export class ProductService {
     }
 
     async remove(id: number) {
-        const count = await this.database.inventory.count({ where: { productId: id } });
-        if (count) {
-            throw new Error('Không thể xóa sản phẩm đã tồn tại trong kho');
+        const isUsed = await this.isProductUsed(id);
+        if (isUsed) {
+            throw new HttpException('Sản phẩm đã được sử dụng trong các văn bản, không thể xóa', 400);
         }
 
+        return this.database.product.delete(id);
+    }
+
+    async hardRemove(id: number) {
+        await this.database.quantityLimit.delete({ productId: id });
+        await this.database.inventory.delete({ productId: id });
+        await this.database.orderItem.delete({ productId: id });
+        await this.database.proposalDetail.delete({ productId: id });
+        await this.database.repairDetail.delete({ replacementPartId: id });
+        await this.database.stocktakeDetail.delete({ productId: id });
+        await this.database.warehousingBillDetail.delete({ productId: id });
         return this.database.product.delete(id);
     }
 
@@ -62,5 +73,39 @@ export class ProductService {
         } else {
             return this.database.quantityLimit.save(this.database.quantityLimit.create({ productId: id, createdById: UserStorage.getId(), ...data }));
         }
+    }
+
+    private async isProductUsed(id: number) {
+        let count = await this.database.inventory.count({ where: { productId: id } });
+        if (count) {
+            return true;
+        }
+
+        count = await this.database.orderItem.count({ where: { productId: id } });
+        if (count) {
+            return true;
+        }
+
+        count = await this.database.proposalDetail.count({ where: { productId: id } });
+        if (count) {
+            return true;
+        }
+
+        count = await this.database.repairDetail.count({ where: { replacementPartId: id } });
+        if (count) {
+            return true;
+        }
+
+        count = await this.database.stocktakeDetail.count({ where: { productId: id } });
+        if (count) {
+            return true;
+        }
+
+        count = await this.database.warehousingBillDetail.count({ where: { productId: id } });
+        if (count) {
+            return true;
+        }
+
+        return false;
     }
 }

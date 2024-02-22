@@ -97,7 +97,7 @@ export class WarehousingBillService {
         builder.leftJoinAndSelect('entity.proposal', 'proposal');
         builder.leftJoinAndSelect('entity.order', 'order');
         builder.leftJoinAndSelect('entity.details', 'details');
-        builder.innerJoinAndSelect('details.product', 'product');
+        builder.leftJoinAndSelect('details.product', 'product');
         builder.leftJoinAndSelect('product.unit', 'unit');
         builder.leftJoinAndSelect('entity.warehouse', 'warehouse');
         builder.leftJoinAndSelect('entity.createdBy', 'createdBy');
@@ -141,7 +141,7 @@ export class WarehousingBillService {
         const { builder, take, pagination } = this.utilService.getQueryBuilderAndPagination(this.database.warehousingBillDetail, queries);
         builder.andWhere(this.utilService.fullTextSearch({ fields: ['product.name'], keyword: queries.search }));
 
-        builder.innerJoinAndSelect('entity.product', 'product');
+        builder.leftJoinAndSelect('entity.product', 'product');
         builder.leftJoinAndSelect('product.unit', 'unit');
         builder.andWhere('entity.warehousingBillId = :id', { id: queries.warehousingBillId });
         builder.andWhere(this.utilService.getConditionsFromQuery(queries, ['productId']));

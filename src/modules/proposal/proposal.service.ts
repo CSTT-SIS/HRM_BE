@@ -63,7 +63,7 @@ export class ProposalService {
         builder.leftJoinAndSelect('entity.createdBy', 'createdBy');
         builder.leftJoinAndSelect('entity.updatedBy', 'updatedBy');
         builder.leftJoinAndSelect('entity.details', 'details');
-        builder.innerJoinAndSelect('details.product', 'product');
+        builder.leftJoinAndSelect('details.product', 'product');
         builder.leftJoinAndSelect('product.unit', 'unit');
 
         builder.where('entity.id = :id', { id });
@@ -173,7 +173,7 @@ export class ProposalService {
         const { builder, take, pagination } = this.utilService.getQueryBuilderAndPagination(this.database.proposalDetail, queries);
         builder.andWhere(this.utilService.fullTextSearch({ fields: ['product.name'], keyword: queries.search }));
 
-        builder.innerJoinAndSelect('entity.product', 'product');
+        builder.leftJoinAndSelect('entity.product', 'product');
         builder.leftJoinAndSelect('product.unit', 'unit');
         builder.andWhere('entity.proposalId = :id', { id: queries.proposalId });
         builder.andWhere(this.utilService.getConditionsFromQuery(queries, ['productId']));

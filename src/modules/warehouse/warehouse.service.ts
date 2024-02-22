@@ -54,7 +54,7 @@ export class WarehouseService {
 
         builder.andWhere(this.utilService.relationQuerySearch({ warehouseId: queries.warehouseId }));
         builder.andWhere(this.utilService.fullTextSearch({ entityAlias: 'product', fields: ['name', 'code'], keyword: queries.search }));
-        builder.innerJoinAndSelect('entity.product', 'product');
+        builder.leftJoinAndSelect('entity.product', 'product');
         builder.leftJoinAndSelect('product.unit', 'unit');
         builder.leftJoinAndSelect('product.category', 'category');
         builder.leftJoinAndSelect('product.quantityLimit', 'limit');
