@@ -20,7 +20,7 @@ export class WarehousingBillListener {
             senderId: event.senderId,
             receiverIds,
             type: 'warehousing-bill',
-            link: `/product-management/warehousing-bill`,
+            link: `/warehouse-process/warehousing-bill`,
             details: [
                 {
                     lang: 'vi',
@@ -53,7 +53,7 @@ export class WarehousingBillListener {
             senderId: event.senderId,
             receiverIds: [...receiverIds, entity.createdById],
             type: 'warehousing-bill',
-            link: `/product-management/warehousing-bill`,
+            link: `/warehouse-process/warehousing-bill`,
             details: [
                 {
                     lang: 'vi',
@@ -85,7 +85,7 @@ export class WarehousingBillListener {
             senderId: event.senderId,
             receiverIds: [entity.createdById],
             type: 'warehousing-bill',
-            link: `/product-management/warehousing-bill`,
+            link: `/warehouse-process/warehousing-bill`,
             details: [
                 {
                     lang: 'vi',
@@ -117,7 +117,7 @@ export class WarehousingBillListener {
             senderId: event.senderId,
             receiverIds: [entity.createdById],
             type: 'warehousing-bill',
-            link: `/product-management/warehousing-bill`,
+            link: `/warehouse-process/warehousing-bill`,
             details: [
                 {
                     lang: 'vi',
@@ -178,7 +178,7 @@ export class WarehousingBillListener {
             senderId: event.senderId,
             receiverIds: [entity.createdById],
             type: 'warehousing-bill',
-            link: `/product-management/warehousing-bill`,
+            link: `/warehouse-process/warehousing-bill`,
             details: [
                 {
                     lang: 'vi',

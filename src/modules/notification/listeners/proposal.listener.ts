@@ -21,7 +21,7 @@ export class ProposalListener {
                 senderId: event.senderId,
                 receiverIds: [entity.repairRequest.repairById, entity.repairRequest.createdById],
                 type: 'proposal',
-                link: `/product-management/proposal`,
+                link: `/warehouse-process/proposal`,
                 details: [
                     {
                         lang: 'vi',
@@ -55,7 +55,7 @@ export class ProposalListener {
             senderId: event.senderId,
             receiverIds,
             type: 'proposal',
-            link: `/product-management/proposal`,
+            link: `/warehouse-process/proposal`,
             details: [
                 {
                     lang: 'vi',
@@ -95,7 +95,7 @@ export class ProposalListener {
             senderId: event.senderId,
             receiverIds: [...receiverIds, entity.createdById],
             type: 'proposal',
-            link: `/product-management/proposal`,
+            link: `/warehouse-process/proposal`,
             details: [
                 {
                     lang: 'vi',
@@ -127,7 +127,7 @@ export class ProposalListener {
             senderId: event.senderId,
             receiverIds: [entity.createdById],
             type: 'proposal',
-            link: `/product-management/proposal`,
+            link: `/warehouse-process/proposal`,
             details: [
                 {
                     lang: 'vi',
@@ -159,7 +159,7 @@ export class ProposalListener {
             senderId: event.senderId,
             receiverIds: [entity.createdById],
             type: 'proposal',
-            link: `/product-management/proposal`,
+            link: `/warehouse-process/proposal`,
             details: [
                 {
                     lang: 'vi',
