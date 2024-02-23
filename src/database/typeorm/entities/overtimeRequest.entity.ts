@@ -20,16 +20,16 @@ export class OvertimeRequestEntity extends AbstractEntity {
     @Column({ name: 'overtime_hours', type: 'int', nullable: true })
     overtimeHours: number;
 
-    @Column({ name: 'overtime_rate', type: 'float', nullable: true })
-    overtimeRate: number;
+    @Column({ name: 'overtime_rate', type: 'varchar', length: 255, nullable: true })
+    overtimeRate: string;
 
-    @Column({ name: 'overtime_amount', type: 'float', nullable: true })
-    overtimeAmount: number;
+    @Column({ name: 'overtime_amount', type: 'varchar', length: 255, nullable: true })
+    overtimeAmount: string;
 
     @Column({ name: 'supporting_documents', type: 'varchar', length: 255, nullable: true })
     supportingDocuments: string;
 
-    @Column({ name: 'status', type: 'varchar', length: 255, nullable: true })
+    @Column({ type: 'enum', enum: OVERTIME_REQUEST_STATUS, default: OVERTIME_REQUEST_STATUS.PENDING })
     status: OVERTIME_REQUEST_STATUS;
 
     @Column({ name: 'approver_id', type: 'int', unsigned: true, nullable: true })

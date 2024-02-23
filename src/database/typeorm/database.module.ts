@@ -93,6 +93,7 @@ import { StaffRepository } from '~/database/typeorm/repositories/staff.repositor
 import { CalendarRepository } from '~/database/typeorm/repositories/calendar.repository';
 import { EmployeeLeaveRequestRepository } from '~/database/typeorm/repositories/employeeLeaveRequest.repository';
 import { ForgottenTimekeepingRequestRepository } from '~/database/typeorm/repositories/forgottenTimekeepingRequest.repository';
+import { OvertimeRequestRepository } from '~/database/typeorm/repositories/overtimeRequest.repository';
 
 const entities = [
     RoleEntity,
@@ -190,6 +191,7 @@ const repositories = [
     CalendarRepository,
     EmployeeLeaveRequestRepository,
     ForgottenTimekeepingRequestRepository,
+    OvertimeRequestRepository,
 ];
 
 @Global()

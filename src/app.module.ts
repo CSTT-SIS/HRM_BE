@@ -49,6 +49,7 @@ import { HumanModule } from '~/modules/human/human.module';
 import { CalendarModule } from '~/modules/calendar/calendar.module';
 import { LetterModule } from '~/modules/letter/letter.module';
 import { ForgottenTimekeepingModule } from '~/modules/forgotten-timekeeping/forgotten-timekeeping.module';
+import { OverTimeModule } from '~/modules/over-time/over-time.module';
 
 @Module({
     imports: [
@@ -101,6 +102,7 @@ import { ForgottenTimekeepingModule } from '~/modules/forgotten-timekeeping/forg
         CalendarModule,
         LetterModule,
         ForgottenTimekeepingModule,
+        OverTimeModule,
     ],
     controllers: [AppController],
     providers: [
