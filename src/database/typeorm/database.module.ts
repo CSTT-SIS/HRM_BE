@@ -89,6 +89,8 @@ import { VehicleRepository } from '~/database/typeorm/repositories/vehicle.repos
 import { WarehouseRepository } from '~/database/typeorm/repositories/warehouse.repository';
 import { WarehousingBillRepository } from '~/database/typeorm/repositories/warehousingBill.repository';
 import { WarehousingBillDetailRepository } from '~/database/typeorm/repositories/warehousingBillDetail.repository';
+import { StaffRepository } from '~/database/typeorm/repositories/staff.repository';
+import { CalendarRepository } from '~/database/typeorm/repositories/calendar.repository';
 
 const entities = [
     RoleEntity,
@@ -145,8 +147,8 @@ const entities = [
     DocumentEntity,
     SendDocumentEntity,
     TextEmbryoEntity,
-];
-
+    StaffEntity,
+];
 const repositories = [
     DepartmentRepository,
     UserRepository,
@@ -181,6 +183,8 @@ const repositories = [
     RepairProgressRepository,
     NotificationRepository,
     NotificationDetailRepository,
+    StaffRepository,
+    CalendarRepository,
 ];
 
 @Global()

@@ -45,6 +45,8 @@ import { ProviderModule } from './modules/provider/provider.module';
 import { UnitModule } from './modules/unit/unit.module';
 import { UserModule } from './modules/user/user.module';
 import { WarehouseModule } from './modules/warehouse/warehouse.module';
+import { HumanModule } from '~/modules/human/human.module';
+import { CalendarModule } from '~/modules/calendar/calendar.module';
 
 @Module({
     imports: [
@@ -93,6 +95,8 @@ import { WarehouseModule } from './modules/warehouse/warehouse.module';
         RepairRequestModule,
         NotificationModule,
         StatisticModule,
+        HumanModule,
+        CalendarModule,
     ],
     controllers: [AppController],
     providers: [

@@ -130,6 +130,12 @@ export enum REPAIR_REQUEST_STATUS {
     CANCELLED = 'CANCELLED',
 }
 
+export enum HUMAN_DASHBOARD_TYPE {
+    SEX = 'SEX',
+    SENIORITY = 'SENIORITY',
+    BY_MONTH = 'BY_MONTH',
+}
+
 export enum STAFF_STATUS {
     ACTIVE = 1,
     INACTIVE = 0,
