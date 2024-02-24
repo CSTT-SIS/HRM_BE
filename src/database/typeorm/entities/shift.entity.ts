@@ -1,7 +1,7 @@
 import { Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
 import { SHIFT_TYPE } from '~/common/enums/enum';
 import { AbstractEntity } from './abstract.entity';
-import { StaffShiftEntity } from './staffShift.entity';
+import { UserShiftEntity } from './userShift.entity';
 
 @Entity({ name: 'shifts' })
 export class ShiftEntity extends AbstractEntity {
@@ -24,9 +24,9 @@ export class ShiftEntity extends AbstractEntity {
     type: SHIFT_TYPE;
 
     /* RELATION */
-    @OneToMany(() => StaffShiftEntity, (entity: StaffShiftEntity) => entity.shift, {
+    @OneToMany(() => UserShiftEntity, (entity: UserShiftEntity) => entity.shift, {
         nullable: true,
         createForeignKeyConstraints: false,
     })
-    staffShifts: Relation<StaffShiftEntity>[];
+    userShifts: Relation<UserShiftEntity>[];
 }

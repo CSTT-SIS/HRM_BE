@@ -1,8 +1,8 @@
 import { Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
 import { TASK_PRIORITY } from '~/common/enums/enum';
 import { AbstractEntity } from './abstract.entity';
-import { StaffEntity } from './staff.entity';
 import { DepartmentTaskEntity } from './departmentTask.entity';
+import { UserEntity } from './user.entity';
 
 @Entity({ name: 'tasks' })
 export class TaskEntity extends AbstractEntity {
@@ -40,26 +40,26 @@ export class TaskEntity extends AbstractEntity {
     comments: string;
 
     /* RELATION */
-    @ManyToOne(() => StaffEntity, (entity: StaffEntity) => entity.assignedTasks, {
+    @ManyToOne(() => UserEntity, (entity: UserEntity) => entity.assignedTasks, {
         nullable: true,
         createForeignKeyConstraints: false,
     })
     @JoinColumn({ name: 'assignee_id', referencedColumnName: 'id' })
-    assignee: Relation<StaffEntity>;
+    assignee: Relation<UserEntity>;
 
-    @ManyToOne(() => StaffEntity, (entity: StaffEntity) => entity.createdTasks, {
+    @ManyToOne(() => UserEntity, (entity: UserEntity) => entity.createdTasks, {
         nullable: true,
         createForeignKeyConstraints: false,
     })
     @JoinColumn({ name: 'creator_id', referencedColumnName: 'id' })
-    creator: Relation<StaffEntity>;
+    creator: Relation<UserEntity>;
 
-    @ManyToOne(() => StaffEntity, (entity: StaffEntity) => entity.coordinatedTasks, {
+    @ManyToOne(() => UserEntity, (entity: UserEntity) => entity.coordinatedTasks, {
         nullable: true,
         createForeignKeyConstraints: false,
     })
     @JoinColumn({ name: 'coordinator_id', referencedColumnName: 'id' })
-    coordinator: Relation<StaffEntity>;
+    coordinator: Relation<UserEntity>;
 
     @OneToMany(() => DepartmentTaskEntity, (entity: DepartmentTaskEntity) => entity.task, {
         nullable: true,

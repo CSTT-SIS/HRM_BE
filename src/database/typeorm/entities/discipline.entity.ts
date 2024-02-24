@@ -1,6 +1,6 @@
 import { Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
 import { AbstractEntity } from './abstract.entity';
-import { StaffEntity } from './staff.entity';
+import { UserEntity } from './user.entity';
 
 @Entity({ name: 'disciplines' })
 export class DisciplineEntity extends AbstractEntity {
@@ -25,14 +25,14 @@ export class DisciplineEntity extends AbstractEntity {
     @Column({ name: 'end_day', type: 'date', nullable: true })
     endDay: Date;
 
-    @Column({ name: 'staff_id', type: 'int', unsigned: true, nullable: true })
-    staffId: number;
+    @Column({ name: 'user_id', type: 'int', unsigned: true, nullable: true })
+    userId: number;
 
     /* RELATION */
-    @ManyToOne(() => StaffEntity, (entity: StaffEntity) => entity.disciplines, {
+    @ManyToOne(() => UserEntity, (entity: UserEntity) => entity.disciplines, {
         nullable: true,
         createForeignKeyConstraints: false,
     })
-    @JoinColumn({ name: 'staff_id', referencedColumnName: 'id' })
-    staff: Relation<StaffEntity>;
+    @JoinColumn({ name: 'user_id', referencedColumnName: 'id' })
+    user: Relation<UserEntity>;
 }

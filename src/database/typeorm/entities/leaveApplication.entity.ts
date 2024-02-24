@@ -1,7 +1,7 @@
 import { Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
 import { AbstractEntity } from './abstract.entity';
 import { LEAVE_STATUS } from '~/common/enums/enum';
-import { StaffEntity } from '~/database/typeorm/entities/staff.entity';
+import { UserEntity } from './user.entity';
 
 @Entity({ name: 'leave_applications' })
 export class LeaveApplicationEntity extends AbstractEntity {
@@ -20,24 +20,24 @@ export class LeaveApplicationEntity extends AbstractEntity {
     @Column({ type: 'enum', enum: LEAVE_STATUS, default: LEAVE_STATUS.PENDING })
     status: LEAVE_STATUS;
 
-    @Column({ name: 'staff_id', type: 'int', unsigned: true, nullable: true })
-    staffId: number;
+    @Column({ name: 'user_id', type: 'int', unsigned: true, nullable: true })
+    userId: number;
 
     @Column({ name: 'approved_by', type: 'int', unsigned: true, nullable: true })
     approvedBy: number;
 
     /* RELATION */
-    @ManyToOne(() => StaffEntity, (entity: StaffEntity) => entity.leaveApplications, {
+    @ManyToOne(() => UserEntity, (entity: UserEntity) => entity.leaveApplications, {
         nullable: true,
         createForeignKeyConstraints: false,
     })
-    @JoinColumn({ name: 'staff_id', referencedColumnName: 'id' })
-    staff: Relation<StaffEntity>;
+    @JoinColumn({ name: 'user_id', referencedColumnName: 'id' })
+    user: Relation<UserEntity>;
 
-    @ManyToOne(() => StaffEntity, (entity: StaffEntity) => entity.approvedLeaveApplications, {
+    @ManyToOne(() => UserEntity, (entity: UserEntity) => entity.approvedLeaveApplications, {
         nullable: true,
         createForeignKeyConstraints: false,
     })
     @JoinColumn({ name: 'approved_by', referencedColumnName: 'id' })
-    approvedByStaff: Relation<StaffEntity>;
+    approvedByUser: Relation<UserEntity>;
 }

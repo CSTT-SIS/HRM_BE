@@ -2,7 +2,7 @@ import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Relation
 import { CONTRACT_RESULT, CONTRACT_STATUS, CONTRACT_TYPE } from '~/common/enums/enum';
 import { AbstractEntity } from './abstract.entity';
 import { PositionEntity } from './position.entity';
-import { StaffEntity } from './staff.entity';
+import { UserEntity } from './user.entity';
 
 @Entity({ name: 'contracts' })
 export class ContractEntity extends AbstractEntity {
@@ -33,8 +33,8 @@ export class ContractEntity extends AbstractEntity {
     @Column({ name: 'termination_day', type: 'date', nullable: true })
     terminationDay: Date;
 
-    @Column({ name: 'staff_id', type: 'int', unsigned: true, nullable: true })
-    staffId: number;
+    @Column({ name: 'user_id', type: 'int', unsigned: true, nullable: true })
+    userId: number;
 
     @Column({ name: 'salary', type: 'varchar', length: 255, nullable: true })
     salary: string;
@@ -43,12 +43,12 @@ export class ContractEntity extends AbstractEntity {
     positionId: number;
 
     /* RELATION */
-    @ManyToOne(() => StaffEntity, (entity: StaffEntity) => entity.contracts, {
+    @ManyToOne(() => UserEntity, (entity: UserEntity) => entity.contracts, {
         nullable: true,
         createForeignKeyConstraints: false,
     })
-    @JoinColumn({ name: 'staff_id', referencedColumnName: 'id' })
-    staff: Relation<StaffEntity>;
+    @JoinColumn({ name: 'user_id', referencedColumnName: 'id' })
+    user: Relation<UserEntity>;
 
     @ManyToOne(() => PositionEntity, (entity: PositionEntity) => entity.contracts, {
         nullable: true,
