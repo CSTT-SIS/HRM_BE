@@ -1,7 +1,6 @@
 import { Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, Relation } from 'typeorm';
 import { AbstractEntity } from '~/database/typeorm/entities/abstract.entity';
 import { UserEntity } from '~/database/typeorm/entities/user.entity';
-import { StaffEntity } from './staff.entity';
 import { CalendarEntity } from './calendar.entity';
 import { DepartmentTaskEntity } from './departmentTask.entity';
 import { AssetEntity } from './asset.entity';
@@ -51,26 +50,20 @@ export class DepartmentEntity extends AbstractEntity {
     @JoinColumn({ name: 'media_id', referencedColumnName: 'id' })
     avatar: Relation<MediaEntity>;
 
-    @ManyToOne(() => StaffEntity, (entity: StaffEntity) => entity.id, {
+    @ManyToOne(() => UserEntity, (entity: UserEntity) => entity.id, {
         nullable: true,
         onDelete: 'SET NULL',
         onUpdate: 'CASCADE',
         createForeignKeyConstraints: false,
     })
     @JoinColumn({ name: 'head_of_department_id', referencedColumnName: 'id' })
-    headOfDepartment: Relation<StaffEntity>;
+    headOfDepartment: Relation<UserEntity>;
 
     @OneToMany(() => DepartmentEntity, (entity: DepartmentEntity) => entity.parent, {
         nullable: true,
         createForeignKeyConstraints: false,
     })
     children: Relation<DepartmentEntity>[];
-
-    @OneToMany(() => StaffEntity, (entity: StaffEntity) => entity.department, {
-        nullable: true,
-        createForeignKeyConstraints: false,
-    })
-    staffs: Relation<StaffEntity>[];
 
     @OneToMany(() => CalendarEntity, (entity: CalendarEntity) => entity.department, {
         nullable: true,

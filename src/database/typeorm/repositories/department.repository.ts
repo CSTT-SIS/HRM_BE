@@ -13,7 +13,7 @@ export class DepartmentRepository extends Repository<DepartmentEntity> {
             where: { id: id },
             relations: [
                 'avatar',
-                'staffs',
+                'users',
                 'headOfDepartment',
                 'parent',
                 'children',

@@ -1,7 +1,7 @@
 import { Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
 import { RESIGNATION_STATUS } from '~/common/enums/enum';
 import { AbstractEntity } from './abstract.entity';
-import { StaffEntity } from './staff.entity';
+import { UserEntity } from './user.entity';
 
 @Entity({ name: 'resignation_forms' })
 export class ResignationFormEntity extends AbstractEntity {
@@ -14,24 +14,24 @@ export class ResignationFormEntity extends AbstractEntity {
     @Column({ type: 'enum', enum: RESIGNATION_STATUS, default: RESIGNATION_STATUS.PENDING })
     status: RESIGNATION_STATUS;
 
-    @Column({ name: 'staff_id', type: 'int', unsigned: true, nullable: true })
-    staffId: number;
+    @Column({ name: 'user_id', type: 'int', unsigned: true, nullable: true })
+    userId: number;
 
     @Column({ name: 'approved_by', type: 'int', unsigned: true, nullable: true })
     approvedBy: number;
 
     /* RELATION */
-    @ManyToOne(() => StaffEntity, (entity: StaffEntity) => entity.resignationForms, {
+    @ManyToOne(() => UserEntity, (entity: UserEntity) => entity.resignationForms, {
         nullable: true,
         createForeignKeyConstraints: false,
     })
-    @JoinColumn({ name: 'staff_id', referencedColumnName: 'id' })
-    staff: Relation<StaffEntity>;
+    @JoinColumn({ name: 'user_id', referencedColumnName: 'id' })
+    user: Relation<UserEntity>;
 
-    @ManyToOne(() => StaffEntity, (entity: StaffEntity) => entity.approvedResignationForms, {
+    @ManyToOne(() => UserEntity, (entity: UserEntity) => entity.approvedResignationForms, {
         nullable: true,
         createForeignKeyConstraints: false,
     })
     @JoinColumn({ name: 'approved_by', referencedColumnName: 'id' })
-    approvedByStaff: Relation<StaffEntity>;
+    approvedByUser: Relation<UserEntity>;
 }

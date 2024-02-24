@@ -30,7 +30,7 @@ export class DepartmentService {
         }
 
         builder.leftJoinAndSelect('entity.avatar', 'avatar');
-        builder.leftJoinAndSelect('entity.staffs', 'staffs');
+        builder.leftJoinAndSelect('entity.users', 'users');
         builder.leftJoinAndSelect('entity.headOfDepartment', 'headOfDepartment');
         builder.leftJoinAndSelect('entity.parent', 'parent');
         builder.leftJoinAndSelect('entity.children', 'children');
@@ -44,7 +44,7 @@ export class DepartmentService {
         builder.select([
             'entity',
             'avatar',
-            'staffs',
+            'users',
             'headOfDepartment',
             'parent',
             'children',
