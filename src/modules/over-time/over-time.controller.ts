@@ -29,12 +29,13 @@ import { AuthGuard } from '../auth/guards/auth.guard';
 export class OverTimeController {
     constructor(private readonly overTimeService: OverTimeService) {}
 
+    @UseGuards(AuthGuard)
     @ApiConsumes('multipart/form-data')
     @Permission('overTime:create')
     @Post()
     @UseInterceptors(FilesInterceptor('supportingDocuments', 10, multerOptions()))
-    create(@Body() createOverTimeDto: CreateOverTimeDto, @UploadedFiles() files: Array<Express.Multer.File>) {
-        return this.overTimeService.create(createOverTimeDto, files);
+    create(@Req() req, @Body() createOverTimeDto: CreateOverTimeDto, @UploadedFiles() files: Array<Express.Multer.File>) {
+        return this.overTimeService.create(createOverTimeDto, files, req.user.id);
     }
 
     @Permission('overTime:findAll')
@@ -44,13 +45,13 @@ export class OverTimeController {
         return this.overTimeService.findAll({ ...queries });
     }
 
-    @UseGuards(AuthGuard)
     @Permission('overTime:findOne')
     @Get(':id')
     findOne(@Param('id', ParseIntPipe) id: string) {
         return this.overTimeService.findOne(+id);
     }
 
+    @UseGuards(AuthGuard)
     @ApiConsumes('multipart/form-data')
     @Permission('overTime:update')
     @Patch(':id')

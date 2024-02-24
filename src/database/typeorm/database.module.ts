@@ -93,6 +93,7 @@ import { EmployeeLeaveRequestRepository } from '~/database/typeorm/repositories/
 import { ForgottenTimekeepingRequestRepository } from '~/database/typeorm/repositories/forgottenTimekeepingRequest.repository';
 import { OvertimeRequestRepository } from '~/database/typeorm/repositories/overtimeRequest.repository';
 import { TimeAttendanceRepository } from '~/database/typeorm/repositories/timeAttendance.repository';
+import { TaskRepository } from '~/database/typeorm/repositories/task.repository';
 
 const entities = [
     RoleEntity,
@@ -188,6 +189,7 @@ const repositories = [
     ForgottenTimekeepingRequestRepository,
     OvertimeRequestRepository,
     TimeAttendanceRepository,
+    TaskRepository,
 ];
 
 @Global()

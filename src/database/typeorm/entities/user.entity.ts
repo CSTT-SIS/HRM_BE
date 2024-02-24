@@ -77,6 +77,12 @@ export class UserEntity extends AbstractEntity {
     @Column({ name: 'department_id', type: 'int', unsigned: true, nullable: true })
     departmentId: number;
 
+    @Column({ name: 'created_by', type: 'int', unsigned: true, nullable: true })
+    createdBy: number;
+
+    @Column({ name: 'updated_by', type: 'int', unsigned: true, nullable: true })
+    updatedBy: number;
+
     /* RELATION */
     @OneToOne(() => AccountEntity, { createForeignKeyConstraints: false })
     @JoinColumn({ name: 'account_id', referencedColumnName: 'id' })

@@ -10,8 +10,8 @@ import { LETTER_TYPE } from '~/common/enums/enum';
 export class LetterService {
     constructor(private readonly utilService: UtilService, private readonly database: DatabaseService) {}
 
-    create(createLetterDto: CreateLetterDto, type: LETTER_TYPE) {
-        return this.database.employeeLeaveRequest.save(this.database.employeeLeaveRequest.create({ ...createLetterDto, type }));
+    create(createLetterDto: CreateLetterDto, type: LETTER_TYPE, userId: number) {
+        return this.database.employeeLeaveRequest.save(this.database.employeeLeaveRequest.create({ ...createLetterDto, type, createdBy: userId }));
     }
 
     async findAll(queries: FilterDto, type: LETTER_TYPE) {
@@ -42,8 +42,8 @@ export class LetterService {
         return builder.getOne();
     }
 
-    update(id: number, updateLetterDto: UpdateLetterDto) {
-        return this.database.employeeLeaveRequest.update(id, updateLetterDto);
+    update(id: number, updateLetterDto: UpdateLetterDto, userId: number) {
+        return this.database.employeeLeaveRequest.update(id, { ...updateLetterDto, updatedBy: userId });
     }
 
     remove(id: number) {

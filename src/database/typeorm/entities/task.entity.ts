@@ -24,9 +24,6 @@ export class TaskEntity extends AbstractEntity {
     @Column({ name: 'assignee_id', type: 'int', unsigned: true, nullable: true })
     assigneeId: number;
 
-    @Column({ name: 'creator_id', type: 'int', unsigned: true, nullable: true })
-    creatorId: number;
-
     @Column({ name: 'coordinator_id', type: 'int', unsigned: true, nullable: true })
     coordinatorId: number;
 
@@ -38,6 +35,12 @@ export class TaskEntity extends AbstractEntity {
 
     @Column({ name: 'comments', type: 'varchar', length: 1000, nullable: true })
     comments: string;
+
+    @Column({ name: 'created_by', type: 'int', unsigned: true, nullable: true })
+    createdBy: number;
+
+    @Column({ name: 'updated_by', type: 'int', unsigned: true, nullable: true })
+    updatedBy: number;
 
     /* RELATION */
     @ManyToOne(() => UserEntity, (entity: UserEntity) => entity.assignedTasks, {

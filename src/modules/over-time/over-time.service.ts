@@ -10,11 +10,12 @@ import { OVERTIME_REQUEST_STATUS } from '~/common/enums/enum';
 export class OverTimeService {
     constructor(private readonly utilService: UtilService, private readonly database: DatabaseService) {}
 
-    create(createOverTimeDto: CreateOverTimeDto, files: Array<Express.Multer.File>) {
+    create(createOverTimeDto: CreateOverTimeDto, files: Array<Express.Multer.File>, userId: number) {
         return this.database.overtimeRequest.save(
             this.database.overtimeRequest.create({
                 ...createOverTimeDto,
                 supportingDocuments: files.length !== 0 ? files.map((file) => file.filename).join(', ') : null,
+                createdBy: userId,
             }),
         );
     }
@@ -55,6 +56,7 @@ export class OverTimeService {
                 overTime.status !== OVERTIME_REQUEST_STATUS.APPROVED && updateOverTimeDto.status === OVERTIME_REQUEST_STATUS.APPROVED
                     ? userId
                     : overTime.approverId,
+            updatedBy: userId,
         });
     }
 

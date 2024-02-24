@@ -51,6 +51,7 @@ import { LetterModule } from '~/modules/letter/letter.module';
 import { ForgottenTimekeepingModule } from '~/modules/forgotten-timekeeping/forgotten-timekeeping.module';
 import { OverTimeModule } from '~/modules/over-time/over-time.module';
 import { TimeKeepingModule } from '~/modules/time-keeping/time-keeping.module';
+import { TaskModule } from '~/modules/task/task.module';
 
 @Module({
     imports: [
@@ -105,6 +106,7 @@ import { TimeKeepingModule } from '~/modules/time-keeping/time-keeping.module';
         ForgottenTimekeepingModule,
         OverTimeModule,
         TimeKeepingModule,
+        TaskModule,
     ],
     controllers: [AppController],
     providers: [

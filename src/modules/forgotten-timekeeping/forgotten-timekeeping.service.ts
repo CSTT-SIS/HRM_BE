@@ -9,11 +9,12 @@ import { FilterDto } from '~/common/dtos/filter.dto';
 export class ForgottenTimekeepingService {
     constructor(private readonly utilService: UtilService, private readonly database: DatabaseService) {}
 
-    create(createForgottenTimekeepingDto: CreateForgottenTimekeepingDto, files: Array<Express.Multer.File>) {
+    create(createForgottenTimekeepingDto: CreateForgottenTimekeepingDto, files: Array<Express.Multer.File>, userId: number) {
         return this.database.forgottentimekeepingrequest.save(
             this.database.forgottentimekeepingrequest.create({
                 ...createForgottenTimekeepingDto,
                 supportingDocuments: files.length !== 0 ? files.map((file) => file.filename).join(', ') : null,
+                createdBy: userId,
             }),
         );
     }
@@ -44,10 +45,11 @@ export class ForgottenTimekeepingService {
         return builder.getOne();
     }
 
-    update(id: number, updateForgottenTimekeepingDto: UpdateForgottenTimekeepingDto, files: Array<Express.Multer.File>) {
+    update(id: number, updateForgottenTimekeepingDto: UpdateForgottenTimekeepingDto, files: Array<Express.Multer.File>, userId: number) {
         return this.database.forgottentimekeepingrequest.update(id, {
             ...updateForgottenTimekeepingDto,
             supportingDocuments: files.length !== 0 ? files.map((file) => file.filename).join(', ') : null,
+            updatedBy: userId,
         });
     }
 

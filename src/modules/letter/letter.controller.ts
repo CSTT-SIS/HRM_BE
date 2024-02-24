@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, Req, UseGuards } from '@nestjs/common';
 import { ApiBasicAuth, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Permission } from '~/common/decorators/permission.decorator';
 import { FilterDto } from '~/common/dtos/filter.dto';
@@ -6,6 +6,7 @@ import { CreateLetterDto } from './dto/create-letter.dto';
 import { UpdateLetterDto } from './dto/update-letter.dto';
 import { LetterService } from './letter.service';
 import { LETTER_TYPE } from '~/common/enums/enum';
+import { AuthGuard } from '../auth/guards/auth.guard';
 
 @ApiTags('Letter')
 @ApiBasicAuth('authorization')
@@ -13,6 +14,7 @@ import { LETTER_TYPE } from '~/common/enums/enum';
 export class LetterController {
     constructor(private readonly letterService: LetterService) {}
 
+    @UseGuards(AuthGuard)
     @Permission('letter:create')
     @Post(':type')
     @ApiParam({
@@ -21,8 +23,8 @@ export class LetterController {
         description: 'LATE: Đơn xin đi muộn, SOON: Đơn xin về sớm',
         required: true,
     })
-    create(@Param('type') type: LETTER_TYPE, @Body() createLetterDto: CreateLetterDto) {
-        return this.letterService.create(createLetterDto, type);
+    create(@Req() req, @Param('type') type: LETTER_TYPE, @Body() createLetterDto: CreateLetterDto) {
+        return this.letterService.create(createLetterDto, type, req.user.id);
     }
 
     @Permission('letter:findAll')
@@ -50,6 +52,7 @@ export class LetterController {
         return this.letterService.findOne(+id, type);
     }
 
+    @UseGuards(AuthGuard)
     @Permission('letter:update')
     @Patch(':type/:id')
     @ApiParam({
@@ -58,8 +61,8 @@ export class LetterController {
         description: 'LATE: Đơn xin đi muộn, SOON: Đơn xin về sớm',
         required: true,
     })
-    update(@Param('id', ParseIntPipe) id: string, @Body() updateLetterDto: UpdateLetterDto) {
-        return this.letterService.update(+id, updateLetterDto);
+    update(@Req() req, @Param('id', ParseIntPipe) id: string, @Body() updateLetterDto: UpdateLetterDto) {
+        return this.letterService.update(+id, updateLetterDto, req.user.id);
     }
 
     @Permission('letter:remove')

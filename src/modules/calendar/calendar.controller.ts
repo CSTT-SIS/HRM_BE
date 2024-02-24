@@ -1,10 +1,11 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, Req, UseGuards } from '@nestjs/common';
 import { ApiBasicAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Permission } from '~/common/decorators/permission.decorator';
 import { FilterDto } from '~/common/dtos/filter.dto';
 import { CreateCalendarDto } from './dto/create-calendar.dto';
 import { UpdateCalendarDto } from './dto/update-calendar.dto';
 import { CalendarService } from './calendar.service';
+import { AuthGuard } from '../auth/guards/auth.guard';
 
 @ApiTags('Calendar')
 @ApiBasicAuth('authorization')
@@ -12,10 +13,11 @@ import { CalendarService } from './calendar.service';
 export class CalendarController {
     constructor(private readonly calendarService: CalendarService) {}
 
+    @UseGuards(AuthGuard)
     @Permission('calendar:create')
     @Post()
-    create(@Body() createCalendarDto: CreateCalendarDto) {
-        return this.calendarService.create(createCalendarDto);
+    create(@Req() req, @Body() createCalendarDto: CreateCalendarDto) {
+        return this.calendarService.create(createCalendarDto, req.user.id);
     }
 
     @Permission('calendar:findAll')
@@ -32,10 +34,11 @@ export class CalendarController {
         return this.calendarService.findOne(+id);
     }
 
+    @UseGuards(AuthGuard)
     @Permission('calendar:update')
     @Patch(':id')
-    update(@Param('id', ParseIntPipe) id: string, @Body() updateCalendarDto: UpdateCalendarDto) {
-        return this.calendarService.update(+id, updateCalendarDto);
+    update(@Req() req, @Param('id', ParseIntPipe) id: string, @Body() updateCalendarDto: UpdateCalendarDto) {
+        return this.calendarService.update(+id, updateCalendarDto, req.user.id);
     }
 
     @Permission('calendar:remove')

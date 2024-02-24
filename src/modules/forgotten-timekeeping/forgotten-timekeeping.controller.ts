@@ -1,4 +1,18 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, UploadedFiles, UseInterceptors } from '@nestjs/common';
+import {
+    Body,
+    Controller,
+    Delete,
+    Get,
+    Param,
+    ParseIntPipe,
+    Patch,
+    Post,
+    Query,
+    Req,
+    UploadedFiles,
+    UseGuards,
+    UseInterceptors,
+} from '@nestjs/common';
 import { ApiBasicAuth, ApiConsumes, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Permission } from '~/common/decorators/permission.decorator';
 import { FilterDto } from '~/common/dtos/filter.dto';
@@ -7,6 +21,7 @@ import { UpdateForgottenTimekeepingDto } from './dto/update-forgotten-timekeepin
 import { ForgottenTimekeepingService } from './forgotten-timekeeping.service';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { multerOptions } from '~/config/fileUpload.config';
+import { AuthGuard } from '../auth/guards/auth.guard';
 
 @ApiTags('ForgottenTimekeeping')
 @ApiBasicAuth('authorization')
@@ -14,12 +29,13 @@ import { multerOptions } from '~/config/fileUpload.config';
 export class ForgottenTimekeepingController {
     constructor(private readonly forgottenTimekeepingService: ForgottenTimekeepingService) {}
 
+    @UseGuards(AuthGuard)
     @ApiConsumes('multipart/form-data')
     @Permission('forgottenTimekeeping:create')
     @Post()
     @UseInterceptors(FilesInterceptor('supportingDocuments', 10, multerOptions()))
-    create(@UploadedFiles() files: Array<Express.Multer.File>, @Body() createForgottenTimekeepingDto: CreateForgottenTimekeepingDto) {
-        return this.forgottenTimekeepingService.create(createForgottenTimekeepingDto, files);
+    create(@Req() req, @UploadedFiles() files: Array<Express.Multer.File>, @Body() createForgottenTimekeepingDto: CreateForgottenTimekeepingDto) {
+        return this.forgottenTimekeepingService.create(createForgottenTimekeepingDto, files, req.user.id);
     }
 
     @Permission('forgottenTimekeeping:findAll')
@@ -35,16 +51,18 @@ export class ForgottenTimekeepingController {
         return this.forgottenTimekeepingService.findOne(+id);
     }
 
+    @UseGuards(AuthGuard)
     @ApiConsumes('multipart/form-data')
     @Permission('forgottenTimekeeping:update')
     @Patch(':id')
     @UseInterceptors(FilesInterceptor('supportingDocuments', 10, multerOptions()))
     update(
+        @Req() req,
         @Param('id', ParseIntPipe) id: string,
         @UploadedFiles() files: Array<Express.Multer.File>,
         @Body() updateForgottenTimekeepingDto: UpdateForgottenTimekeepingDto,
     ) {
-        return this.forgottenTimekeepingService.update(+id, updateForgottenTimekeepingDto, files);
+        return this.forgottenTimekeepingService.update(+id, updateForgottenTimekeepingDto, files, req.user.id);
     }
 
     @Permission('forgottenTimekeeping:remove')
@@ -52,7 +70,4 @@ export class ForgottenTimekeepingController {
     remove(@Param('id', ParseIntPipe) id: string) {
         return this.forgottenTimekeepingService.remove(+id);
     }
-}
-function checkMimeTypeCallback(file: any, cb: any) {
-    throw new Error('Function not implemented.');
 }

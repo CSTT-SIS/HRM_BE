@@ -9,12 +9,12 @@ import { FilterDto } from '~/common/dtos/filter.dto';
 export class CalendarService {
     constructor(private readonly utilService: UtilService, private readonly database: DatabaseService) {}
 
-    create(createCalendarDto: CreateCalendarDto) {
-        return this.database.calendar.save(this.database.calendar.create(createCalendarDto));
+    create(createCalendarDto: CreateCalendarDto, userId: number) {
+        return this.database.calendar.save(this.database.calendar.create({ ...createCalendarDto, createdBy: userId }));
     }
 
-    createByUserLogin(createCalendarDto: CreateCalendarDto) {
-        return this.database.calendar.save(this.database.calendar.create(createCalendarDto));
+    createByUserLogin(createCalendarDto: CreateCalendarDto, userId: number) {
+        return this.database.calendar.save(this.database.calendar.create({ ...createCalendarDto, createdBy: userId }));
     }
 
     async findAll(queries: FilterDto & { departmentId: string }) {
@@ -44,8 +44,8 @@ export class CalendarService {
         return builder.getOne();
     }
 
-    update(id: number, updateCalendarDto: UpdateCalendarDto) {
-        return this.database.calendar.update(id, updateCalendarDto);
+    update(id: number, updateCalendarDto: UpdateCalendarDto, userId: number) {
+        return this.database.calendar.update(id, { ...updateCalendarDto, updatedBy: userId });
     }
 
     remove(id: number) {
