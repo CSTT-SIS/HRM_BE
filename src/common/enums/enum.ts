@@ -136,11 +136,6 @@ export enum HUMAN_DASHBOARD_TYPE {
     BY_MONTH = 'BY_MONTH',
 }
 
-export enum STAFF_STATUS {
-    ACTIVE = 1,
-    INACTIVE = 0,
-}
-
 export enum CALENDAR_TYPE {
     GENERAL = 1,
     // ----

@@ -1,7 +1,7 @@
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
 import { OVERTIME_REQUEST_STATUS } from '~/common/enums/enum';
 import { AbstractEntity } from './abstract.entity';
-import { StaffEntity } from './staff.entity';
+import { UserEntity } from './user.entity';
 
 @Entity({ name: 'overtime_requests' })
 export class OvertimeRequestEntity extends AbstractEntity {
@@ -41,21 +41,21 @@ export class OvertimeRequestEntity extends AbstractEntity {
     @Column({ name: 'comments', type: 'varchar', length: 1000, nullable: true })
     comments: string;
 
-    @Column({ name: 'staff_id', type: 'int', unsigned: true, nullable: true })
-    staffId: number;
+    @Column({ name: 'user_id', type: 'int', unsigned: true, nullable: true })
+    userId: number;
 
     /* RELATION */
-    @ManyToOne(() => StaffEntity, (entity: StaffEntity) => entity.overtimeRequests, {
+    @ManyToOne(() => UserEntity, (entity: UserEntity) => entity.overtimeRequests, {
         nullable: true,
         createForeignKeyConstraints: false,
     })
-    @JoinColumn({ name: 'staff_id', referencedColumnName: 'id' })
-    staff: Relation<StaffEntity>;
+    @JoinColumn({ name: 'user_id', referencedColumnName: 'id' })
+    user: Relation<UserEntity>;
 
-    @ManyToOne(() => StaffEntity, (entity: StaffEntity) => entity.approvedOvertimeRequests, {
+    @ManyToOne(() => UserEntity, (entity: UserEntity) => entity.approvedOvertimeRequests, {
         nullable: true,
         createForeignKeyConstraints: false,
     })
     @JoinColumn({ name: 'approver_id', referencedColumnName: 'id' })
-    approver: Relation<StaffEntity>;
+    approver: Relation<UserEntity>;
 }

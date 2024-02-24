@@ -1,7 +1,7 @@
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
 import { FORGOTTEN_TIMEKEEPING_REQUEST_STATUS } from '~/common/enums/enum';
 import { AbstractEntity } from './abstract.entity';
-import { StaffEntity } from './staff.entity';
+import { UserEntity } from './user.entity';
 
 @Entity({ name: 'forgotten_timekeeping_requests' })
 export class ForgottenTimekeepingRequestEntity extends AbstractEntity {
@@ -32,21 +32,21 @@ export class ForgottenTimekeepingRequestEntity extends AbstractEntity {
     @Column({ name: 'comments', type: 'varchar', length: 1000, nullable: true })
     comments: string;
 
-    @Column({ name: 'staff_id', type: 'int', unsigned: true, nullable: true })
-    staffId: number;
+    @Column({ name: 'user_id', type: 'int', unsigned: true, nullable: true })
+    userId: number;
 
     /* RELATION */
-    @ManyToOne(() => StaffEntity, (entity: StaffEntity) => entity.forgottenTimekeepingRequests, {
+    @ManyToOne(() => UserEntity, (entity: UserEntity) => entity.forgottenTimekeepingRequests, {
         nullable: true,
         createForeignKeyConstraints: false,
     })
-    @JoinColumn({ name: 'staff_id', referencedColumnName: 'id' })
-    staff: Relation<StaffEntity>;
+    @JoinColumn({ name: 'user_id', referencedColumnName: 'id' })
+    user: Relation<UserEntity>;
 
-    @ManyToOne(() => StaffEntity, (entity: StaffEntity) => entity.approvedForgottenTimekeepingRequests, {
+    @ManyToOne(() => UserEntity, (entity: UserEntity) => entity.approvedForgottenTimekeepingRequests, {
         nullable: true,
         createForeignKeyConstraints: false,
     })
     @JoinColumn({ name: 'approver_id', referencedColumnName: 'id' })
-    approver: Relation<StaffEntity>;
+    approver: Relation<UserEntity>;
 }

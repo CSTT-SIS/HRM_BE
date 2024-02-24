@@ -10,12 +10,12 @@ import { HUMAN_DASHBOARD_TYPE } from '~/common/enums/enum';
 export class HumanService {
     constructor(private readonly utilService: UtilService, private readonly database: DatabaseService) {}
 
-    create(file: Express.Multer.File, createHumanDto: CreateHumanDto) {
-        return this.database.staff.save(this.database.staff.create({ ...createHumanDto, avatar: file ? file.filename : '' }));
+    create(createHumanDto: CreateHumanDto) {
+        return this.database.user.save(this.database.user.create(createHumanDto));
     }
 
     async findAll(queries: FilterDto) {
-        const { builder, take, pagination } = this.utilService.getQueryBuilderAndPagination(this.database.staff, queries);
+        const { builder, take, pagination } = this.utilService.getQueryBuilderAndPagination(this.database.user, queries);
 
         // change to `rawQuerySearch` if entity don't have fulltext indices
         builder.andWhere(this.utilService.rawQuerySearch({ fields: ['fullName'], keyword: queries.search }));
@@ -35,30 +35,30 @@ export class HumanService {
     }
 
     findOne(id: number) {
-        const builder = this.database.staff.createQueryBuilder('entity');
+        const builder = this.database.user.createQueryBuilder('entity');
         builder.where({ id });
         return builder.getOne();
     }
 
-    update(id: number, file: Express.Multer.File, updateHumanDto: UpdateHumanDto) {
-        return this.database.staff.update(id, { ...updateHumanDto, avatar: file ? file.filename : '' });
+    update(id: number, updateHumanDto: UpdateHumanDto) {
+        return this.database.user.update(id, updateHumanDto);
     }
 
     remove(id: number) {
-        return this.database.staff.delete(id);
+        return this.database.user.delete(id);
     }
 
     async dashboard(queries: FilterDto, type: string) {
         if (type === HUMAN_DASHBOARD_TYPE.SEX) {
-            return this.database.staff.getStatisBySex();
+            return this.database.user.getStatisBySex();
         }
 
         if (type === HUMAN_DASHBOARD_TYPE.SENIORITY) {
-            return this.database.staff.getStatisBySeniority();
+            return this.database.user.getStatisBySeniority();
         }
 
         if (type === HUMAN_DASHBOARD_TYPE.BY_MONTH) {
-            return this.database.staff.getStatisByMonth();
+            return this.database.user.getStatisByMonth();
         }
 
         throw new BadRequestException('Loại thống kê không hợp lệ!');

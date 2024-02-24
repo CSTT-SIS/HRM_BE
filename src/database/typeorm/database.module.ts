@@ -42,8 +42,7 @@ import { RewardEntity } from '~/database/typeorm/entities/reward.entity';
 import { RoleEntity } from '~/database/typeorm/entities/role.entity';
 import { SendDocumentEntity } from '~/database/typeorm/entities/sendDocument.entity';
 import { ShiftEntity } from '~/database/typeorm/entities/shift.entity';
-import { StaffEntity } from '~/database/typeorm/entities/staff.entity';
-import { StaffShiftEntity } from '~/database/typeorm/entities/staffShift.entity';
+import { UserShiftEntity } from '~/database/typeorm/entities/userShift.entity';
 import { StocktakeEntity } from '~/database/typeorm/entities/stocktake.entity';
 import { StocktakeDetailEntity } from '~/database/typeorm/entities/stocktakeDetail.entity';
 import { TaskEntity } from '~/database/typeorm/entities/task.entity';
@@ -89,11 +88,11 @@ import { VehicleRepository } from '~/database/typeorm/repositories/vehicle.repos
 import { WarehouseRepository } from '~/database/typeorm/repositories/warehouse.repository';
 import { WarehousingBillRepository } from '~/database/typeorm/repositories/warehousingBill.repository';
 import { WarehousingBillDetailRepository } from '~/database/typeorm/repositories/warehousingBillDetail.repository';
-import { StaffRepository } from '~/database/typeorm/repositories/staff.repository';
 import { CalendarRepository } from '~/database/typeorm/repositories/calendar.repository';
 import { EmployeeLeaveRequestRepository } from '~/database/typeorm/repositories/employeeLeaveRequest.repository';
 import { ForgottenTimekeepingRequestRepository } from '~/database/typeorm/repositories/forgottenTimekeepingRequest.repository';
 import { OvertimeRequestRepository } from '~/database/typeorm/repositories/overtimeRequest.repository';
+import { TimeAttendanceRepository } from '~/database/typeorm/repositories/timeAttendance.repository';
 
 const entities = [
     RoleEntity,
@@ -129,14 +128,12 @@ const entities = [
     RepairProgressEntity,
     NotificationEntity,
     NotificationDetailEntity,
-    StaffEntity,
     DepartmentEntity,
     CalendarEntity,
     ContractEntity,
     PositionEntity,
     LeaveApplicationEntity,
     ShiftEntity,
-    StaffShiftEntity,
     DisciplineEntity,
     ResignationFormEntity,
     EmployeeLeaveRequestEntity,
@@ -150,9 +147,8 @@ const entities = [
     DocumentEntity,
     SendDocumentEntity,
     TextEmbryoEntity,
-    StaffEntity,
-];
-
+    UserShiftEntity,
+];
 const repositories = [
     DepartmentRepository,
     UserRepository,
@@ -187,11 +183,11 @@ const repositories = [
     RepairProgressRepository,
     NotificationRepository,
     NotificationDetailRepository,
-    StaffRepository,
     CalendarRepository,
     EmployeeLeaveRequestRepository,
     ForgottenTimekeepingRequestRepository,
     OvertimeRequestRepository,
+    TimeAttendanceRepository,
 ];
 
 @Global()

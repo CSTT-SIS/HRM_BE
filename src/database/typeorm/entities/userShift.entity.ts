@@ -1,28 +1,28 @@
 import { Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
 import { AbstractEntity } from './abstract.entity';
-import { StaffEntity } from './staff.entity';
+import { UserEntity } from './user.entity';
 import { ShiftEntity } from './shift.entity';
 
-@Entity({ name: 'staff_shifts' })
-export class StaffShiftEntity extends AbstractEntity {
+@Entity({ name: 'user_shifts' })
+export class UserShiftEntity extends AbstractEntity {
     @PrimaryGeneratedColumn('increment', { name: 'id', type: 'int', unsigned: true })
     id: number;
 
-    @Column({ name: 'staff_id', type: 'int', unsigned: true, nullable: true })
-    staffId: number;
+    @Column({ name: 'user_id', type: 'int', unsigned: true, nullable: true })
+    userId: number;
 
     @Column({ name: 'shift_id', type: 'int', unsigned: true, nullable: true })
     shiftId: number;
 
     /* RELATION */
-    @ManyToOne(() => StaffEntity, (entity: StaffEntity) => entity.staffShifts, {
+    @ManyToOne(() => UserEntity, (entity: UserEntity) => entity.userShifts, {
         nullable: true,
         createForeignKeyConstraints: false,
     })
-    @JoinColumn({ name: 'staff_id', referencedColumnName: 'id' })
-    staff: Relation<StaffEntity>;
+    @JoinColumn({ name: 'user_id', referencedColumnName: 'id' })
+    user: Relation<UserEntity>;
 
-    @ManyToOne(() => ShiftEntity, (entity: ShiftEntity) => entity.staffShifts, {
+    @ManyToOne(() => ShiftEntity, (entity: ShiftEntity) => entity.userShifts, {
         nullable: true,
         createForeignKeyConstraints: false,
     })

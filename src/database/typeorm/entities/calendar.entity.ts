@@ -2,7 +2,7 @@ import { Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, OneToOne, Prim
 import { AbstractEntity } from './abstract.entity';
 import { CALENDAR_TYPE } from '~/common/enums/enum';
 import { DepartmentEntity } from '~/database/typeorm/entities/department.entity';
-import { StaffEntity } from './staff.entity';
+import { UserEntity } from './user.entity';
 
 @Entity({ name: 'calendars' })
 export class CalendarEntity extends AbstractEntity {
@@ -32,10 +32,10 @@ export class CalendarEntity extends AbstractEntity {
     @JoinColumn({ name: 'department_id', referencedColumnName: 'id' })
     department: Relation<DepartmentEntity>;
 
-    @ManyToOne(() => StaffEntity, (entity: StaffEntity) => entity.calendars, {
+    @ManyToOne(() => UserEntity, (entity: UserEntity) => entity.calendars, {
         nullable: true,
         createForeignKeyConstraints: false,
     })
-    @JoinColumn({ name: 'staff_id', referencedColumnName: 'id' })
-    staff: Relation<DepartmentEntity>;
+    @JoinColumn({ name: 'userId', referencedColumnName: 'id' })
+    user: Relation<UserEntity>;
 }

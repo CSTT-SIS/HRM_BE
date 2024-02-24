@@ -13,9 +13,9 @@ export class CreateHumanDto {
     @Length(1, 255, { message: 'Tên phải từ 1-255 ký tự' })
     fullName: string;
 
-    @ApiProperty({ type: 'string', format: 'binary', description: 'Ảnh đại diện', required: false })
-    @IsOptional()
-    avatar: Express.Multer.File;
+    // @ApiProperty({ type: 'string', format: 'binary', description: 'Ảnh đại diện', required: false })
+    // @IsOptional()
+    // avatar: Express.Multer.File;
 
     @ApiProperty({ type: 'string', format: 'date', description: 'Ngày sinh', required: false })
     @IsOptional()

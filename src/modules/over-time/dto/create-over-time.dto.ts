@@ -61,8 +61,8 @@ export class CreateOverTimeDto {
     @IsString()
     comments: string;
 
-    @ApiProperty({ type: 'number', description: 'Id nhân viên', required: true })
+    @ApiProperty({ type: 'number', description: 'Id nhân sự', required: true })
     @IsNotEmpty()
-    @IsIdExist({ entity: 'staff' }, { message: 'Id nhân viên không tồn tại' })
-    staffId: number;
+    @IsIdExist({ entity: 'user' }, { message: 'Id nhân sự không tồn tại' })
+    userId: number;
 }

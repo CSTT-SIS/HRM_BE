@@ -50,6 +50,7 @@ import { CalendarModule } from '~/modules/calendar/calendar.module';
 import { LetterModule } from '~/modules/letter/letter.module';
 import { ForgottenTimekeepingModule } from '~/modules/forgotten-timekeeping/forgotten-timekeeping.module';
 import { OverTimeModule } from '~/modules/over-time/over-time.module';
+import { TimeKeepingModule } from '~/modules/time-keeping/time-keeping.module';
 
 @Module({
     imports: [
@@ -103,6 +104,7 @@ import { OverTimeModule } from '~/modules/over-time/over-time.module';
         LetterModule,
         ForgottenTimekeepingModule,
         OverTimeModule,
+        TimeKeepingModule,
     ],
     controllers: [AppController],
     providers: [
