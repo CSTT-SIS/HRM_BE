@@ -30,6 +30,6 @@ export class CreateCalendarDto {
 
     @ApiProperty({ type: 'number', description: 'Id nhân viên', required: false })
     @IsOptional()
-    @IsIdExist({ entity: 'staff' }, { message: 'Id nhân viên không tồn tại' })
-    staffId: number;
+    @IsIdExist({ entity: 'user' }, { message: 'Id nhân viên không tồn tại' })
+    userId: number;
 }

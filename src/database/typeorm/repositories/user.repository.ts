@@ -48,13 +48,13 @@ export class UserRepository extends Repository<UserEntity> {
         const result = this.query(`
             SELECT b.time1 AS seniority, 
             COUNT(*) AS quantity 
-            FROM (SELECT a.staff_id, 
+            FROM (SELECT a.user_id, 
                 SUM(total_time) AS time1 
-                FROM (SELECT contracts.staff_id, 
+                FROM (SELECT contracts.user_id, 
                     IFNULL(YEAR(contracts.end_day) - YEAR(contracts.start_day), 
                     YEAR(CURDATE()) - YEAR(contracts.start_day)) AS total_time 
                     FROM contracts) AS a 
-                    GROUP BY a.staff_id) AS b 
+                    GROUP BY a.user_id) AS b 
                     GROUP BY b.time1;
         `);
 

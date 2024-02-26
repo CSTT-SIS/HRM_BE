@@ -26,7 +26,7 @@ export class CreateLetterDto {
 
     @ApiProperty({ type: 'number', description: 'Id người duyệt đơn', required: false })
     @IsOptional()
-    @IsIdExist({ entity: 'staff' }, { message: 'Id người duyệt đơn không tồn tại' })
+    @IsIdExist({ entity: 'user' }, { message: 'Id người duyệt đơn không tồn tại' })
     approverId: number;
 
     @ApiProperty({ type: 'string', format: 'date', description: 'Ngày duyệt', required: false })
@@ -41,6 +41,6 @@ export class CreateLetterDto {
 
     @ApiProperty({ type: 'number', description: 'Id nhân viên', required: false })
     @IsOptional()
-    @IsIdExist({ entity: 'staff' }, { message: 'Id nhân viên không tồn tại' })
-    staffId: number;
+    @IsIdExist({ entity: 'user' }, { message: 'Id nhân viên không tồn tại' })
+    userId: number;
 }

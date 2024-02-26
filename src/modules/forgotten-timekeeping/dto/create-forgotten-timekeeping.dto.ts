@@ -47,11 +47,11 @@ export class CreateForgottenTimekeepingDto {
 
     @ApiProperty({ type: 'number', description: 'Id người duyệt', required: false })
     @IsOptional()
-    @IsIdExist({ entity: 'staff' }, { message: 'Id người duyệt không tồn tại' })
+    @IsIdExist({ entity: 'user' }, { message: 'Id người duyệt không tồn tại' })
     approverId: number;
 
     @ApiProperty({ type: 'number', description: 'Id nhân viên yêu cầu', required: false })
     @IsOptional()
-    @IsIdExist({ entity: 'staff' }, { message: 'Id nhân viên không tồn tại' })
-    staffId: number;
+    @IsIdExist({ entity: 'user' }, { message: 'Id nhân viên không tồn tại' })
+    userId: number;
 }
