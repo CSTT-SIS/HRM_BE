@@ -21,6 +21,9 @@ export class CalendarEntity extends AbstractEntity {
     @Column({ type: 'enum', enum: CALENDAR_TYPE, default: CALENDAR_TYPE.GENERAL })
     type: CALENDAR_TYPE;
 
+    @Column({ name: 'user_id', type: 'int', unsigned: true, nullable: true })
+    userId: number;
+
     @Column({ name: 'department_id', type: 'int', unsigned: true, nullable: true })
     departmentId: number;
 

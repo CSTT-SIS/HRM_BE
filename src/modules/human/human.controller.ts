@@ -48,6 +48,13 @@ export class HumanController {
         return this.humanService.dashboard(queries, type);
     }
 
+    @UseGuards(AuthGuard)
+    @Permission('calendar:findAll')
+    @Get('calendar')
+    findAllCalendarByUserLogin(@Req() req, @Query() queries) {
+        return this.calendarService.findAllByUserLogin({ ...queries, userId: req.user.id });
+    }
+
     @Permission('human:findOne')
     @Get(':id')
     findOne(@Param('id', ParseIntPipe) id: string) {
@@ -67,13 +74,6 @@ export class HumanController {
     @Delete(':id')
     remove(@Param('id', ParseIntPipe) id: string) {
         return this.humanService.remove(+id);
-    }
-
-    @UseGuards(AuthGuard)
-    @Permission('calendar:findAll')
-    @Get('calendar')
-    findAllCalendarByUserLogin(@Req() req, @Query() queries) {
-        return this.calendarService.findAllByUserLogin({ ...queries, userId: req.user.id });
     }
 
     // @UseGuards(AuthGuard)
