@@ -70,16 +70,16 @@ export class HumanController {
     }
 
     @UseGuards(AuthGuard)
-    @Permission('calendar:create')
-    @Post('calendar')
-    createCalendar(@Req() req, @Body() createCalendarDto: CreateCalendarDto) {
-        return this.calendarService.create(createCalendarDto, req.user.id);
+    @Permission('calendar:findAll')
+    @Get('calendar')
+    findAllCalendarByUserLogin(@Req() req, @Query() queries) {
+        return this.calendarService.findAllByUserLogin({ ...queries, userId: req.user.id });
     }
 
-    @UseGuards(AuthGuard)
-    @Permission('calendar:create')
-    @Patch('calendar/:id')
-    updateCalendar(@Req() req, @Param('id', ParseIntPipe) id: string, @Body() updateCalendarDto: UpdateCalendarDto) {
-        return this.calendarService.update(+id, updateCalendarDto, req.user.id);
-    }
+    // @UseGuards(AuthGuard)
+    // @Permission('calendar:update')
+    // @Patch('calendar/:id')
+    // updateCalendar(@Req() req, @Param('id', ParseIntPipe) id: string, @Body() updateCalendarDto: UpdateCalendarDto) {
+    //     return this.calendarService.update(+id, updateCalendarDto, req.user.id);
+    // }
 }
