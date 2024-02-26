@@ -32,10 +32,10 @@ export class UserRepository extends Repository<UserEntity> {
 
     async getStatisBySex() {
         const result = this.query(`
-            SELECT s.sex AS sex,
+            SELECT u.sex AS sex,
             COUNT(*) AS quantity
-            FROM staffs s
-            GROUP BY s.sex 
+            FROM user u
+            GROUP BY u.sex 
         `);
 
         return (await result).map((item) => ({

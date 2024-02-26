@@ -52,6 +52,7 @@ import { ForgottenTimekeepingModule } from '~/modules/forgotten-timekeeping/forg
 import { OverTimeModule } from '~/modules/over-time/over-time.module';
 import { TimeKeepingModule } from '~/modules/time-keeping/time-keeping.module';
 import { TaskModule } from '~/modules/task/task.module';
+import { FreeTimekeepingModule } from '~/modules/free-timekeeping/free-timekeeping.module';
 
 @Module({
     imports: [
@@ -107,6 +108,7 @@ import { TaskModule } from '~/modules/task/task.module';
         OverTimeModule,
         TimeKeepingModule,
         TaskModule,
+        FreeTimekeepingModule,
     ],
     controllers: [AppController],
     providers: [

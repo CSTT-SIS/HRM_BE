@@ -41,6 +41,7 @@ import { ForgottenTimekeepingRequestRepository } from '~/database/typeorm/reposi
 import { OvertimeRequestRepository } from '~/database/typeorm/repositories/overtimeRequest.repository';
 import { TimeAttendanceRepository } from '~/database/typeorm/repositories/timeAttendance.repository';
 import { TaskRepository } from '~/database/typeorm/repositories/task.repository';
+import { FreeTimekeepingRepository } from '~/database/typeorm/repositories/freeTimekeeping.repository';
 
 @Injectable()
 export class DatabaseService {
@@ -86,6 +87,7 @@ export class DatabaseService {
         public readonly overtimeRequest: OvertimeRequestRepository,
         public readonly timeAttendance: TimeAttendanceRepository,
         public readonly task: TaskRepository,
+        public readonly freeTimekeeping: FreeTimekeepingRepository,
     ) {
         // load all departments to cache
         // this.loadDepartmentsToCache();

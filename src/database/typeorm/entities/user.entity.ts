@@ -21,6 +21,7 @@ import { TaskEntity } from './task.entity';
 import { RewardEntity } from './reward.entity';
 import { UserShiftEntity } from './userShift.entity';
 import { CalendarEntity } from './calendar.entity';
+import { FreeTimekeepingEntity } from './freeTimekeeping.entity';
 
 @Entity({ name: 'users' })
 export class UserEntity extends AbstractEntity {
@@ -43,6 +44,10 @@ export class UserEntity extends AbstractEntity {
     @Index('IDX_USER_EMAIL', { fulltext: true })
     @Column({ name: 'email', type: 'varchar', length: 255, nullable: true, unique: true })
     email: string;
+
+    //1: Nam, 2: Nữ
+    @Column({ name: 'sex', type: 'int', nullable: true })
+    sex: number;
 
     @Column({ name: 'area_code', type: 'varchar', length: 5, nullable: true })
     areaCode: string;
@@ -237,4 +242,10 @@ export class UserEntity extends AbstractEntity {
         createForeignKeyConstraints: false,
     })
     calendars: Relation<CalendarEntity>[];
+
+    @OneToMany(() => FreeTimekeepingEntity, (entity: FreeTimekeepingEntity) => entity.user, {
+        nullable: true,
+        createForeignKeyConstraints: false,
+    })
+    freeTimekeepings: Relation<FreeTimekeepingEntity>[];
 }

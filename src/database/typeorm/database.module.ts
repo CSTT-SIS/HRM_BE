@@ -94,6 +94,8 @@ import { ForgottenTimekeepingRequestRepository } from '~/database/typeorm/reposi
 import { OvertimeRequestRepository } from '~/database/typeorm/repositories/overtimeRequest.repository';
 import { TimeAttendanceRepository } from '~/database/typeorm/repositories/timeAttendance.repository';
 import { TaskRepository } from '~/database/typeorm/repositories/task.repository';
+import { FreeTimekeepingRepository } from '~/database/typeorm/repositories/freeTimekeeping.repository';
+import { FreeTimekeepingEntity } from '~/database/typeorm/entities/freeTimekeeping.entity';
 
 const entities = [
     RoleEntity,
@@ -149,6 +151,7 @@ const entities = [
     SendDocumentEntity,
     TextEmbryoEntity,
     UserShiftEntity,
+    FreeTimekeepingEntity,
 ];
 const repositories = [
     DepartmentRepository,
@@ -190,6 +193,7 @@ const repositories = [
     OvertimeRequestRepository,
     TimeAttendanceRepository,
     TaskRepository,
+    FreeTimekeepingRepository,
 ];
 
 @Global()
