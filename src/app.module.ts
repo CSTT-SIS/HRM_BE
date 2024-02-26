@@ -160,9 +160,9 @@ export class AppModule implements OnModuleInit {
 
     async insertPermissions() {
         const permissions = await this.discover.controllerMethodsWithMetaAtKey<string>('permission');
-        permissions.forEach((permission) => {
+        for (const permission of permissions) {
             const action = permission.meta[0] || permission.meta;
-            if ([BYPASS_PERMISSION, ONLY_ADMIN].includes(action)) return;
+            if ([BYPASS_PERMISSION, ONLY_ADMIN].includes(action)) continue;
 
             const permissionEntity = this.permissionRepositopry.create({
                 name:
@@ -183,6 +183,6 @@ export class AppModule implements OnModuleInit {
                         .catch((err) => {});
                 }
             });
-        });
+        }
     }
 }

@@ -34,7 +34,7 @@ export class UserRepository extends Repository<UserEntity> {
         const result = this.query(`
             SELECT u.sex AS sex,
             COUNT(*) AS quantity
-            FROM user u
+            FROM users u
             GROUP BY u.sex 
         `);
 
