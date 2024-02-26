@@ -19,7 +19,9 @@ import token from '~/config/token.config';
 import { DatabaseModule } from '~/database/typeorm';
 import { PermissionRepository } from '~/database/typeorm/repositories/permission.repository';
 import { AuthModule } from '~/modules/auth/auth.module';
+import { CalendarModule } from '~/modules/calendar/calendar.module';
 import { DropdownModule } from '~/modules/dropdown/dropdown.module';
+import { HumanModule } from '~/modules/human/human.module';
 import { MailModule } from '~/modules/mail/mail.module';
 import { MediaModule } from '~/modules/media/media.module';
 import { NotificationModule } from '~/modules/notification/notification.module';
@@ -45,8 +47,6 @@ import { ProviderModule } from './modules/provider/provider.module';
 import { UnitModule } from './modules/unit/unit.module';
 import { UserModule } from './modules/user/user.module';
 import { WarehouseModule } from './modules/warehouse/warehouse.module';
-import { HumanModule } from '~/modules/human/human.module';
-import { CalendarModule } from '~/modules/calendar/calendar.module';
 
 @Module({
     imports: [
@@ -148,9 +148,9 @@ export class AppModule implements OnModuleInit {
 
     async insertPermissions() {
         const permissions = await this.discover.controllerMethodsWithMetaAtKey<string>('permission');
-        permissions.forEach((permission) => {
+        for (const permission of permissions) {
             const action = permission.meta[0] || permission.meta;
-            if ([BYPASS_PERMISSION, ONLY_ADMIN].includes(action)) return;
+            if ([BYPASS_PERMISSION, ONLY_ADMIN].includes(action)) continue;
 
             const permissionEntity = this.permissionRepositopry.create({
                 name:
@@ -171,6 +171,6 @@ export class AppModule implements OnModuleInit {
                         .catch((err) => {});
                 }
             });
-        });
+        }
     }
 }
