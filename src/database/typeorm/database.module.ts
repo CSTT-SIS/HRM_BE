@@ -31,7 +31,6 @@ import { ProductCategoryEntity } from '~/database/typeorm/entities/productCatego
 import { ProductMetaEntity } from '~/database/typeorm/entities/productMeta.entity';
 import { ProposalEntity } from '~/database/typeorm/entities/proposal.entity';
 import { ProposalDetailEntity } from '~/database/typeorm/entities/proposalDetail.entity';
-import { ProviderEntity } from '~/database/typeorm/entities/provider.entity';
 import { QuantityLimitEntity } from '~/database/typeorm/entities/quantityLimit.entity';
 import { ReceiptEntity } from '~/database/typeorm/entities/receipt.entity';
 import { RepairDetailEntity } from '~/database/typeorm/entities/repairDetail.entity';
@@ -42,7 +41,6 @@ import { RewardEntity } from '~/database/typeorm/entities/reward.entity';
 import { RoleEntity } from '~/database/typeorm/entities/role.entity';
 import { SendDocumentEntity } from '~/database/typeorm/entities/sendDocument.entity';
 import { ShiftEntity } from '~/database/typeorm/entities/shift.entity';
-import { UserShiftEntity } from '~/database/typeorm/entities/userShift.entity';
 import { StocktakeEntity } from '~/database/typeorm/entities/stocktake.entity';
 import { StocktakeDetailEntity } from '~/database/typeorm/entities/stocktakeDetail.entity';
 import { TaskEntity } from '~/database/typeorm/entities/task.entity';
@@ -51,12 +49,14 @@ import { TimeAttendanceEntity } from '~/database/typeorm/entities/timeAttendance
 import { UnitEntity } from '~/database/typeorm/entities/unit.entity';
 import { UserEntity } from '~/database/typeorm/entities/user.entity';
 import { UserLogEntity } from '~/database/typeorm/entities/userLog.entity';
+import { UserShiftEntity } from '~/database/typeorm/entities/userShift.entity';
 import { VehicleEntity } from '~/database/typeorm/entities/vehicle.entity';
 import { WarehouseEntity } from '~/database/typeorm/entities/warehouse.entity';
 import { WarehousingBillEntity } from '~/database/typeorm/entities/warehousingBill.entity';
 import { WarehousingBillDetailEntity } from '~/database/typeorm/entities/warehousingBillDetail.entity';
 import { AccountRepository } from '~/database/typeorm/repositories/account.repository';
 import { ApprovalProcessRepository } from '~/database/typeorm/repositories/approvalProcess.repository';
+import { CalendarRepository } from '~/database/typeorm/repositories/calendar.repository';
 import { DepartmentRepository } from '~/database/typeorm/repositories/department.repository';
 import { InventoryRepository } from '~/database/typeorm/repositories/inventory.repository';
 import { InventoryHistoryRepository } from '~/database/typeorm/repositories/inventoryHistory.repository';
@@ -72,7 +72,6 @@ import { ProductCategoryRepository } from '~/database/typeorm/repositories/produ
 import { ProductMetaRepository } from '~/database/typeorm/repositories/productMeta.repository';
 import { ProposalRepository } from '~/database/typeorm/repositories/proposal.repository';
 import { ProposalDetailRepository } from '~/database/typeorm/repositories/proposalDetail.repository';
-import { ProviderRepository } from '~/database/typeorm/repositories/provider.repository';
 import { QuantityLimitRepository } from '~/database/typeorm/repositories/quantityLimit.repository';
 import { ReceiptRepository } from '~/database/typeorm/repositories/receipt.repository';
 import { RepairDetailRepository } from '~/database/typeorm/repositories/repairDetail.repository';
@@ -88,7 +87,6 @@ import { VehicleRepository } from '~/database/typeorm/repositories/vehicle.repos
 import { WarehouseRepository } from '~/database/typeorm/repositories/warehouse.repository';
 import { WarehousingBillRepository } from '~/database/typeorm/repositories/warehousingBill.repository';
 import { WarehousingBillDetailRepository } from '~/database/typeorm/repositories/warehousingBillDetail.repository';
-import { CalendarRepository } from '~/database/typeorm/repositories/calendar.repository';
 
 const entities = [
     RoleEntity,
@@ -99,7 +97,6 @@ const entities = [
     DepartmentEntity,
     WarehouseEntity,
     UserLogEntity,
-    ProviderEntity,
     ProductEntity,
     ProductCategoryEntity,
     InventoryEntity,
@@ -155,7 +152,6 @@ const repositories = [
     RoleRepository,
     WarehouseRepository,
     UserLogRepository,
-    ProviderRepository,
     ProductRepository,
     ProductCategoryRepository,
     InventoryRepository,

@@ -3,7 +3,6 @@ import { ORDER_STATUS } from '~/common/enums/enum';
 import { OrderItemEntity } from '~/database/typeorm/entities/orderItem.entity';
 import { OrderProgressTrackingEntity } from '~/database/typeorm/entities/orderProgressTracking.entity';
 import { ProposalEntity } from '~/database/typeorm/entities/proposal.entity';
-import { ProviderEntity } from '~/database/typeorm/entities/provider.entity';
 import { UserEntity } from '~/database/typeorm/entities/user.entity';
 import { AbstractEntity } from './abstract.entity';
 
@@ -14,9 +13,6 @@ export class OrderEntity extends AbstractEntity {
 
     @Column({ name: 'proposal_id', type: 'int', unsigned: true, nullable: true })
     proposalId: number;
-
-    @Column({ name: 'provider_id', type: 'int', unsigned: true, nullable: true })
-    providerId: number;
 
     @Index('IDX_ORDER_NAME', { fulltext: true })
     @Column({ name: 'name', type: 'varchar', length: 255, nullable: true })
@@ -35,6 +31,9 @@ export class OrderEntity extends AbstractEntity {
     @Column({ name: 'estimated_delivery_date', type: 'datetime', nullable: true })
     estimatedDeliveryDate: Date;
 
+    @Column({ name: 'provider', type: 'text', nullable: true }) // 'internal' | 'external
+    provider: string;
+
     @Column({ name: 'created_by_id', type: 'int', unsigned: true, nullable: true })
     createdById: number;
 
@@ -45,10 +44,6 @@ export class OrderEntity extends AbstractEntity {
     @ManyToOne(() => ProposalEntity, { createForeignKeyConstraints: false })
     @JoinColumn({ name: 'proposal_id', referencedColumnName: 'id' })
     proposal: Relation<ProposalEntity>;
-
-    @ManyToOne(() => ProviderEntity, { createForeignKeyConstraints: false })
-    @JoinColumn({ name: 'provider_id', referencedColumnName: 'id' })
-    provider: Relation<ProviderEntity>;
 
     @ManyToOne(() => UserEntity, { createForeignKeyConstraints: false })
     @JoinColumn({ name: 'created_by_id', referencedColumnName: 'id' })

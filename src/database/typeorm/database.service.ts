@@ -3,6 +3,7 @@ import { DataSource } from 'typeorm';
 import { CACHE_TIME } from '~/common/enums/enum';
 import { AccountRepository } from '~/database/typeorm/repositories/account.repository';
 import { ApprovalProcessRepository } from '~/database/typeorm/repositories/approvalProcess.repository';
+import { CalendarRepository } from '~/database/typeorm/repositories/calendar.repository';
 import { DepartmentRepository } from '~/database/typeorm/repositories/department.repository';
 import { InventoryRepository } from '~/database/typeorm/repositories/inventory.repository';
 import { InventoryHistoryRepository } from '~/database/typeorm/repositories/inventoryHistory.repository';
@@ -18,7 +19,6 @@ import { ProductCategoryRepository } from '~/database/typeorm/repositories/produ
 import { ProductMetaRepository } from '~/database/typeorm/repositories/productMeta.repository';
 import { ProposalRepository } from '~/database/typeorm/repositories/proposal.repository';
 import { ProposalDetailRepository } from '~/database/typeorm/repositories/proposalDetail.repository';
-import { ProviderRepository } from '~/database/typeorm/repositories/provider.repository';
 import { QuantityLimitRepository } from '~/database/typeorm/repositories/quantityLimit.repository';
 import { ReceiptRepository } from '~/database/typeorm/repositories/receipt.repository';
 import { RepairDetailRepository } from '~/database/typeorm/repositories/repairDetail.repository';
@@ -35,7 +35,6 @@ import { WarehouseRepository } from '~/database/typeorm/repositories/warehouse.r
 import { WarehousingBillRepository } from '~/database/typeorm/repositories/warehousingBill.repository';
 import { WarehousingBillDetailRepository } from '~/database/typeorm/repositories/warehousingBillDetail.repository';
 import { CacheService } from '~/shared/services/cache.service';
-import { CalendarRepository } from '~/database/typeorm/repositories/calendar.repository';
 
 @Injectable()
 export class DatabaseService {
@@ -50,7 +49,6 @@ export class DatabaseService {
         public readonly role: RoleRepository,
         public readonly userLog: UserLogRepository,
         public readonly warehouse: WarehouseRepository,
-        public readonly provider: ProviderRepository,
         public readonly product: ProductRepository,
         public readonly productCategory: ProductCategoryRepository,
         public readonly inventory: InventoryRepository,

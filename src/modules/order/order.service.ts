@@ -19,7 +19,7 @@ export class OrderService {
     constructor(private readonly utilService: UtilService, private readonly database: DatabaseService, private eventEmitter: EventEmitter2) {}
 
     async create(createOrderDto: CreateOrderDto) {
-        const proposal = await this.isProposalValid(createOrderDto.proposalId, createOrderDto.providerId, createOrderDto.type);
+        const proposal = await this.isProposalValid(createOrderDto.proposalId, createOrderDto.type);
         const entity = await this.database.order.save(this.database.order.create({ ...createOrderDto, createdById: UserStorage.getId() }));
         this.createOrderDetails(entity.id, proposal.id);
 
@@ -84,7 +84,7 @@ export class OrderService {
 
     async update(id: number, updateOrderDto: UpdateOrderDto) {
         await this.isStatusValid({ id, statuses: [ORDER_STATUS.PENDING] });
-        await this.isProposalValid(updateOrderDto.proposalId, updateOrderDto.providerId, updateOrderDto.type);
+        await this.isProposalValid(updateOrderDto.proposalId, updateOrderDto.type);
         return this.database.order.update(id, updateOrderDto);
     }
 
@@ -153,16 +153,14 @@ export class OrderService {
 
     /**
      * The function `isProposalValid` retrieves a proposal from the database based on the provided proposal
-     * ID, provider ID, and order type, and performs various checks and validations before returning
+     * ID, and order type, and performs various checks and validations before returning
      * the proposal.
      * @param {number} proposalId - The ID of the proposal you want to retrieve.
-     * @param {number} providerId - The `providerId` parameter is the ID of the provider associated
-     * with the proposal.
      * @param {ORDER_TYPE} orderType - The orderType parameter is of type ORDER_TYPE, which is an enum
      * representing different types of orders.
      * @returns a Promise that resolves to a ProposalEntity.
      */
-    private async isProposalValid(proposalId: number, providerId: number, orderType: ORDER_TYPE): Promise<ProposalEntity> {
+    private async isProposalValid(proposalId: number, orderType: ORDER_TYPE): Promise<ProposalEntity> {
         const proposal = await this.database.proposal.findOne({ where: { id: proposalId } });
         if (!proposal) throw new HttpException('Phiếu đề xuất không tồn tại', 400);
         if (proposal.status !== PROPOSAL_STATUS.APPROVED) throw new HttpException('Phiếu đề xuất chưa được duyệt', 400);
@@ -170,7 +168,7 @@ export class OrderService {
         if (orderType !== ORDER_TYPE.PURCHASE && proposal.type !== PROPOSAL_TYPE.PURCHASE)
             throw new HttpException('Loại đơn hàng không phải là đơn hàng mua hàng', 400);
 
-        const count = await this.database.order.count({ where: { proposalId, providerId } });
+        const count = await this.database.order.count({ where: { proposalId } });
         if (count > 0) throw new HttpException('Đơn hàng đã tồn tại', 400);
 
         return proposal;
