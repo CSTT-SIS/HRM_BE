@@ -29,16 +29,15 @@ export class OrderService {
         return entity;
     }
 
-    async findAll(queries: FilterDto & { proposalId: string; providerId: string; status: string }) {
+    async findAll(queries: FilterDto & { proposalId: string; status: string }) {
         const { builder, take, pagination } = this.utilService.getQueryBuilderAndPagination(this.database.order, queries);
 
-        builder.andWhere(this.utilService.getConditionsFromQuery(queries, ['proposalId', 'providerId', 'status']));
+        builder.andWhere(this.utilService.getConditionsFromQuery(queries, ['proposalId', 'status']));
         builder.andWhere(this.utilService.fullTextSearch({ fields: ['name'], keyword: queries.search }));
 
         builder.leftJoinAndSelect('entity.createdBy', 'createdBy');
         builder.leftJoinAndSelect('entity.proposal', 'proposal');
-        builder.leftJoinAndSelect('entity.provider', 'provider');
-        builder.select(['entity', 'createdBy.id', 'createdBy.fullName', 'proposal.id', 'proposal.name', 'provider.id', 'provider.name']);
+        builder.select(['entity', 'createdBy.id', 'createdBy.fullName', 'proposal.id', 'proposal.name']);
 
         const [result, total] = await builder.getManyAndCount();
         const totalPages = Math.ceil(total / take);
@@ -57,7 +56,6 @@ export class OrderService {
         builder.where({ id });
 
         builder.leftJoinAndSelect('order.proposal', 'proposal');
-        builder.leftJoinAndSelect('order.provider', 'provider');
         builder.leftJoinAndSelect('order.createdBy', 'createdBy');
         builder.leftJoinAndSelect('order.updatedBy', 'updatedBy');
         builder.leftJoinAndSelect('order.items', 'items');
@@ -66,8 +64,6 @@ export class OrderService {
             'order',
             'proposal.id',
             'proposal.name',
-            'provider.id',
-            'provider.name',
             'createdBy.id',
             'createdBy.fullName',
             'updatedBy.id',

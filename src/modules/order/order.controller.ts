@@ -24,17 +24,15 @@ export class OrderController {
     @Permission('order:findAll')
     @Get()
     @ApiQuery({ name: 'proposalId', required: false, type: Number })
-    @ApiQuery({ name: 'providerId', required: false, type: Number })
     @ApiQuery({ name: 'status', required: false, enum: ORDER_STATUS })
     findAll(
         @Query() queries: FilterDto,
         @Query('proposalId', new ParseIntPipe({ optional: true })) proposalId: string,
-        @Query('providerId', new ParseIntPipe({ optional: true })) providerId: string,
         @Query('status') status: string,
     ) {
         console.log('queries', queries);
 
-        return this.orderService.findAll({ ...queries, proposalId, providerId, status });
+        return this.orderService.findAll({ ...queries, proposalId, status });
     }
 
     @Permission('order:findOne')

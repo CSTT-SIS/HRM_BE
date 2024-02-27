@@ -50,16 +50,6 @@ export class DropdownService {
         });
     }
 
-    provider(queries: FilterDto) {
-        return this.getDropdown({
-            entity: 'provider',
-            queries,
-            label: 'name',
-            value: 'id',
-            fulltext: true,
-        });
-    }
-
     proposal(queries: FilterDto & { type: PROPOSAL_TYPE; status: PROPOSAL_STATUS }) {
         return this.getDropdown({
             entity: 'proposal',
@@ -86,14 +76,14 @@ export class DropdownService {
         });
     }
 
-    order(queries: FilterDto & { proposalId: string; providerId: string; status: ORDER_STATUS }) {
+    order(queries: FilterDto & { proposalId: string; status: ORDER_STATUS }) {
         return this.getDropdown({
             entity: 'order',
             queries,
             label: 'name',
             value: 'id',
             fulltext: true,
-            andWhere: this.utilService.getConditionsFromQuery(queries, ['proposalId', 'providerId', 'status']),
+            andWhere: this.utilService.getConditionsFromQuery(queries, ['proposalId', 'status']),
         });
     }
 
