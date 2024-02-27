@@ -5,6 +5,6 @@ import { ProductEntity } from '~/database/typeorm/entities/product.entity';
 export default class ProductSeeder implements Seeder {
     public async run(dataSource: DataSource, factoryManager: SeederFactoryManager): Promise<any> {
         const factory = factoryManager.get(ProductEntity);
-        await factory.saveMany(100);
+        await factory.saveMany(10);
     }
 }
