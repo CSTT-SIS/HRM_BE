@@ -1,8 +1,9 @@
+import { faker } from '@faker-js/faker/locale/vi';
 import moment from 'moment';
 import { setSeederFactory } from 'typeorm-extension';
 import { UserEntity } from '~/database/typeorm/entities/user.entity';
 
-export default setSeederFactory(UserEntity, (faker) => {
+export default setSeederFactory(UserEntity, () => {
     const entity = new UserEntity();
 
     entity.fullName = faker.person.fullName();

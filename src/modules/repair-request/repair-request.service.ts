@@ -95,7 +95,7 @@ export class RepairRequestService {
     }
 
     async update(id: number, updateRepairRequestDto: UpdateRepairRequestDto) {
-        await this.isStatusValid({ id, statuses: [REPAIR_REQUEST_STATUS.PENDING] });
+        await this.isStatusValid({ id, statuses: [REPAIR_REQUEST_STATUS.IN_PROGRESS] });
         const { vehicleRegistrationNumber, ...rest } = updateRepairRequestDto;
         const addUpdate = {};
         if (vehicleRegistrationNumber) {
@@ -107,7 +107,7 @@ export class RepairRequestService {
     }
 
     async remove(id: number) {
-        await this.isStatusValid({ id, statuses: [REPAIR_REQUEST_STATUS.PENDING, REPAIR_REQUEST_STATUS.CANCELLED] });
+        await this.isStatusValid({ id, statuses: [REPAIR_REQUEST_STATUS.IN_PROGRESS, REPAIR_REQUEST_STATUS.CANCELLED] });
         this.database.repairDetail.delete({ repairRequestId: id });
         this.database.repairProgress.delete({ repairRequestId: id });
         return this.database.repairRequest.delete(id);
@@ -136,30 +136,30 @@ export class RepairRequestService {
     }
 
     async addDetail(id: number, data: CreateRepairDetailDto) {
-        await this.isStatusValid({ id, statuses: [REPAIR_REQUEST_STATUS.PENDING] });
+        await this.isStatusValid({ id, statuses: [REPAIR_REQUEST_STATUS.IN_PROGRESS] });
         await this.verifyDetail(id, data);
         return this.database.repairDetail.save(this.database.repairDetail.create({ ...data, repairRequestId: id }));
     }
 
     async addDetails(id: number, data: CreateRepairDetailsDto) {
-        await this.isStatusValid({ id, statuses: [REPAIR_REQUEST_STATUS.PENDING] });
+        await this.isStatusValid({ id, statuses: [REPAIR_REQUEST_STATUS.IN_PROGRESS] });
         await this.verifyDetails(id, data.details);
         return this.database.repairDetail.save(data.details.map((item) => ({ ...item, repairRequestId: id })));
     }
 
     async updateDetail(id: number, detailId: number, data: UpdateRepairDetailDto) {
-        await this.isStatusValid({ id, statuses: [REPAIR_REQUEST_STATUS.PENDING] });
+        await this.isStatusValid({ id, statuses: [REPAIR_REQUEST_STATUS.IN_PROGRESS] });
         await this.verifyDetail(id, data, detailId);
         return this.database.repairDetail.update({ id: detailId, repairRequestId: id }, data);
     }
 
     async removeDetail(id: number, detailId: number) {
-        await this.isStatusValid({ id, statuses: [REPAIR_REQUEST_STATUS.PENDING] });
+        await this.isStatusValid({ id, statuses: [REPAIR_REQUEST_STATUS.IN_PROGRESS] });
         return this.database.repairDetail.delete({ id: detailId, repairRequestId: id });
     }
 
     async inProgress(id: number) {
-        await this.isStatusValid({ id, statuses: [REPAIR_REQUEST_STATUS.PENDING] });
+        await this.isStatusValid({ id, statuses: [REPAIR_REQUEST_STATUS.IN_PROGRESS] });
         const entity = await this.database.repairRequest.findOneBy({ id });
         if (!entity) throw new HttpException('Không tìm thấy phiếu sửa chữa', 404);
 

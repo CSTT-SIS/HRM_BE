@@ -31,7 +31,7 @@ export class OrderEntity extends AbstractEntity {
     @Column({ name: 'estimated_delivery_date', type: 'datetime', nullable: true })
     estimatedDeliveryDate: Date;
 
-    @Column({ name: 'provider', type: 'text', nullable: true }) // 'internal' | 'external
+    @Column({ name: 'provider', type: 'text', nullable: true, default: null })
     provider: string;
 
     @Column({ name: 'created_by_id', type: 'int', unsigned: true, nullable: true })
