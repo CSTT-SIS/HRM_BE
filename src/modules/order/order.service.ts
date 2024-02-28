@@ -7,7 +7,7 @@ import { DatabaseService } from '~/database/typeorm/database.service';
 import { OrderEntity } from '~/database/typeorm/entities/order.entity';
 import { OrderItemEntity } from '~/database/typeorm/entities/orderItem.entity';
 import { ProposalEntity } from '~/database/typeorm/entities/proposal.entity';
-import { CreateOrderItemDto } from '~/modules/order/dto/create-order-item.dto';
+import { CreateOrderItemDto, CreateOrderItemsDto } from '~/modules/order/dto/create-order-item.dto';
 import { UpdateOrderItemDto } from '~/modules/order/dto/update-order-item.dto';
 import { OrderEvent } from '~/modules/order/events/order.event';
 import { UtilService } from '~/shared/services';
@@ -25,9 +25,7 @@ export class OrderService {
         }
         const entity = await this.database.order.save(this.database.order.create({ ...rest, createdById: UserStorage.getId() }));
         this.database.order.addProposals(entity.id, proposalIds);
-        this.createOrderDetails(entity.id, proposalIds);
-
-        // emit event to who can change status
+        // this.createOrderDetails(entity.id, proposalIds);
         this.emitEvent('order.created', { id: entity.id });
 
         return entity;
@@ -135,6 +133,14 @@ export class OrderService {
         // check if the product have been added to the proposal
         // await this.isProductAddedToProposal(id, item.productId);
         return this.database.orderItem.upsert(this.database.orderItem.create({ ...item, orderId: id }), ['orderId', 'productId']);
+    }
+
+    async addItems(id: number, items: CreateOrderItemsDto) {
+        await this.isStatusValid({ id, statuses: [ORDER_STATUS.PENDING] });
+        // check if the product have been added to the proposal
+        // await this.isProductAddedToProposal(id, item.productId);
+        const entities = items.details.map((item) => this.database.orderItem.create({ ...item, orderId: id }));
+        return this.database.orderItem.upsert(entities, ['orderId', 'productId']);
     }
 
     async updateItem(id: number, itemId: number, item: UpdateOrderItemDto) {
