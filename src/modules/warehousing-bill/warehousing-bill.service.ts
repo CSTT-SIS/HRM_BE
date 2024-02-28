@@ -33,6 +33,8 @@ export class WarehousingBillService {
             });
         }
 
+        // TODO: can create a warehousing bill from repair request
+
         const entity = await this.database.warehousingBill.save(
             this.database.warehousingBill.create({
                 ...createWarehousingBillDto,
@@ -524,10 +526,6 @@ export class WarehousingBillService {
                 if (wbType !== WAREHOUSING_BILL_TYPE.IMPORT)
                     throw new HttpException('Loại phiếu kho không hợp lệ, chỉ có thể tạo phiếu nhập kho từ phiếu mua hàng', 400);
                 break;
-            case PROPOSAL_TYPE.REPAIR:
-                if (wbType !== WAREHOUSING_BILL_TYPE.EXPORT)
-                    throw new HttpException('Loại phiếu kho không hợp lệ, chỉ có thể tạo phiếu xuất kho từ phiếu sửa chữa', 400);
-                break;
             case PROPOSAL_TYPE.SUPPLY:
                 if (wbType !== WAREHOUSING_BILL_TYPE.EXPORT)
                     throw new HttpException('Loại phiếu kho không hợp lệ, chỉ có thể tạo phiếu xuất kho từ phiếu xuất hàng', 400);
@@ -541,4 +539,28 @@ export class WarehousingBillService {
         eventObj.senderId = UserStorage.getId();
         this.eventEmitter.emit(event, eventObj);
     }
+
+    // private async repairFlow(createProposalDto: CreateProposalDto) {
+    //     if (!createProposalDto.repairRequestId) throw new HttpException('Yêu cầu sửa chữa không được để trống', 400);
+
+    //     const countProposal = await this.database.proposal.countBy({ repairRequestId: createProposalDto.repairRequestId });
+    //     if (countProposal) throw new HttpException(`Yêu cầu sửa chữa ${createProposalDto.repairRequestId} đã được tạo đề xuất`, 400);
+
+    //     const repairDetails = await this.database.repairDetail.find({
+    //         where: { repairRequestId: createProposalDto.repairRequestId },
+    //     });
+    //     const details = repairDetails.map((detail) => ({
+    //         productId: detail.replacementPartId,
+    //         quantity: detail.quantity,
+    //     }));
+
+    //     await this.verifyDetails(null, details);
+    //     const proposal = await this.database.proposal.save(this.database.proposal.create({ ...createProposalDto, createdById: UserStorage.getId() }));
+    //     await this.database.proposalDetail.save(details.map((detail) => ({ ...detail, proposalId: proposal.id })));
+
+    //     // notify who created repair request
+    //     this.emitEvent('proposal.created', { id: proposal.id });
+
+    //     return proposal;
+    // }
 }

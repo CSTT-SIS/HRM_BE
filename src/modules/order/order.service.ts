@@ -19,9 +19,13 @@ export class OrderService {
     constructor(private readonly utilService: UtilService, private readonly database: DatabaseService, private eventEmitter: EventEmitter2) {}
 
     async create(createOrderDto: CreateOrderDto) {
-        const proposal = await this.isProposalValid(createOrderDto.proposalId, createOrderDto.type);
-        const entity = await this.database.order.save(this.database.order.create({ ...createOrderDto, createdById: UserStorage.getId() }));
-        this.createOrderDetails(entity.id, proposal.id);
+        const { proposalIds, ...rest } = createOrderDto;
+        for (const proposalId of proposalIds) {
+            const proposal = await this.isProposalValid(proposalId, createOrderDto.type);
+        }
+        const entity = await this.database.order.save(this.database.order.create({ ...rest, createdById: UserStorage.getId() }));
+        this.database.order.addProposals(entity.id, proposalIds);
+        this.createOrderDetails(entity.id, proposalIds);
 
         // emit event to who can change status
         this.emitEvent('order.created', { id: entity.id });
@@ -36,8 +40,8 @@ export class OrderService {
         builder.andWhere(this.utilService.fullTextSearch({ fields: ['name'], keyword: queries.search }));
 
         builder.leftJoinAndSelect('entity.createdBy', 'createdBy');
-        builder.leftJoinAndSelect('entity.proposal', 'proposal');
-        builder.select(['entity', 'createdBy.id', 'createdBy.fullName', 'proposal.id', 'proposal.name']);
+        builder.leftJoinAndSelect('entity.proposals', 'proposals');
+        builder.select(['entity', 'createdBy.id', 'createdBy.fullName', 'proposals.id', 'proposals.name']);
 
         const [result, total] = await builder.getManyAndCount();
         const totalPages = Math.ceil(total / take);
@@ -55,15 +59,15 @@ export class OrderService {
         const builder = this.database.order.createQueryBuilder('order');
         builder.where({ id });
 
-        builder.leftJoinAndSelect('order.proposal', 'proposal');
+        builder.leftJoinAndSelect('order.proposals', 'proposals');
         builder.leftJoinAndSelect('order.createdBy', 'createdBy');
         builder.leftJoinAndSelect('order.updatedBy', 'updatedBy');
         builder.leftJoinAndSelect('order.items', 'items');
         builder.leftJoinAndSelect('items.product', 'product');
         builder.select([
             'order',
-            'proposal.id',
-            'proposal.name',
+            'proposals.id',
+            'proposals.name',
             'createdBy.id',
             'createdBy.fullName',
             'updatedBy.id',
@@ -79,9 +83,23 @@ export class OrderService {
     }
 
     async update(id: number, updateOrderDto: UpdateOrderDto) {
+        const { proposalIds, ...rest } = updateOrderDto;
+
         await this.isStatusValid({ id, statuses: [ORDER_STATUS.PENDING] });
-        await this.isProposalValid(updateOrderDto.proposalId, updateOrderDto.type);
-        return this.database.order.update(id, updateOrderDto);
+        for (const proposalId of proposalIds) {
+            const proposal = await this.isProposalValid(proposalId, updateOrderDto.type);
+        }
+
+        const result = await this.database.order.update(id, rest);
+        if (result.affected && proposalIds.length > 0) {
+            await this.database.order.removeProposals(id, proposalIds);
+            await this.database.order.addProposals(id, proposalIds);
+
+            await this.database.orderItem.delete({ orderId: id });
+            this.createOrderDetails(id, proposalIds);
+        }
+
+        return result;
     }
 
     async remove(id: number) {
@@ -115,14 +133,14 @@ export class OrderService {
     async addItem(id: number, item: CreateOrderItemDto) {
         await this.isStatusValid({ id, statuses: [ORDER_STATUS.PENDING] });
         // check if the product have been added to the proposal
-        await this.isProductAddedToProposal(id, item.productId);
-        return this.database.orderItem.save(item);
+        // await this.isProductAddedToProposal(id, item.productId);
+        return this.database.orderItem.upsert(this.database.orderItem.create({ ...item, orderId: id }), ['orderId', 'productId']);
     }
 
     async updateItem(id: number, itemId: number, item: UpdateOrderItemDto) {
         await this.isStatusValid({ id, statuses: [ORDER_STATUS.PENDING] });
         // check if the product have been added to the proposal
-        await this.isProductAddedToProposal(id, item.productId);
+        // await this.isProductAddedToProposal(id, item.productId);
         return this.database.orderItem.update({ id: itemId, orderId: id }, item);
     }
 
@@ -164,8 +182,8 @@ export class OrderService {
         if (orderType !== ORDER_TYPE.PURCHASE && proposal.type !== PROPOSAL_TYPE.PURCHASE)
             throw new HttpException('Loại đơn hàng không phải là đơn hàng mua hàng', 400);
 
-        const count = await this.database.order.count({ where: { proposalId } });
-        if (count > 0) throw new HttpException('Đơn hàng đã tồn tại', 400);
+        const check = await this.database.order.isProposalAdded(proposalId);
+        if (check) throw new HttpException('Phiếu đề xuất đã được thêm vào một đơn hàng khác', 400);
 
         return proposal;
     }
@@ -179,20 +197,44 @@ export class OrderService {
      * find the proposal details associated with the given proposal ID.
      * @returns a Promise that resolves to an array of OrderItemEntity objects.
      */
-    private async createOrderDetails(orderId: number, proposalId: number): Promise<OrderItemEntity[]> {
+    private async createOrderDetailsByProposalId(orderId: number, proposalId: number): Promise<OrderItemEntity[]> {
         const proposalDetails = await this.database.proposalDetail.find({ where: { proposalId: proposalId }, relations: ['product'] });
         if (!proposalDetails || proposalDetails.length === 0) return [];
 
-        const orderItemEntities = proposalDetails.map((proposalDetail) => {
-            return this.database.orderItem.create({
-                orderId,
-                productId: proposalDetail.productId,
-                quantity: proposalDetail.quantity,
-                price: proposalDetail.price,
-            });
-        });
+        // const orderItemEntities = proposalDetails.map((proposalDetail) => {
+        //     return this.database.orderItem.create({
+        //         orderId,
+        //         productId: proposalDetail.productId,
+        //         quantity: proposalDetail.quantity,
+        //         price: proposalDetail.price,
+        //     });
+        // });
+
+        const orderItemEntities: OrderItemEntity[] = [];
+        for (const proposalDetail of proposalDetails) {
+            const isItemExist = await this.database.orderItem.findOne({ where: { orderId, productId: proposalDetail.productId } });
+            if (isItemExist) {
+                isItemExist.quantity += proposalDetail.quantity;
+                orderItemEntities.push(isItemExist);
+            } else {
+                orderItemEntities.push(
+                    this.database.orderItem.create({
+                        orderId,
+                        productId: proposalDetail.productId,
+                        quantity: proposalDetail.quantity,
+                        price: proposalDetail.price,
+                    }),
+                );
+            }
+        }
 
         return this.database.orderItem.save(orderItemEntities);
+    }
+
+    private async createOrderDetails(orderId: number, proposalIds: number[]): Promise<void> {
+        for (const proposalId of proposalIds) {
+            await this.createOrderDetailsByProposalId(orderId, proposalId);
+        }
     }
 
     /**

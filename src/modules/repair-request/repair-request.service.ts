@@ -96,6 +96,8 @@ export class RepairRequestService {
 
     async update(id: number, updateRepairRequestDto: UpdateRepairRequestDto) {
         await this.isStatusValid({ id, statuses: [REPAIR_REQUEST_STATUS.IN_PROGRESS] });
+        // TODO: check if warehousing bill was created by this repair request; if yes, throw error
+
         const { vehicleRegistrationNumber, ...rest } = updateRepairRequestDto;
         const addUpdate = {};
         if (vehicleRegistrationNumber) {

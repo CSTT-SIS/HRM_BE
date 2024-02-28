@@ -1,4 +1,16 @@
-import { Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, Relation } from 'typeorm';
+import {
+    Column,
+    Entity,
+    Index,
+    JoinColumn,
+    JoinTable,
+    ManyToMany,
+    ManyToOne,
+    OneToMany,
+    PrimaryGeneratedColumn,
+    Relation,
+    RelationId,
+} from 'typeorm';
 import { ORDER_STATUS } from '~/common/enums/enum';
 import { OrderItemEntity } from '~/database/typeorm/entities/orderItem.entity';
 import { OrderProgressTrackingEntity } from '~/database/typeorm/entities/orderProgressTracking.entity';
@@ -11,8 +23,8 @@ export class OrderEntity extends AbstractEntity {
     @PrimaryGeneratedColumn('increment', { name: 'id', type: 'int', unsigned: true })
     id: number;
 
-    @Column({ name: 'proposal_id', type: 'int', unsigned: true, nullable: true })
-    proposalId: number;
+    @RelationId((order: OrderEntity) => order.proposals)
+    proposalIds: number[];
 
     @Index('IDX_ORDER_NAME', { fulltext: true })
     @Column({ name: 'name', type: 'varchar', length: 255, nullable: true })
@@ -28,7 +40,7 @@ export class OrderEntity extends AbstractEntity {
     @Column({ name: 'status', type: 'varchar', length: 50, nullable: true, default: ORDER_STATUS.PENDING })
     status: string;
 
-    @Column({ name: 'estimated_delivery_date', type: 'datetime', nullable: true })
+    @Column({ name: 'estimated_delivery_date', type: 'timestamp', nullable: true })
     estimatedDeliveryDate: Date;
 
     @Column({ name: 'provider', type: 'text', nullable: true, default: null })
@@ -41,9 +53,13 @@ export class OrderEntity extends AbstractEntity {
     updatedById: number;
 
     /* RELATIONS */
-    @ManyToOne(() => ProposalEntity, { createForeignKeyConstraints: false })
-    @JoinColumn({ name: 'proposal_id', referencedColumnName: 'id' })
-    proposal: Relation<ProposalEntity>;
+    @ManyToMany(() => ProposalEntity, { createForeignKeyConstraints: false })
+    @JoinTable({
+        name: 'orders_proposals',
+        joinColumn: { name: 'order_id', referencedColumnName: 'id' },
+        inverseJoinColumn: { name: 'proposal_id', referencedColumnName: 'id' },
+    })
+    proposals: Relation<ProposalEntity>[];
 
     @ManyToOne(() => UserEntity, { createForeignKeyConstraints: false })
     @JoinColumn({ name: 'created_by_id', referencedColumnName: 'id' })

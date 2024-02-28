@@ -19,11 +19,9 @@ export class ProposalService {
 
     async create(createProposalDto: CreateProposalDto) {
         if (!Object.keys(PROPOSAL_TYPE).includes(createProposalDto.type)) throw new HttpException('Loại đề xuất không hợp lệ', 400);
-        if (createProposalDto.type === PROPOSAL_TYPE.REPAIR) {
-            return this.repairFlow(createProposalDto);
-        }
-
-        return this.database.proposal.save(this.database.proposal.create({ ...createProposalDto, createdById: UserStorage.getId() }));
+        const proposal = await this.database.proposal.save(this.database.proposal.create({ ...createProposalDto, createdById: UserStorage.getId() }));
+        this.emitEvent('proposal.created', { id: proposal.id });
+        return proposal;
     }
 
     async findAll(queries: FilterDto & { type: PROPOSAL_TYPE; status: PROPOSAL_STATUS }) {
@@ -305,30 +303,6 @@ export class ProposalService {
                 comment: data.comment,
             }),
         );
-    }
-
-    private async repairFlow(createProposalDto: CreateProposalDto) {
-        if (!createProposalDto.repairRequestId) throw new HttpException('Yêu cầu sửa chữa không được để trống', 400);
-
-        const countProposal = await this.database.proposal.countBy({ repairRequestId: createProposalDto.repairRequestId });
-        if (countProposal) throw new HttpException(`Yêu cầu sửa chữa ${createProposalDto.repairRequestId} đã được tạo đề xuất`, 400);
-
-        const repairDetails = await this.database.repairDetail.find({
-            where: { repairRequestId: createProposalDto.repairRequestId },
-        });
-        const details = repairDetails.map((detail) => ({
-            productId: detail.replacementPartId,
-            quantity: detail.quantity,
-        }));
-
-        await this.verifyDetails(null, details);
-        const proposal = await this.database.proposal.save(this.database.proposal.create({ ...createProposalDto, createdById: UserStorage.getId() }));
-        await this.database.proposalDetail.save(details.map((detail) => ({ ...detail, proposalId: proposal.id })));
-
-        // notify who created repair request
-        this.emitEvent('proposal.created', { id: proposal.id });
-
-        return proposal;
     }
 
     private emitEvent(event: string, data: { id: number }) {

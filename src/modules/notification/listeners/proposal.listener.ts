@@ -11,36 +11,35 @@ export class ProposalListener {
 
     @OnEvent('proposal.created')
     async handleProposalCreatedEvent(event: ProposalEvent) {
-        const entity = await this.database.proposal.findOne({ where: { id: event.id }, relations: ['repairRequest'] });
-        if (!entity) return;
-
-        if (entity.type === PROPOSAL_TYPE.REPAIR && entity.repairRequestId) {
-            this.nofiticationService.createNotification({
-                entity: 'proposal',
-                entityId: entity.id,
-                senderId: event.senderId,
-                receiverIds: [entity.repairRequest.repairById, entity.repairRequest.createdById],
-                type: 'proposal',
-                link: `/warehouse-process/proposal`,
-                details: [
-                    {
-                        lang: 'vi',
-                        title: `Đề xuất '${entity.name}' đã được tạo`,
-                        content: `Đề xuất '${entity.name}' đã được tạo`,
-                    },
-                    {
-                        lang: 'en',
-                        title: `Proposal '${entity.name}' has been created`,
-                        content: `Proposal '${entity.name}' has been created`,
-                    },
-                    {
-                        lang: 'lo',
-                        title: `ຄຳປະກາດ '${entity.name}' ແມ່ນລໍຖ້າການອະນຸມັດ`,
-                        content: `ຄຳປະກາດ '${entity.name}' ແມ່ນລໍຖ້າການອະນຸມັດ`,
-                    },
-                ],
-            });
-        }
+        // const entity = await this.database.proposal.findOne({ where: { id: event.id }, relations: ['repairRequest'] });
+        // if (!entity) return;
+        // if (entity.type === PROPOSAL_TYPE.REPAIR && entity.repairRequestId) {
+        //     this.nofiticationService.createNotification({
+        //         entity: 'proposal',
+        //         entityId: entity.id,
+        //         senderId: event.senderId,
+        //         receiverIds: [entity.repairRequest.repairById, entity.repairRequest.createdById],
+        //         type: 'proposal',
+        //         link: `/warehouse-process/proposal`,
+        //         details: [
+        //             {
+        //                 lang: 'vi',
+        //                 title: `Đề xuất '${entity.name}' đã được tạo`,
+        //                 content: `Đề xuất '${entity.name}' đã được tạo`,
+        //             },
+        //             {
+        //                 lang: 'en',
+        //                 title: `Proposal '${entity.name}' has been created`,
+        //                 content: `Proposal '${entity.name}' has been created`,
+        //             },
+        //             {
+        //                 lang: 'lo',
+        //                 title: `ຄຳປະກາດ '${entity.name}' ແມ່ນລໍຖ້າການອະນຸມັດ`,
+        //                 content: `ຄຳປະກາດ '${entity.name}' ແມ່ນລໍຖ້າການອະນຸມັດ`,
+        //             },
+        //         ],
+        //     });
+        // }
     }
 
     @OnEvent('proposal.pending')
