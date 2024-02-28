@@ -20,7 +20,7 @@ export class ForgottenTimekeepingRequestEntity extends AbstractEntity {
     @Column({ name: 'supporting_documents', type: 'varchar', length: 255, nullable: true })
     supportingDocuments: string;
 
-    @Column({ name: 'status', type: 'varchar', length: 255, nullable: true })
+    @Column({ type: 'enum', enum: FORGOTTEN_TIMEKEEPING_REQUEST_STATUS, default: FORGOTTEN_TIMEKEEPING_REQUEST_STATUS.PENDING })
     status: FORGOTTEN_TIMEKEEPING_REQUEST_STATUS;
 
     @Column({ name: 'approver_id', type: 'int', unsigned: true, nullable: true })
@@ -34,6 +34,12 @@ export class ForgottenTimekeepingRequestEntity extends AbstractEntity {
 
     @Column({ name: 'user_id', type: 'int', unsigned: true, nullable: true })
     userId: number;
+
+    @Column({ name: 'created_by', type: 'int', unsigned: true, nullable: true })
+    createdBy: number;
+
+    @Column({ name: 'updated_by', type: 'int', unsigned: true, nullable: true })
+    updatedBy: number;
 
     /* RELATION */
     @ManyToOne(() => UserEntity, (entity: UserEntity) => entity.forgottenTimekeepingRequests, {

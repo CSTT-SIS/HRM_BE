@@ -9,17 +9,35 @@ import { FilterDto } from '~/common/dtos/filter.dto';
 export class CalendarService {
     constructor(private readonly utilService: UtilService, private readonly database: DatabaseService) {}
 
-    create(createCalendarDto: CreateCalendarDto) {
-        return this.database.calendar.save(this.database.calendar.create(createCalendarDto));
+    create(createCalendarDto: CreateCalendarDto, userId: number) {
+        return this.database.calendar.save(this.database.calendar.create({ ...createCalendarDto, createdBy: userId }));
     }
 
-    createByUserLogin(createCalendarDto: CreateCalendarDto) {
-        return this.database.calendar.save(this.database.calendar.create(createCalendarDto));
-    }
-
-    async findAll(queries: FilterDto) {
+    async findAllByUserLogin(queries: FilterDto & { userId: string }) {
         const { builder, take, pagination } = this.utilService.getQueryBuilderAndPagination(this.database.calendar, queries);
 
+        builder.andWhere(this.utilService.getConditionsFromQuery(queries, ['userId']));
+        // change to `rawQuerySearch` if entity don't have fulltext indices
+        builder.andWhere(this.utilService.rawQuerySearch({ fields: ['content'], keyword: queries.search }));
+
+        builder.select(['entity']);
+
+        const [result, total] = await builder.getManyAndCount();
+        const totalPages = Math.ceil(total / take);
+        return {
+            data: result,
+            pagination: {
+                ...pagination,
+                totalRecords: total,
+                totalPages: totalPages,
+            },
+        };
+    }
+
+    async findAll(queries: FilterDto & { departmentId: string }) {
+        const { builder, take, pagination } = this.utilService.getQueryBuilderAndPagination(this.database.calendar, queries);
+
+        builder.andWhere(this.utilService.getConditionsFromQuery(queries, ['departmentId']));
         // change to `rawQuerySearch` if entity don't have fulltext indices
         builder.andWhere(this.utilService.rawQuerySearch({ fields: ['content'], keyword: queries.search }));
 
@@ -43,8 +61,8 @@ export class CalendarService {
         return builder.getOne();
     }
 
-    update(id: number, updateCalendarDto: UpdateCalendarDto) {
-        return this.database.calendar.update(id, updateCalendarDto);
+    update(id: number, updateCalendarDto: UpdateCalendarDto, userId: number) {
+        return this.database.calendar.update(id, { ...updateCalendarDto, updatedBy: userId });
     }
 
     remove(id: number) {

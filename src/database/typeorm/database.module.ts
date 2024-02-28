@@ -89,6 +89,13 @@ import { WarehouseRepository } from '~/database/typeorm/repositories/warehouse.r
 import { WarehousingBillRepository } from '~/database/typeorm/repositories/warehousingBill.repository';
 import { WarehousingBillDetailRepository } from '~/database/typeorm/repositories/warehousingBillDetail.repository';
 import { CalendarRepository } from '~/database/typeorm/repositories/calendar.repository';
+import { EmployeeLeaveRequestRepository } from '~/database/typeorm/repositories/employeeLeaveRequest.repository';
+import { ForgottenTimekeepingRequestRepository } from '~/database/typeorm/repositories/forgottenTimekeepingRequest.repository';
+import { OvertimeRequestRepository } from '~/database/typeorm/repositories/overtimeRequest.repository';
+import { TimeAttendanceRepository } from '~/database/typeorm/repositories/timeAttendance.repository';
+import { TaskRepository } from '~/database/typeorm/repositories/task.repository';
+import { FreeTimekeepingRepository } from '~/database/typeorm/repositories/freeTimekeeping.repository';
+import { FreeTimekeepingEntity } from '~/database/typeorm/entities/freeTimekeeping.entity';
 
 const entities = [
     RoleEntity,
@@ -130,7 +137,6 @@ const entities = [
     PositionEntity,
     LeaveApplicationEntity,
     ShiftEntity,
-    UserShiftEntity,
     DisciplineEntity,
     ResignationFormEntity,
     EmployeeLeaveRequestEntity,
@@ -144,8 +150,9 @@ const entities = [
     DocumentEntity,
     SendDocumentEntity,
     TextEmbryoEntity,
-];
-
+    UserShiftEntity,
+    FreeTimekeepingEntity,
+];
 const repositories = [
     DepartmentRepository,
     UserRepository,
@@ -181,6 +188,12 @@ const repositories = [
     NotificationRepository,
     NotificationDetailRepository,
     CalendarRepository,
+    EmployeeLeaveRequestRepository,
+    ForgottenTimekeepingRequestRepository,
+    OvertimeRequestRepository,
+    TimeAttendanceRepository,
+    TaskRepository,
+    FreeTimekeepingRepository,
 ];
 
 @Global()

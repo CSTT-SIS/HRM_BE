@@ -19,9 +19,7 @@ import token from '~/config/token.config';
 import { DatabaseModule } from '~/database/typeorm';
 import { PermissionRepository } from '~/database/typeorm/repositories/permission.repository';
 import { AuthModule } from '~/modules/auth/auth.module';
-import { CalendarModule } from '~/modules/calendar/calendar.module';
 import { DropdownModule } from '~/modules/dropdown/dropdown.module';
-import { HumanModule } from '~/modules/human/human.module';
 import { MailModule } from '~/modules/mail/mail.module';
 import { MediaModule } from '~/modules/media/media.module';
 import { NotificationModule } from '~/modules/notification/notification.module';
@@ -47,6 +45,14 @@ import { ProviderModule } from './modules/provider/provider.module';
 import { UnitModule } from './modules/unit/unit.module';
 import { UserModule } from './modules/user/user.module';
 import { WarehouseModule } from './modules/warehouse/warehouse.module';
+import { HumanModule } from '~/modules/human/human.module';
+import { CalendarModule } from '~/modules/calendar/calendar.module';
+import { LetterModule } from '~/modules/letter/letter.module';
+import { ForgottenTimekeepingModule } from '~/modules/forgotten-timekeeping/forgotten-timekeeping.module';
+import { OverTimeModule } from '~/modules/over-time/over-time.module';
+import { TimeKeepingModule } from '~/modules/time-keeping/time-keeping.module';
+import { TaskModule } from '~/modules/task/task.module';
+import { FreeTimekeepingModule } from '~/modules/free-timekeeping/free-timekeeping.module';
 
 @Module({
     imports: [
@@ -97,6 +103,12 @@ import { WarehouseModule } from './modules/warehouse/warehouse.module';
         StatisticModule,
         HumanModule,
         CalendarModule,
+        LetterModule,
+        ForgottenTimekeepingModule,
+        OverTimeModule,
+        TimeKeepingModule,
+        TaskModule,
+        FreeTimekeepingModule,
     ],
     controllers: [AppController],
     providers: [
