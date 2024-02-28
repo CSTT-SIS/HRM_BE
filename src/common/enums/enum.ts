@@ -176,12 +176,16 @@ export enum EMPLOYEE_LEAVE_REQUEST_STATUS {
 }
 
 export enum FORGOTTEN_TIMEKEEPING_REQUEST_STATUS {
-    ACCEPT = 1,
+    PENDING = 'PENDING',
+    APPROVED = 'APPROVED',
+    CLOSED = 'CLOSED',
     // ----
 }
 
 export enum OVERTIME_REQUEST_STATUS {
-    ACCEPT = 1,
+    PENDING = 'PENDING',
+    APPROVED = 'APPROVED',
+    CLOSED = 'CLOSED',
     // ----
 }
 
@@ -197,5 +201,11 @@ export enum TASK_PRIORITY {
 
 export enum ASSET_STATUS {
     ACTIVE = 1,
+    // ----
+}
+
+export enum LETTER_TYPE {
+    LATE = 'LATE',
+    SOON = 'SOON',
     // ----
 }

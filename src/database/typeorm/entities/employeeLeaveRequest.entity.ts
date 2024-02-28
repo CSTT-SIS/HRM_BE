@@ -1,5 +1,5 @@
 import { Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
-import { EMPLOYEE_LEAVE_REQUEST_STATUS } from '~/common/enums/enum';
+import { EMPLOYEE_LEAVE_REQUEST_STATUS, LETTER_TYPE } from '~/common/enums/enum';
 import { AbstractEntity } from './abstract.entity';
 import { UserEntity } from './user.entity';
 
@@ -8,8 +8,8 @@ export class EmployeeLeaveRequestEntity extends AbstractEntity {
     @PrimaryGeneratedColumn('increment', { name: 'id', type: 'int', unsigned: true })
     id: number;
 
-    @Column({ name: 'type', type: 'varchar', length: 1000, nullable: true })
-    type: string;
+    @Column({ type: 'enum', enum: LETTER_TYPE, default: LETTER_TYPE.LATE })
+    type: LETTER_TYPE;
 
     @Column({ name: 'reason', type: 'varchar', length: 255, nullable: true })
     reason: string;
@@ -34,6 +34,12 @@ export class EmployeeLeaveRequestEntity extends AbstractEntity {
 
     @Column({ name: 'user_id', type: 'int', unsigned: true, nullable: true })
     userId: number;
+
+    @Column({ name: 'created_by', type: 'int', unsigned: true, nullable: true })
+    createdBy: number;
+
+    @Column({ name: 'updated_by', type: 'int', unsigned: true, nullable: true })
+    updatedBy: number;
 
     /* RELATION */
     @ManyToOne(() => UserEntity, (entity: UserEntity) => entity.employeeLeaveRequests, {

@@ -14,6 +14,7 @@ import { DisciplineEntity } from '~/database/typeorm/entities/discipline.entity'
 import { DocumentEntity } from '~/database/typeorm/entities/document.entity';
 import { EmployeeLeaveRequestEntity } from '~/database/typeorm/entities/employeeLeaveRequest.entity';
 import { ForgottenTimekeepingRequestEntity } from '~/database/typeorm/entities/forgottenTimekeepingRequest.entity';
+import { FreeTimekeepingEntity } from '~/database/typeorm/entities/freeTimekeeping.entity';
 import { InventoryEntity } from '~/database/typeorm/entities/inventory.entity';
 import { InventoryHistoryEntity } from '~/database/typeorm/entities/inventoryHistory.entity';
 import { LeaveApplicationEntity } from '~/database/typeorm/entities/leaveApplication.entity';
@@ -58,6 +59,9 @@ import { AccountRepository } from '~/database/typeorm/repositories/account.repos
 import { ApprovalProcessRepository } from '~/database/typeorm/repositories/approvalProcess.repository';
 import { CalendarRepository } from '~/database/typeorm/repositories/calendar.repository';
 import { DepartmentRepository } from '~/database/typeorm/repositories/department.repository';
+import { EmployeeLeaveRequestRepository } from '~/database/typeorm/repositories/employeeLeaveRequest.repository';
+import { ForgottenTimekeepingRequestRepository } from '~/database/typeorm/repositories/forgottenTimekeepingRequest.repository';
+import { FreeTimekeepingRepository } from '~/database/typeorm/repositories/freeTimekeeping.repository';
 import { InventoryRepository } from '~/database/typeorm/repositories/inventory.repository';
 import { InventoryHistoryRepository } from '~/database/typeorm/repositories/inventoryHistory.repository';
 import { MediaRepository } from '~/database/typeorm/repositories/media.repository';
@@ -66,6 +70,7 @@ import { NotificationDetailRepository } from '~/database/typeorm/repositories/no
 import { OrderRepository } from '~/database/typeorm/repositories/order.repository';
 import { OrderItemRepository } from '~/database/typeorm/repositories/orderItem.repository';
 import { OrderProgressTrackingRepository } from '~/database/typeorm/repositories/orderProgressTracking.repository';
+import { OvertimeRequestRepository } from '~/database/typeorm/repositories/overtimeRequest.repository';
 import { PermissionRepository } from '~/database/typeorm/repositories/permission.repository';
 import { ProductRepository } from '~/database/typeorm/repositories/product.repository';
 import { ProductCategoryRepository } from '~/database/typeorm/repositories/productCategory.repository';
@@ -80,6 +85,8 @@ import { RepairRequestRepository } from '~/database/typeorm/repositories/repairR
 import { RoleRepository } from '~/database/typeorm/repositories/role.repository';
 import { StocktakeRepository } from '~/database/typeorm/repositories/stocktake.repository';
 import { StocktakeDetailRepository } from '~/database/typeorm/repositories/stocktakeDetail.repository';
+import { TaskRepository } from '~/database/typeorm/repositories/task.repository';
+import { TimeAttendanceRepository } from '~/database/typeorm/repositories/timeAttendance.repository';
 import { UnitRepository } from '~/database/typeorm/repositories/unit.repository';
 import { UserRepository } from '~/database/typeorm/repositories/user.repository';
 import { UserLogRepository } from '~/database/typeorm/repositories/userLog.repository';
@@ -127,7 +134,6 @@ const entities = [
     PositionEntity,
     LeaveApplicationEntity,
     ShiftEntity,
-    UserShiftEntity,
     DisciplineEntity,
     ResignationFormEntity,
     EmployeeLeaveRequestEntity,
@@ -141,6 +147,8 @@ const entities = [
     DocumentEntity,
     SendDocumentEntity,
     TextEmbryoEntity,
+    UserShiftEntity,
+    FreeTimekeepingEntity,
 ];
 
 const repositories = [
@@ -177,6 +185,12 @@ const repositories = [
     NotificationRepository,
     NotificationDetailRepository,
     CalendarRepository,
+    EmployeeLeaveRequestRepository,
+    ForgottenTimekeepingRequestRepository,
+    OvertimeRequestRepository,
+    TimeAttendanceRepository,
+    TaskRepository,
+    FreeTimekeepingRepository,
 ];
 
 @Global()

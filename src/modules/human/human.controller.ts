@@ -1,6 +1,6 @@
 import { CalendarService } from './../calendar/calendar.service';
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, UploadedFile, UseInterceptors } from '@nestjs/common';
-import { ApiBasicAuth, ApiBody, ApiConsumes, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, Req, UseGuards, UseInterceptors } from '@nestjs/common';
+import { ApiBasicAuth, ApiConsumes, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Permission } from '~/common/decorators/permission.decorator';
 import { FilterDto } from '~/common/dtos/filter.dto';
 import { CreateHumanDto } from './dto/create-human.dto';
@@ -11,6 +11,7 @@ import { multerOptions } from '~/config/fileUpload.config';
 import { CreateCalendarDto } from '../calendar/dto/create-calendar.dto';
 import { UpdateCalendarDto } from '../calendar/dto/update-calendar.dto';
 import { HUMAN_DASHBOARD_TYPE } from '~/common/enums/enum';
+import { AuthGuard } from '../auth/guards/auth.guard';
 
 @ApiTags('Human')
 @ApiBasicAuth('authorization')
@@ -18,12 +19,13 @@ import { HUMAN_DASHBOARD_TYPE } from '~/common/enums/enum';
 export class HumanController {
     constructor(private readonly humanService: HumanService, private readonly calendarService: CalendarService) {}
 
+    @UseGuards(AuthGuard)
     @ApiConsumes('multipart/form-data')
     @Permission('human:create')
     @Post()
     @UseInterceptors(FileInterceptor('avatar', multerOptions()))
-    create(@UploadedFile() file: Express.Multer.File, @Body() createHumanDto: CreateHumanDto) {
-        return this.humanService.create(file, createHumanDto);
+    create(@Req() req, @Body() createHumanDto: CreateHumanDto) {
+        return this.humanService.create(createHumanDto, req.user.id);
     }
 
     @Permission('human:findAll')
@@ -46,18 +48,26 @@ export class HumanController {
         return this.humanService.dashboard(queries, type);
     }
 
+    @UseGuards(AuthGuard)
+    @Permission('calendar:findAll')
+    @Get('calendar')
+    findAllCalendarByUserLogin(@Req() req, @Query() queries) {
+        return this.calendarService.findAllByUserLogin({ ...queries, userId: req.user.id });
+    }
+
     @Permission('human:findOne')
     @Get(':id')
     findOne(@Param('id', ParseIntPipe) id: string) {
         return this.humanService.findOne(+id);
     }
 
+    @UseGuards(AuthGuard)
     @ApiConsumes('multipart/form-data')
     @Permission('human:update')
     @Patch(':id')
     @UseInterceptors(FileInterceptor('avatar', multerOptions()))
-    update(@Param('id', ParseIntPipe) id: string, @UploadedFile() file: Express.Multer.File, @Body() updateHumanDto: UpdateHumanDto) {
-        return this.humanService.update(+id, file, updateHumanDto);
+    update(@Req() req, @Param('id', ParseIntPipe) id: string, @Body() updateHumanDto: UpdateHumanDto) {
+        return this.humanService.update(+id, updateHumanDto, req.user.id);
     }
 
     @Permission('human:remove')
@@ -66,15 +76,10 @@ export class HumanController {
         return this.humanService.remove(+id);
     }
 
-    @Permission('calendar:create')
-    @Post('calendar')
-    createCalendar(@Body() createCalendarDto: CreateCalendarDto) {
-        return this.calendarService.create(createCalendarDto);
-    }
-
-    @Permission('calendar:create')
-    @Patch('calendar/:id')
-    updateCalendar(@Param('id', ParseIntPipe) id: string, @Body() updateCalendarDto: UpdateCalendarDto) {
-        return this.calendarService.update(+id, updateCalendarDto);
-    }
+    // @UseGuards(AuthGuard)
+    // @Permission('calendar:update')
+    // @Patch('calendar/:id')
+    // updateCalendar(@Req() req, @Param('id', ParseIntPipe) id: string, @Body() updateCalendarDto: UpdateCalendarDto) {
+    //     return this.calendarService.update(+id, updateCalendarDto, req.user.id);
+    // }
 }

@@ -1,8 +1,8 @@
-import { HttpException, HttpStatus } from "@nestjs/common";
-import { MulterOptions } from "@nestjs/platform-express/multer/interfaces/multer-options.interface";
+import { HttpException, HttpStatus } from '@nestjs/common';
+import { MulterOptions } from '@nestjs/platform-express/multer/interfaces/multer-options.interface';
 import fs from 'fs';
-import moment from "moment";
-import { diskStorage } from "multer";
+import moment from 'moment';
+import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { v4 as uuid } from 'uuid';
 
@@ -21,7 +21,6 @@ export const multerOptions = (): MulterOptions => ({
         filename: (req: any, file: any, cb: any) => {
             cb(null, `${moment().unix()}-${uuid()}${extname(file.originalname)}`);
         },
-
     }),
     fileFilter: (req: any, file: any, cb: any) => {
         checkMimeTypeCallback(file, cb);

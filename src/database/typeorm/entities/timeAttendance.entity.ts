@@ -44,6 +44,12 @@ export class TimeAttendanceEntity extends AbstractEntity {
     @Column({ name: 'user_id', type: 'int', unsigned: true, nullable: true })
     userId: number;
 
+    @Column({ name: 'created_by', type: 'int', unsigned: true, nullable: true })
+    createdBy: number;
+
+    @Column({ name: 'updated_by', type: 'int', unsigned: true, nullable: true })
+    updatedBy: number;
+
     /* RELATION */
     @ManyToOne(() => UserEntity, (entity: UserEntity) => entity.timeAttendances, {
         nullable: true,

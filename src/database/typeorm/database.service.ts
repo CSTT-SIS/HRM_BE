@@ -5,6 +5,9 @@ import { AccountRepository } from '~/database/typeorm/repositories/account.repos
 import { ApprovalProcessRepository } from '~/database/typeorm/repositories/approvalProcess.repository';
 import { CalendarRepository } from '~/database/typeorm/repositories/calendar.repository';
 import { DepartmentRepository } from '~/database/typeorm/repositories/department.repository';
+import { EmployeeLeaveRequestRepository } from '~/database/typeorm/repositories/employeeLeaveRequest.repository';
+import { ForgottenTimekeepingRequestRepository } from '~/database/typeorm/repositories/forgottenTimekeepingRequest.repository';
+import { FreeTimekeepingRepository } from '~/database/typeorm/repositories/freeTimekeeping.repository';
 import { InventoryRepository } from '~/database/typeorm/repositories/inventory.repository';
 import { InventoryHistoryRepository } from '~/database/typeorm/repositories/inventoryHistory.repository';
 import { MediaRepository } from '~/database/typeorm/repositories/media.repository';
@@ -13,6 +16,7 @@ import { NotificationDetailRepository } from '~/database/typeorm/repositories/no
 import { OrderRepository } from '~/database/typeorm/repositories/order.repository';
 import { OrderItemRepository } from '~/database/typeorm/repositories/orderItem.repository';
 import { OrderProgressTrackingRepository } from '~/database/typeorm/repositories/orderProgressTracking.repository';
+import { OvertimeRequestRepository } from '~/database/typeorm/repositories/overtimeRequest.repository';
 import { PermissionRepository } from '~/database/typeorm/repositories/permission.repository';
 import { ProductRepository } from '~/database/typeorm/repositories/product.repository';
 import { ProductCategoryRepository } from '~/database/typeorm/repositories/productCategory.repository';
@@ -27,6 +31,8 @@ import { RepairRequestRepository } from '~/database/typeorm/repositories/repairR
 import { RoleRepository } from '~/database/typeorm/repositories/role.repository';
 import { StocktakeRepository } from '~/database/typeorm/repositories/stocktake.repository';
 import { StocktakeDetailRepository } from '~/database/typeorm/repositories/stocktakeDetail.repository';
+import { TaskRepository } from '~/database/typeorm/repositories/task.repository';
+import { TimeAttendanceRepository } from '~/database/typeorm/repositories/timeAttendance.repository';
 import { UnitRepository } from '~/database/typeorm/repositories/unit.repository';
 import { UserRepository } from '~/database/typeorm/repositories/user.repository';
 import { UserLogRepository } from '~/database/typeorm/repositories/userLog.repository';
@@ -74,6 +80,12 @@ export class DatabaseService {
         public readonly notification: NotificationRepository,
         public readonly notificationDetail: NotificationDetailRepository,
         public readonly calendar: CalendarRepository,
+        public readonly employeeLeaveRequest: EmployeeLeaveRequestRepository,
+        public readonly forgottentimekeepingrequest: ForgottenTimekeepingRequestRepository,
+        public readonly overtimeRequest: OvertimeRequestRepository,
+        public readonly timeAttendance: TimeAttendanceRepository,
+        public readonly task: TaskRepository,
+        public readonly freeTimekeeping: FreeTimekeepingRepository,
     ) {
         // load all departments to cache
         // this.loadDepartmentsToCache();
