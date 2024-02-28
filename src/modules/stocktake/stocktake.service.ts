@@ -229,7 +229,7 @@ export class StocktakeService {
         const details = await this.database.stocktakeDetail.find({ where: { stocktakeId: id } });
         const notTallied = details.filter((detail) => detail.countedQuantity === null);
         if (notTallied.length)
-            throw new HttpException('Có sản phẩm chưa được kiểm kê: ' + notTallied.map((detail) => detail.productId).join(', '), 400);
+            throw new HttpException('Có sản phẩm chưa được kiểm kê: ' + notTallied.map((detail) => detail.productId).join(','), 400);
 
         return this.updateStatus({ id, from: STOCKTAKE_STATUS.IN_PROGRESS, to: STOCKTAKE_STATUS.FINISHED });
     }

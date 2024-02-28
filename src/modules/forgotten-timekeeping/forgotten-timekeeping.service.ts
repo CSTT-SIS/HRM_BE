@@ -13,7 +13,7 @@ export class ForgottenTimekeepingService {
         return this.database.forgottentimekeepingrequest.save(
             this.database.forgottentimekeepingrequest.create({
                 ...createForgottenTimekeepingDto,
-                supportingDocuments: files.length !== 0 ? files.map((file) => file.filename).join(', ') : null,
+                supportingDocuments: files.length !== 0 ? files.map((file) => file.filename).join(',') : null,
                 createdBy: userId,
             }),
         );
@@ -48,7 +48,7 @@ export class ForgottenTimekeepingService {
     update(id: number, updateForgottenTimekeepingDto: UpdateForgottenTimekeepingDto, files: Array<Express.Multer.File>, userId: number) {
         return this.database.forgottentimekeepingrequest.update(id, {
             ...updateForgottenTimekeepingDto,
-            supportingDocuments: files.length !== 0 ? files.map((file) => file.filename).join(', ') : null,
+            supportingDocuments: files.length !== 0 ? files.map((file) => file.filename).join(',') : null,
             updatedBy: userId,
         });
     }

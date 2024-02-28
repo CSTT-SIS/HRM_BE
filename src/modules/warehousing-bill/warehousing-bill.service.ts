@@ -220,7 +220,7 @@ export class WarehousingBillService {
     async finish(id: number) {
         const bill = await this.isStatusValid({ id, statuses: [WAREHOUSING_BILL_STATUS.APPROVED] });
         const { result, nonTalliedProducts } = await this.isAllDetailsTallied(bill.id);
-        if (!result) throw new HttpException('Còn sản phẩm chưa được kiểm đếm: ' + nonTalliedProducts.join(', '), 400);
+        if (!result) throw new HttpException('Còn sản phẩm chưa được kiểm đếm: ' + nonTalliedProducts.join(','), 400);
 
         await this.allDetailsTallied(bill.id, bill.proposalId, bill.orderId);
 
@@ -345,7 +345,7 @@ export class WarehousingBillService {
     ) {
         const productsNotFound = proposalDetails.filter((detail) => !productQuantitiesInDb.some((product) => product.productId === detail.productId));
         if (productsNotFound.length > 0) {
-            const productNames = productsNotFound.map((detail) => detail.productName).join(', ');
+            const productNames = productsNotFound.map((detail) => detail.productName).join(',');
             throw new HttpException(`Kho '${warehouse.name}' không có sản phẩm '${productNames}'`, 400);
         }
     }
@@ -366,7 +366,7 @@ export class WarehousingBillService {
                         proposalDetail ? proposalDetail.quantity : 0
                     })`;
                 })
-                .join(', ');
+                .join(',');
             throw new HttpException(`Số lượng sản phẩm ${errorMessage} không đủ. Vui lòng kiểm tra lại.`, 400);
         }
     }
