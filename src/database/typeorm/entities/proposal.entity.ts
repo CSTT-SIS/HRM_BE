@@ -1,7 +1,7 @@
 import { Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, Relation } from 'typeorm';
 import { PROPOSAL_STATUS } from '~/common/enums/enum';
+import { DepartmentEntity } from '~/database/typeorm/entities/department.entity';
 import { ProposalDetailEntity } from '~/database/typeorm/entities/proposalDetail.entity';
-import { RepairRequestEntity } from '~/database/typeorm/entities/repairRequest.entity';
 import { UserEntity } from '~/database/typeorm/entities/user.entity';
 import { AbstractEntity } from './abstract.entity';
 
@@ -10,8 +10,8 @@ export class ProposalEntity extends AbstractEntity {
     @PrimaryGeneratedColumn('increment', { name: 'id', type: 'int', unsigned: true })
     id: number;
 
-    @Column({ name: 'repair_request_id', type: 'int', unsigned: true, nullable: true })
-    repairRequestId: number;
+    @Column({ name: 'department_id', type: 'int', unsigned: true, nullable: true })
+    departmentId: number;
 
     @Index('IDX_PROPOSAL_NAME', { fulltext: true })
     @Column({ name: 'name', type: 'varchar', length: 255, nullable: true })
@@ -44,7 +44,7 @@ export class ProposalEntity extends AbstractEntity {
     @OneToMany(() => ProposalDetailEntity, (entity) => entity.proposal, { createForeignKeyConstraints: false })
     details: Relation<ProposalDetailEntity>[];
 
-    @ManyToOne(() => RepairRequestEntity, { createForeignKeyConstraints: false })
-    @JoinColumn({ name: 'repair_request_id', referencedColumnName: 'id' })
-    repairRequest: Relation<RepairRequestEntity>;
+    @ManyToOne(() => DepartmentEntity, { createForeignKeyConstraints: false })
+    @JoinColumn({ name: 'department_id', referencedColumnName: 'id' })
+    department: Relation<DepartmentEntity>;
 }

@@ -79,12 +79,11 @@ export class RepairRequestListener {
         const entity = await this.database.repairRequest.findOne({ where: { id: event.id }, relations: ['repairBy'] });
         if (!entity) return;
 
-        const proposal = await this.database.proposal.findOne({ where: { repairRequestId: entity.id } });
         this.notificationService.createNotification({
             entity: 'repairRequest',
             entityId: entity.id,
             senderId: event.senderId,
-            receiverIds: [entity.createdById, entity.repairById, proposal?.createdById],
+            receiverIds: [entity.createdById, entity.repairById],
             type: 'repairRequest',
             link: `/warehouse-process/repair`,
             details: [

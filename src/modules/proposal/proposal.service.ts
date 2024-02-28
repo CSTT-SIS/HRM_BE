@@ -30,18 +30,10 @@ export class ProposalService {
         builder.andWhere(this.utilService.fullTextSearch({ fields: ['name'], keyword: queries.search }));
         builder.andWhere(this.utilService.getConditionsFromQuery(queries, ['type', 'status']));
 
-        builder.leftJoinAndSelect('entity.repairRequest', 'repairRequest');
+        builder.leftJoinAndSelect('entity.department', 'department');
         builder.leftJoinAndSelect('entity.createdBy', 'createdBy');
         builder.leftJoinAndSelect('entity.updatedBy', 'updatedBy');
-        builder.select([
-            'entity',
-            'repairRequest.id',
-            'repairRequest.name',
-            'createdBy.id',
-            'createdBy.fullName',
-            'updatedBy.id',
-            'updatedBy.fullName',
-        ]);
+        builder.select(['entity', 'department.id', 'department.name', 'createdBy.id', 'createdBy.fullName', 'updatedBy.id', 'updatedBy.fullName']);
 
         const [result, total] = await builder.getManyAndCount();
         const totalPages = Math.ceil(total / take);
@@ -57,7 +49,7 @@ export class ProposalService {
 
     findOne(id: number) {
         const builder = this.database.proposal.createQueryBuilder('entity');
-        builder.leftJoinAndSelect('entity.repairRequest', 'repairRequest');
+        builder.leftJoinAndSelect('entity.department', 'department');
         builder.leftJoinAndSelect('entity.createdBy', 'createdBy');
         builder.leftJoinAndSelect('entity.updatedBy', 'updatedBy');
         builder.leftJoinAndSelect('entity.details', 'details');
@@ -67,8 +59,8 @@ export class ProposalService {
         builder.where('entity.id = :id', { id });
         builder.select([
             'entity',
-            'repairRequest.id',
-            'repairRequest.name',
+            'department.id',
+            'department.name',
             'createdBy.id',
             'createdBy.fullName',
             'updatedBy.id',
