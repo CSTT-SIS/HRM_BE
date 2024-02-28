@@ -5,13 +5,13 @@ import { ORDER_TYPE } from '~/common/enums/enum';
 
 export class CreateOrderDto {
     // @ApiProperty({ type: 'number', description: 'Proposal Id' })
-    // @IsNotEmpty({ message: 'Mã phiếu đề xuất không được để trống' })
-    // @IsNumber({}, { message: 'Mã phiếu đề xuất phải là số' })
-    // @IsIdExist({ entity: 'proposal' }, { message: 'Mã phiếu đề xuất không tồn tại' })
+    // @IsNotEmpty({ message: 'Mã phiếu yêu cầu không được để trống' })
+    // @IsNumber({}, { message: 'Mã phiếu yêu cầu phải là số' })
+    // @IsIdExist({ entity: 'proposal' }, { message: 'Mã phiếu yêu cầu không tồn tại' })
     // proposalId: number;
 
     @ApiProperty({ type: 'array', description: 'Proposal Ids' })
-    @ArrayNotEmpty({ message: 'Mã phiếu đề xuất không được để trống' })
+    @ArrayNotEmpty({ message: 'Mã phiếu yêu cầu không được để trống' })
     proposalIds: number[];
 
     @ApiProperty({ type: 'string', description: 'type' })

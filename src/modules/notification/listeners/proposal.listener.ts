@@ -24,8 +24,8 @@ export class ProposalListener {
         //         details: [
         //             {
         //                 lang: 'vi',
-        //                 title: `Đề xuất '${entity.name}' đã được tạo`,
-        //                 content: `Đề xuất '${entity.name}' đã được tạo`,
+        //                 title: `Yêu cầu '${entity.name}' đã được tạo`,
+        //                 content: `Yêu cầu '${entity.name}' đã được tạo`,
         //             },
         //             {
         //                 lang: 'en',
@@ -58,8 +58,8 @@ export class ProposalListener {
             details: [
                 {
                     lang: 'vi',
-                    title: `Đề xuất '${entity.name}' đang chờ phê duyệt`,
-                    content: `Đề xuất '${entity.name}' đang chờ phê duyệt`,
+                    title: `Yêu cầu '${entity.name}' đang chờ phê duyệt`,
+                    content: `Yêu cầu '${entity.name}' đang chờ phê duyệt`,
                 },
                 {
                     lang: 'en',
@@ -98,8 +98,8 @@ export class ProposalListener {
             details: [
                 {
                     lang: 'vi',
-                    title: `Đề xuất '${entity.name}' đã được phê duyệt`,
-                    content: `Đề xuất '${entity.name}' đã được phê duyệt`,
+                    title: `Yêu cầu '${entity.name}' đã được phê duyệt`,
+                    content: `Yêu cầu '${entity.name}' đã được phê duyệt`,
                 },
                 {
                     lang: 'en',
@@ -130,8 +130,8 @@ export class ProposalListener {
             details: [
                 {
                     lang: 'vi',
-                    title: `Đề xuất '${entity.name}' đã bị từ chối`,
-                    content: `Đề xuất '${entity.name}' đã bị từ chối`,
+                    title: `Yêu cầu '${entity.name}' đã bị từ chối`,
+                    content: `Yêu cầu '${entity.name}' đã bị từ chối`,
                 },
                 {
                     lang: 'en',
@@ -162,8 +162,8 @@ export class ProposalListener {
             details: [
                 {
                     lang: 'vi',
-                    title: `Đề xuất '${entity.name}' đã bị trả lại`,
-                    content: `Đề xuất '${entity.name}' đã bị trả lại`,
+                    title: `Yêu cầu '${entity.name}' đã bị trả lại`,
+                    content: `Yêu cầu '${entity.name}' đã bị trả lại`,
                 },
                 {
                     lang: 'en',

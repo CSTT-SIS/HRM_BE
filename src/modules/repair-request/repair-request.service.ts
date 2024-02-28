@@ -109,7 +109,7 @@ export class RepairRequestService {
     }
 
     async remove(id: number) {
-        await this.isStatusValid({ id, statuses: [REPAIR_REQUEST_STATUS.IN_PROGRESS, REPAIR_REQUEST_STATUS.CANCELLED] });
+        await this.isStatusValid({ id, statuses: [REPAIR_REQUEST_STATUS.IN_PROGRESS, REPAIR_REQUEST_STATUS.REJECTED] });
         this.database.repairDetail.delete({ repairRequestId: id });
         this.database.repairProgress.delete({ repairRequestId: id });
         return this.database.repairRequest.delete(id);
@@ -189,7 +189,7 @@ export class RepairRequestService {
             this.database.repairProgress.create({
                 repairRequestId: id,
                 repairById: entity.repairById,
-                status: REPAIR_REQUEST_STATUS.COMPLETED,
+                status: REPAIR_REQUEST_STATUS.EXPORTED,
                 trackingDate: new Date(),
             }),
         );
@@ -197,7 +197,7 @@ export class RepairRequestService {
         // notify who created request
         this.emitEvent('repairRequest.completed', { id });
 
-        return this.database.repairRequest.update(id, { status: REPAIR_REQUEST_STATUS.COMPLETED, endDate: new Date() });
+        return this.database.repairRequest.update(id, { status: REPAIR_REQUEST_STATUS.EXPORTED, endDate: new Date() });
     }
 
     /**

@@ -9,4 +9,14 @@ export class RepairDetailRepository extends Repository<RepairDetailEntity> {
     constructor(private dataSource: DataSource) {
         super(RepairDetailEntity, dataSource.createEntityManager());
     }
+
+    getDetailByRequestId(requestId: number): Promise<{ productId: number; productName: string; quantity: number }[]> {
+        return this.createQueryBuilder('requestDetail')
+            .leftJoin('requestDetail.replacementPart', 'product')
+            .select('requestDetail.replacementPartId', 'productId')
+            .addSelect('requestDetail.quantity', 'quantity')
+            .addSelect('product.name', 'productName')
+            .where('requestDetail.repairRequestId = :requestId', { requestId })
+            .getRawMany();
+    }
 }

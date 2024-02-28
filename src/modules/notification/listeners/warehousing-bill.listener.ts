@@ -155,8 +155,8 @@ export class WarehousingBillListener {
                 details: [
                     {
                         lang: 'vi',
-                        title: `Đề xuất '${proposal.name}' đã hoàn thành`,
-                        content: `Đề xuất '${proposal.name}' đã hoàn thành`,
+                        title: `Yêu cầu '${proposal.name}' đã hoàn thành`,
+                        content: `Yêu cầu '${proposal.name}' đã hoàn thành`,
                     },
                     {
                         lang: 'en',

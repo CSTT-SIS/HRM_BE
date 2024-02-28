@@ -18,7 +18,7 @@ export class ProposalService {
     constructor(private readonly utilService: UtilService, private readonly database: DatabaseService, private eventEmitter: EventEmitter2) {}
 
     async create(createProposalDto: CreateProposalDto) {
-        if (!Object.keys(PROPOSAL_TYPE).includes(createProposalDto.type)) throw new HttpException('Loại đề xuất không hợp lệ', 400);
+        if (!Object.keys(PROPOSAL_TYPE).includes(createProposalDto.type)) throw new HttpException('Loại yêu cầu không hợp lệ', 400);
         const proposal = await this.database.proposal.save(this.database.proposal.create({ ...createProposalDto, createdById: UserStorage.getId() }));
         this.emitEvent('proposal.created', { id: proposal.id });
         return proposal;
@@ -88,7 +88,7 @@ export class ProposalService {
 
     async update(id: number, updateProposalDto: UpdateProposalDto) {
         await this.isProposalStatusValid({ id, statuses: [PROPOSAL_STATUS.DRAFT], userId: UserStorage.getId() });
-        if (!Object.keys(PROPOSAL_TYPE).includes(updateProposalDto.type)) throw new HttpException('Loại đề xuất không hợp lệ', 400);
+        if (!Object.keys(PROPOSAL_TYPE).includes(updateProposalDto.type)) throw new HttpException('Loại yêu cầu không hợp lệ', 400);
         return this.database.proposal.update(id, {
             ...updateProposalDto,
             updatedById: UserStorage.getId(),
@@ -113,7 +113,7 @@ export class ProposalService {
         // Notify user who can approve this proposal
         this.emitEvent('proposal.pending', { id });
 
-        return { message: 'Đã trình đề xuất', data: { id } };
+        return { message: 'Đã trình yêu cầu', data: { id } };
     }
 
     async approve(id: number) {
@@ -131,7 +131,7 @@ export class ProposalService {
         // or send notification to all users who have permission to create warehousing bill (fastest way)
         this.emitEvent('proposal.approved', { id });
 
-        return { message: 'Đã duyệt đề xuất', data: { id } };
+        return { message: 'Đã duyệt yêu cầu', data: { id } };
     }
 
     async reject(id: number, comment: string) {
@@ -147,7 +147,7 @@ export class ProposalService {
         // Notify creator of this proposal
         this.emitEvent('proposal.rejected', { id });
 
-        return { message: 'Đã từ chối đề xuất', data: { id } };
+        return { message: 'Đã từ chối yêu cầu', data: { id } };
     }
 
     async return(id: number, comment: string) {
@@ -164,7 +164,7 @@ export class ProposalService {
         // Notify creator of this proposal
         this.emitEvent('proposal.returned', { id });
 
-        return { message: 'Đã trả lại đề xuất', data: { id } };
+        return { message: 'Đã trả lại yêu cầu', data: { id } };
     }
 
     async getDetails(queries: FilterDto & { proposalId: number; productId: number }) {
@@ -242,15 +242,15 @@ export class ProposalService {
         checkIfBillCreated?: boolean;
     }): Promise<ProposalEntity> {
         const entity = await this.database.proposal.findOneBy({ id: data.id });
-        if (!entity) throw new HttpException('Không tìm thấy đề xuất', 404);
-        if (!data.statuses.includes(entity.status)) throw new HttpException('Không thể chỉnh sửa đề xuất do trạng thái không hợp lệ', 400);
-        if (data.userId && entity.createdById !== data.userId) throw new HttpException('Bạn không có quyền chỉnh sửa đề xuất này', 403);
+        if (!entity) throw new HttpException('Không tìm thấy yêu cầu', 404);
+        if (!data.statuses.includes(entity.status)) throw new HttpException('Không thể chỉnh sửa yêu cầu do trạng thái không hợp lệ', 400);
+        if (data.userId && entity.createdById !== data.userId) throw new HttpException('Bạn không có quyền chỉnh sửa yêu cầu này', 403);
         if (data.checkIfBillCreated) {
             const order = await this.database.order.isProposalAdded(data.id);
-            if (order) throw new HttpException('Không thể chỉnh sửa đề xuất do đơn hàng đã được tạo', 400);
+            if (order) throw new HttpException('Không thể chỉnh sửa yêu cầu do đơn hàng đã được tạo', 400);
 
             const bill = await this.database.warehousingBill.countBy({ proposalId: data.id });
-            if (bill) throw new HttpException('Không thể chỉnh sửa đề xuất do phiếu kho đã được tạo', 400);
+            if (bill) throw new HttpException('Không thể chỉnh sửa yêu cầu do phiếu kho đã được tạo', 400);
         }
         return entity;
     }
@@ -269,7 +269,7 @@ export class ProposalService {
 
         if (proposalId) {
             const isDuplicate = await this.database.proposalDetail.findOneBy({ proposalId, productId: In(productIds) });
-            if (isDuplicate) throw new HttpException('Sản phẩm đã được thêm vào đề xuất', 400);
+            if (isDuplicate) throw new HttpException('Sản phẩm đã được thêm vào yêu cầu', 400);
         }
     }
 
@@ -280,7 +280,7 @@ export class ProposalService {
                 productId: detail.productId,
                 id: detailId ? Not(detailId) : undefined,
             });
-            if (isDuplicate) throw new HttpException('Sản phẩm đã được thêm vào đề xuất', 400);
+            if (isDuplicate) throw new HttpException('Sản phẩm đã được thêm vào yêu cầu', 400);
         }
     }
 

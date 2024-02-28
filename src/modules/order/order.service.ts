@@ -176,14 +176,14 @@ export class OrderService {
      */
     private async isProposalValid(proposalId: number, orderType: ORDER_TYPE): Promise<ProposalEntity> {
         const proposal = await this.database.proposal.findOne({ where: { id: proposalId } });
-        if (!proposal) throw new HttpException('Phiếu đề xuất không tồn tại', 400);
-        if (proposal.status !== PROPOSAL_STATUS.APPROVED) throw new HttpException('Phiếu đề xuất chưa được duyệt', 400);
-        if (proposal.type !== PROPOSAL_TYPE.PURCHASE) throw new HttpException('Phiếu đề xuất không phải là phiếu mua hàng', 400);
+        if (!proposal) throw new HttpException('Phiếu yêu cầu không tồn tại', 400);
+        if (proposal.status !== PROPOSAL_STATUS.APPROVED) throw new HttpException('Phiếu yêu cầu chưa được duyệt', 400);
+        if (proposal.type !== PROPOSAL_TYPE.PURCHASE) throw new HttpException('Phiếu yêu cầu không phải là phiếu mua hàng', 400);
         if (orderType !== ORDER_TYPE.PURCHASE && proposal.type !== PROPOSAL_TYPE.PURCHASE)
             throw new HttpException('Loại đơn hàng không phải là đơn hàng mua hàng', 400);
 
         const check = await this.database.order.isProposalAdded(proposalId);
-        if (check) throw new HttpException('Phiếu đề xuất đã được thêm vào một đơn hàng khác', 400);
+        if (check) throw new HttpException('Phiếu yêu cầu đã được thêm vào một đơn hàng khác', 400);
 
         return proposal;
     }
@@ -271,7 +271,7 @@ export class OrderService {
      */
     private async isProductAddedToProposal(orderId: number, productId: number) {
         const result = await this.database.order.isProductAddedToProposal(orderId, productId);
-        if (!result) throw new HttpException('Sản phẩm chưa được thêm vào phiếu đề xuất', 400);
+        if (!result) throw new HttpException('Sản phẩm chưa được thêm vào phiếu yêu cầu', 400);
     }
 
     private emitEventByStatus(status: ORDER_STATUS, data: { id: number }) {
