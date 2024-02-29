@@ -77,7 +77,7 @@ export enum WAREHOUSING_BILL_TYPE {
 
 export enum WAREHOUSING_BILL_TYPE_NAME {
     IMPORT = 'Phiếu nhập kho',
-    EXPORT = 'Phiếu xuất kho',
+    EXPORT = 'Phiếu xuất kho (sửa chữa)',
 }
 
 export enum WAREHOUSING_BILL_STATUS {

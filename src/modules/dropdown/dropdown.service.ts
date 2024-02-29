@@ -92,7 +92,13 @@ export class DropdownService {
     }
 
     warehousingBillType() {
-        return Object.values(WAREHOUSING_BILL_TYPE).map((item) => ({ value: item, label: WAREHOUSING_BILL_TYPE_NAME[item] }));
+        return [
+            ...Object.values(WAREHOUSING_BILL_TYPE).map((item) => ({ value: item, label: WAREHOUSING_BILL_TYPE_NAME[item] })),
+            {
+                value: 'EXPORT',
+                label: 'Phiếu xuất kho (mìn)',
+            },
+        ];
     }
 
     user(queries: FilterDto & { fullName: string }) {
