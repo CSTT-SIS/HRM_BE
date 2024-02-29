@@ -130,6 +130,16 @@ export class DropdownService {
         return Object.values(DAMAGE_LEVEL).map((item) => ({ value: item, label: DAMAGE_LEVEL_NAME[item] }));
     }
 
+    department(queries: FilterDto) {
+        return this.getDropdown({
+            entity: 'department',
+            queries,
+            label: 'name',
+            value: 'id',
+            fulltext: true,
+        });
+    }
+
     private async getDropdown(data: {
         entity: string;
         queries: FilterDto;

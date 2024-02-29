@@ -105,4 +105,11 @@ export class DropdownController {
     damageLevel() {
         return this.dropdownService.damageLevel();
     }
+
+    @Permission('department:findAll')
+    @Get('department')
+    @ApiQuery({ type: FilterDto })
+    department(@Query() queries) {
+        return this.dropdownService.department({ ...queries });
+    }
 }
