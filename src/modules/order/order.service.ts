@@ -181,10 +181,11 @@ export class OrderService {
      * @returns a Promise that resolves to a ProposalEntity.
      */
     private async isProposalValid(proposalId: number, orderType: ORDER_TYPE): Promise<ProposalEntity> {
+        // proposal with PURCHASE type, only create order when status is MANAGER_APPROVED
         const proposal = await this.database.proposal.findOne({ where: { id: proposalId } });
         if (!proposal) throw new HttpException('Phiếu yêu cầu không tồn tại', 400);
-        if (proposal.status !== PROPOSAL_STATUS.APPROVED) throw new HttpException('Phiếu yêu cầu chưa được duyệt', 400);
         if (proposal.type !== PROPOSAL_TYPE.PURCHASE) throw new HttpException('Phiếu yêu cầu không phải là phiếu mua hàng', 400);
+        if (proposal.status !== PROPOSAL_STATUS.MANAGER_APPROVED) throw new HttpException('Phiếu yêu cầu chưa được ban lãnh đạo duyệt', 400);
         if (orderType !== ORDER_TYPE.PURCHASE && proposal.type !== PROPOSAL_TYPE.PURCHASE)
             throw new HttpException('Loại đơn hàng không phải là đơn hàng mua hàng', 400);
 
@@ -264,7 +265,6 @@ export class OrderService {
     private async updateStatus(data: { id: number; from: ORDER_STATUS[]; to: ORDER_STATUS }) {
         await this.isStatusValid({ id: data.id, statuses: data.from });
         this.database.orderProgressTracking.save({ orderId: data.id, status: data.to, trackingDate: new Date() });
-        // emit event
         this.emitEventByStatus(data.to, { id: data.id });
         return this.database.order.update(data.id, { status: data.to });
     }

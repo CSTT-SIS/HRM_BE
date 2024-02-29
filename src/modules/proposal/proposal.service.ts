@@ -18,7 +18,6 @@ export class ProposalService {
     constructor(private readonly utilService: UtilService, private readonly database: DatabaseService, private eventEmitter: EventEmitter2) {}
 
     async create(createProposalDto: CreateProposalDto) {
-        // TODO:
         // with PURCHASE type, need 2-level approval
         // with SUPPLY type, need 1-level approval
         const proposal = await this.database.proposal.save(this.database.proposal.create({ ...createProposalDto, createdById: UserStorage.getId() }));
@@ -91,7 +90,11 @@ export class ProposalService {
     }
 
     async remove(id: number) {
-        await this.isProposalStatusValid({ id, statuses: [PROPOSAL_STATUS.DRAFT, PROPOSAL_STATUS.REJECTED], userId: UserStorage.getId() });
+        await this.isProposalStatusValid({
+            id,
+            statuses: [PROPOSAL_STATUS.DRAFT, PROPOSAL_STATUS.HEAD_REJECTED, PROPOSAL_STATUS.MANAGER_REJECTED],
+            userId: UserStorage.getId(),
+        });
         await this.database.proposalDetail.delete({ proposalId: id });
         return this.database.proposal.delete(id);
     }
@@ -104,61 +107,105 @@ export class ProposalService {
             userId: UserStorage.getId(),
         });
 
-        // Notify user who can approve this proposal
         this.emitEvent('proposal.pending', { id });
-
         return { message: 'Đã trình yêu cầu', data: { id } };
     }
 
-    async approve(id: number) {
-        // TODO: check if user have permission to approve
-        // maybe use a table to store who can approve which proposal is created by who
+    // async approve(id: number) {
+    //     // TODO: check if user have permission to approve
+    //     // maybe use a table to store who can approve which proposal is created by who
 
+    //     await this.updateStatus({
+    //         id,
+    //         from: PROPOSAL_STATUS.PENDING,
+    //         to: PROPOSAL_STATUS.APPROVED,
+    //     });
+
+    //     // Notify user who can create warehousing bill
+    //     // maybe use a table to store who can receive notification when a proposal is approved
+    //     // or send notification to all users who have permission to create warehousing bill (fastest way)
+    //     this.emitEvent('proposal.approved', { id });
+
+    //     return { message: 'Đã duyệt yêu cầu', data: { id } };
+    // }
+
+    // async reject(id: number, comment: string) {
+    //     // TODO: check if user have permission to reject
+
+    //     await this.updateStatus({
+    //         id,
+    //         from: PROPOSAL_STATUS.PENDING,
+    //         to: PROPOSAL_STATUS.REJECTED,
+    //         comment,
+    //     });
+
+    //     // Notify creator of this proposal
+    //     this.emitEvent('proposal.rejected', { id });
+
+    //     return { message: 'Đã từ chối yêu cầu', data: { id } };
+    // }
+
+    // async return(id: number, comment: string) {
+    //     // TODO: check if user have permission to return
+
+    //     await this.updateStatus({
+    //         id,
+    //         from: PROPOSAL_STATUS.APPROVED,
+    //         to: PROPOSAL_STATUS.DRAFT,
+    //         comment,
+    //         checkIfBillCreated: true,
+    //     });
+
+    //     // Notify creator of this proposal
+    //     this.emitEvent('proposal.returned', { id });
+
+    //     return { message: 'Đã trả lại yêu cầu', data: { id } };
+    // }
+
+    async headApprove(id: number) {
         await this.updateStatus({
             id,
             from: PROPOSAL_STATUS.PENDING,
-            to: PROPOSAL_STATUS.APPROVED,
+            to: PROPOSAL_STATUS.HEAD_APPROVED,
         });
 
-        // Notify user who can create warehousing bill
-        // maybe use a table to store who can receive notification when a proposal is approved
-        // or send notification to all users who have permission to create warehousing bill (fastest way)
-        this.emitEvent('proposal.approved', { id });
-
+        this.emitEvent('proposal.headApproved', { id });
         return { message: 'Đã duyệt yêu cầu', data: { id } };
     }
 
-    async reject(id: number, comment: string) {
-        // TODO: check if user have permission to reject
-
+    async headReject(id: number, comment: string) {
         await this.updateStatus({
             id,
             from: PROPOSAL_STATUS.PENDING,
-            to: PROPOSAL_STATUS.REJECTED,
+            to: PROPOSAL_STATUS.HEAD_REJECTED,
             comment,
         });
 
-        // Notify creator of this proposal
-        this.emitEvent('proposal.rejected', { id });
-
+        this.emitEvent('proposal.headRejected', { id });
         return { message: 'Đã từ chối yêu cầu', data: { id } };
     }
 
-    async return(id: number, comment: string) {
-        // TODO: check if user have permission to return
-
+    async managerApprove(id: number) {
         await this.updateStatus({
             id,
-            from: PROPOSAL_STATUS.APPROVED,
-            to: PROPOSAL_STATUS.DRAFT,
-            comment,
-            checkIfBillCreated: true,
+            from: PROPOSAL_STATUS.HEAD_APPROVED,
+            to: PROPOSAL_STATUS.MANAGER_APPROVED,
         });
 
-        // Notify creator of this proposal
-        this.emitEvent('proposal.returned', { id });
+        this.emitEvent('proposal.managerApproved', { id });
+        return { message: 'Đã duyệt yêu cầu', data: { id } };
+    }
 
-        return { message: 'Đã trả lại yêu cầu', data: { id } };
+    async managerReject(id: number, comment: string) {
+        await this.updateStatus({
+            id,
+            from: PROPOSAL_STATUS.HEAD_APPROVED,
+            to: PROPOSAL_STATUS.MANAGER_REJECTED,
+            comment,
+        });
+
+        this.emitEvent('proposal.managerRejected', { id });
+        return { message: 'Đã từ chối yêu cầu', data: { id } };
     }
 
     async getDetails(queries: FilterDto & { proposalId: number; productId: number }) {

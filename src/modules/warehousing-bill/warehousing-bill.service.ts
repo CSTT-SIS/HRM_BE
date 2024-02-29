@@ -1,7 +1,7 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import moment from 'moment';
-import { In, IsNull, Not } from 'typeorm';
+import { In, IsNull, Like, Not } from 'typeorm';
 import { FilterDto } from '~/common/dtos/filter.dto';
 import {
     ORDER_STATUS,
@@ -134,7 +134,7 @@ export class WarehousingBillService {
     }
 
     async remove(id: number) {
-        await this.isStatusValid({ id, statuses: [WAREHOUSING_BILL_STATUS.PENDING, WAREHOUSING_BILL_STATUS.REJECTED] });
+        await this.isStatusValid({ id, statuses: [WAREHOUSING_BILL_STATUS.PENDING] });
         await this.database.warehousingBillDetail.delete({ warehousingBillId: id });
         return this.database.warehousingBill.delete(id);
     }
@@ -161,70 +161,70 @@ export class WarehousingBillService {
         };
     }
 
-    async approve(id: number) {
-        // TODO: check if user have permission to approve
-        // maybe use a table to store who can approve which proposal is created by who
-        await this.isStatusValid({ id, statuses: [WAREHOUSING_BILL_STATUS.PENDING] });
-        await this.database.warehousingBill.update(id, { status: WAREHOUSING_BILL_STATUS.APPROVED });
-        await this.database.approvalProcess.save(
-            this.database.approvalProcess.create({
-                warehousingBillId: id,
-                userId: UserStorage.getId(),
-                from: PROPOSAL_STATUS.PENDING,
-                to: PROPOSAL_STATUS.APPROVED,
-            }),
-        );
+    // async approve(id: number) {
+    //     // TODO: check if user have permission to approve
+    //     // maybe use a table to store who can approve which proposal is created by who
+    //     await this.isStatusValid({ id, statuses: [WAREHOUSING_BILL_STATUS.PENDING] });
+    //     await this.database.warehousingBill.update(id, { status: WAREHOUSING_BILL_STATUS.APPROVED });
+    //     await this.database.approvalProcess.save(
+    //         this.database.approvalProcess.create({
+    //             warehousingBillId: id,
+    //             userId: UserStorage.getId(),
+    //             from: PROPOSAL_STATUS.PENDING,
+    //             to: PROPOSAL_STATUS.APPROVED,
+    //         }),
+    //     );
 
-        // emit an event to notify that the warehousing bill is approved
-        this.emitEvent('warehousingBill.approved', { id });
+    //     // emit an event to notify that the warehousing bill is approved
+    //     this.emitEvent('warehousingBill.approved', { id });
 
-        return { message: 'Duyệt phiếu kho thành công', data: { id } };
-    }
+    //     return { message: 'Duyệt phiếu kho thành công', data: { id } };
+    // }
 
-    async reject(id: number) {
-        // TODO: check if user have permission to reject
-        await this.isStatusValid({ id, statuses: [WAREHOUSING_BILL_STATUS.PENDING] });
-        await this.database.warehousingBill.update(id, { status: WAREHOUSING_BILL_STATUS.REJECTED });
-        await this.database.approvalProcess.save(
-            this.database.approvalProcess.create({
-                warehousingBillId: id,
-                userId: UserStorage.getId(),
-                from: PROPOSAL_STATUS.PENDING,
-                to: PROPOSAL_STATUS.REJECTED,
-            }),
-        );
+    // async reject(id: number) {
+    //     // TODO: check if user have permission to reject
+    //     await this.isStatusValid({ id, statuses: [WAREHOUSING_BILL_STATUS.PENDING] });
+    //     await this.database.warehousingBill.update(id, { status: WAREHOUSING_BILL_STATUS.REJECTED });
+    //     await this.database.approvalProcess.save(
+    //         this.database.approvalProcess.create({
+    //             warehousingBillId: id,
+    //             userId: UserStorage.getId(),
+    //             from: PROPOSAL_STATUS.PENDING,
+    //             to: PROPOSAL_STATUS.REJECTED,
+    //         }),
+    //     );
 
-        // emit an event to notify that the warehousing bill is rejected
-        this.emitEvent('warehousingBill.rejected', { id });
+    //     // emit an event to notify that the warehousing bill is rejected
+    //     this.emitEvent('warehousingBill.rejected', { id });
 
-        return { message: 'Từ chối phiếu kho thành công', data: { id } };
-    }
+    //     return { message: 'Từ chối phiếu kho thành công', data: { id } };
+    // }
 
-    async return(id: number) {
-        // TODO: check if user have permission to return
-        await this.isStatusValid({ id, statuses: [WAREHOUSING_BILL_STATUS.APPROVED], isTallied: true });
-        await this.database.warehousingBill.update(id, { status: WAREHOUSING_BILL_STATUS.PENDING });
-        await this.database.approvalProcess.save(
-            this.database.approvalProcess.create({
-                warehousingBillId: id,
-                userId: UserStorage.getId(),
-                from: PROPOSAL_STATUS.APPROVED,
-                to: PROPOSAL_STATUS.PENDING,
-            }),
-        );
+    // async return(id: number) {
+    //     // TODO: check if user have permission to return
+    //     await this.isStatusValid({ id, statuses: [WAREHOUSING_BILL_STATUS.APPROVED], isTallied: true });
+    //     await this.database.warehousingBill.update(id, { status: WAREHOUSING_BILL_STATUS.PENDING });
+    //     await this.database.approvalProcess.save(
+    //         this.database.approvalProcess.create({
+    //             warehousingBillId: id,
+    //             userId: UserStorage.getId(),
+    //             from: PROPOSAL_STATUS.APPROVED,
+    //             to: PROPOSAL_STATUS.PENDING,
+    //         }),
+    //     );
 
-        // emit an event to notify that the warehousing bill is returned
-        this.emitEvent('warehousingBill.returned', { id });
+    //     // emit an event to notify that the warehousing bill is returned
+    //     this.emitEvent('warehousingBill.returned', { id });
 
-        return { message: 'Trả phiếu kho thành công', data: { id } };
-    }
+    //     return { message: 'Trả phiếu kho thành công', data: { id } };
+    // }
 
     async finish(id: number) {
-        const bill = await this.isStatusValid({ id, statuses: [WAREHOUSING_BILL_STATUS.APPROVED] });
+        const bill = await this.isStatusValid({ id, statuses: [WAREHOUSING_BILL_STATUS.PENDING] });
         const { result, nonTalliedProducts } = await this.isAllDetailsTallied(bill.id);
         if (!result) throw new HttpException('Còn sản phẩm chưa được kiểm đếm: ' + nonTalliedProducts.join(', '), 400);
 
-        await this.allDetailsTallied(bill.id, bill.proposalId, bill.orderId);
+        await this.allDetailsTallied(bill);
 
         // emit an event to notify that the tallying process is completed
         this.emitEvent('warehousingBill.finished', { id });
@@ -245,11 +245,28 @@ export class WarehousingBillService {
 
         const bill = await this.database.warehousingBill.findOneBy({ id: detail.warehousingBillId });
         if (!bill) throw new HttpException('Không tìm thấy phiếu kho', 404);
-        if (bill.status !== WAREHOUSING_BILL_STATUS.APPROVED) throw new HttpException('Phiếu kho chưa được duyệt hoặc đã được kiểm đếm', 400);
+        if (bill.status !== WAREHOUSING_BILL_STATUS.PENDING) throw new HttpException('Phiếu kho chưa được duyệt hoặc đã được kiểm đếm', 400);
 
         await this.database.warehousingBillDetail.update(detail.id, { actualQuantity });
 
         return { message: 'Kiểm đếm phiếu kho thành công', data: { ...detail, actualQuantity } };
+    }
+
+    async getApprovedRequests(queries: { id: number; entity: string; search: string }) {
+        const { id, entity, search } = queries;
+        switch (entity) {
+            case 'proposal':
+                // id, entity, name, content, status
+                return this.getProposalRequests(id, search);
+            case 'order':
+                // id, entity, name, code, status
+                return this.getOrderRequests(id, search);
+            case 'repairRequest':
+                // id, entity, name, description, status
+                return this.getRepairRequests(id, search);
+            default:
+                return this.getAllRequests(id, search);
+        }
     }
 
     private async validateCreate(createWarehousingBillDto: CreateWarehousingBillDto): Promise<void> {
@@ -266,7 +283,7 @@ export class WarehousingBillService {
         if (createWarehousingBillDto.type === WAREHOUSING_BILL_TYPE.IMPORT) {
             // only import from proposal or order
             if (createWarehousingBillDto.proposalId) {
-                await this.checkValidType(createWarehousingBillDto.proposalId, createWarehousingBillDto.type);
+                await this.checkValidProposalType(createWarehousingBillDto.proposalId, createWarehousingBillDto.type);
             }
 
             if (createWarehousingBillDto.orderId) {
@@ -287,7 +304,7 @@ export class WarehousingBillService {
         if (createWarehousingBillDto.type === WAREHOUSING_BILL_TYPE.EXPORT) {
             // only export from proposal has SUPPLY type or repair request
             if (createWarehousingBillDto.proposalId) {
-                await this.checkValidType(createWarehousingBillDto.proposalId, createWarehousingBillDto.type);
+                await this.checkValidProposalType(createWarehousingBillDto.proposalId, createWarehousingBillDto.type);
             }
 
             if (createWarehousingBillDto.orderId) {
@@ -298,7 +315,7 @@ export class WarehousingBillService {
                 await this.utilService.checkRelationIdExist({
                     repairRequest: {
                         id: createWarehousingBillDto.repairRequestId,
-                        status: REPAIR_REQUEST_STATUS.APPROVED,
+                        status: REPAIR_REQUEST_STATUS.HEAD_APPROVED,
                         errorMessage: 'Không tìm thấy yêu cầu sửa chữa hoặc yêu cầu chưa được duyệt',
                     },
                 });
@@ -477,33 +494,70 @@ export class WarehousingBillService {
      * @returns Promise<void>
      * @emits tallying.completed
      */
-    private async allDetailsTallied(billId: number, proposalId: number, orderId: number) {
-        await this.database.warehousingBill.update(billId, { status: WAREHOUSING_BILL_STATUS.COMPLETED });
+    private async allDetailsTallied(bill: WarehousingBillEntity): Promise<void> {
+        const { proposalId, orderId, repairRequestId } = bill;
+        await this.database.warehousingBill.update(bill.id, { status: WAREHOUSING_BILL_STATUS.COMPLETED });
         this.database.approvalProcess.save(
             this.database.approvalProcess.create({
-                warehousingBillId: billId,
+                warehousingBillId: bill.id,
                 userId: UserStorage.getId(),
-                from: PROPOSAL_STATUS.APPROVED,
-                to: PROPOSAL_STATUS.COMPLETED,
+                from: WAREHOUSING_BILL_STATUS.PENDING,
+                to: WAREHOUSING_BILL_STATUS.COMPLETED,
             }),
         );
 
-        await this.database.proposal.update(proposalId, { status: PROPOSAL_STATUS.COMPLETED });
-        this.database.approvalProcess.save(
-            this.database.approvalProcess.create({
-                proposalId: proposalId,
-                userId: UserStorage.getId(),
-                from: PROPOSAL_STATUS.APPROVED,
-                to: PROPOSAL_STATUS.COMPLETED,
-            }),
-        );
-
-        if (orderId) {
-            await this.database.order.update(orderId, { status: ORDER_STATUS.COMPLETED });
-            this.database.orderProgressTracking.save({ orderId, status: ORDER_STATUS.CANCELLED, trackingDate: new Date() });
+        // TODO: update the status of the warehousing bill and the proposal / order / repair request to completed
+        if (proposalId) {
+            const proposal = await this.database.proposal.findOneBy({ id: proposalId });
+            if (!proposal) throw new HttpException('Không tìm thấy đơn yêu cầu ' + proposalId, 400);
+            await this.database.proposal.update(proposalId, { status: PROPOSAL_STATUS.COMPLETED });
+            this.database.approvalProcess.save(
+                this.database.approvalProcess.create({
+                    proposalId: proposalId,
+                    userId: UserStorage.getId(),
+                    from: proposal.status,
+                    to: PROPOSAL_STATUS.COMPLETED,
+                }),
+            );
         }
 
-        this.updateInventory(billId);
+        if (orderId) {
+            const order = await this.database.order.findOneBy({ id: orderId });
+            if (!order) throw new HttpException('Không tìm thấy đơn hàng ' + orderId, 400);
+            await this.database.order.update(orderId, { status: ORDER_STATUS.COMPLETED });
+            this.database.orderProgressTracking.save({ orderId, status: ORDER_STATUS.COMPLETED, trackingDate: new Date() });
+        }
+
+        if (repairRequestId) {
+            const repairRequest = await this.database.repairRequest.findOneBy({ id: repairRequestId });
+            if (!repairRequest) throw new HttpException('Không tìm thấy yêu cầu sửa chữa ' + repairRequestId, 400);
+            await this.database.repairRequest.update(repairRequestId, { status: REPAIR_REQUEST_STATUS.EXPORTED });
+            this.database.repairProgress.save(
+                this.database.repairProgress.create({
+                    repairRequestId: repairRequest.id,
+                    repairById: repairRequest.repairById,
+                    status: REPAIR_REQUEST_STATUS.EXPORTED,
+                    trackingDate: new Date(),
+                }),
+            );
+        }
+
+        // await this.database.proposal.update(proposalId, { status: PROPOSAL_STATUS.COMPLETED });
+        // this.database.approvalProcess.save(
+        //     this.database.approvalProcess.create({
+        //         proposalId: proposalId,
+        //         userId: UserStorage.getId(),
+        //         from: PROPOSAL_STATUS.APPROVED,
+        //         to: PROPOSAL_STATUS.COMPLETED,
+        //     }),
+        // );
+
+        // if (orderId) {
+        //     await this.database.order.update(orderId, { status: ORDER_STATUS.COMPLETED });
+        //     this.database.orderProgressTracking.save({ orderId, status: ORDER_STATUS.CANCELLED, trackingDate: new Date() });
+        // }
+
+        this.updateInventory(bill.id);
     }
 
     /**
@@ -611,21 +665,36 @@ export class WarehousingBillService {
         }
     }
 
-    private async checkValidType(proposalId: number, wbType: WAREHOUSING_BILL_TYPE) {
-        const proposal = await this.database.proposal.findOneBy({ id: proposalId, status: PROPOSAL_STATUS.APPROVED });
-        if (!proposal) throw new HttpException('Không tìm thấy phiếu yêu cầu hoặc phiếu yêu cầu chưa được duyệt', 400);
+    private async checkValidProposalType(proposalId: number, wbType: WAREHOUSING_BILL_TYPE) {
+        // proposal with PURCHASE type, only create warehousing bill through order, can create warehousing bill when status is RECEIVED
+        // proposal with SUPPLY type, can create warehousing bill when status is HEAD_APPROVED
         const count = await this.database.warehousingBill.countBy({ proposalId });
         if (count > 0) throw new HttpException('Phiếu yêu cầu đã được tạo phiếu nhập kho', 400);
 
-        switch (proposal.type) {
+        const proposal = await this.database.proposal.findOneBy({ id: proposalId });
+        if (!proposal) throw new HttpException('Không tìm thấy đơn yêu cầu', 400);
+
+        const { type, status } = proposal;
+        switch (type) {
             case PROPOSAL_TYPE.PURCHASE:
-                if (wbType !== WAREHOUSING_BILL_TYPE.IMPORT)
-                    throw new HttpException('Loại phiếu kho không hợp lệ, chỉ có thể tạo phiếu nhập kho từ phiếu mua hàng', 400);
-                break;
+                throw new HttpException('Không thể tạo phiếu nhập kho từ đơn yêu cầu mua hàng, chỉ có thể tạo từ đơn đặt hàng', 400);
+            // if (status !== PROPOSAL_STATUS.MANAGER_APPROVED) {
+            //     throw new HttpException(`Đơn yêu cầu mua hàng chưa được duyệt`, 400);
+            // }
+            // if (wbType !== WAREHOUSING_BILL_TYPE.IMPORT) {
+            //     throw new HttpException(`Loại phiếu kho không hợp lệ, chỉ có thể tạo phiếu nhập kho từ đơn yêu cầu mua hàng`, 400);
+            // }
+            // break;
             case PROPOSAL_TYPE.SUPPLY:
-                if (wbType !== WAREHOUSING_BILL_TYPE.EXPORT)
-                    throw new HttpException('Loại phiếu kho không hợp lệ, chỉ có thể tạo phiếu xuất kho từ phiếu xuất hàng', 400);
+                if (status !== PROPOSAL_STATUS.HEAD_APPROVED) {
+                    throw new HttpException(`Đơn yêu cầu cung cấp vật tư chưa được duyệt`, 400);
+                }
+                if (wbType !== WAREHOUSING_BILL_TYPE.EXPORT) {
+                    throw new HttpException(`Loại phiếu kho không hợp lệ, chỉ có thể tạo phiếu xuất kho từ đơn yêu cầu cung cấp vật tư`, 400);
+                }
                 break;
+            default:
+                throw new HttpException(`Loại đơn yêu cầu không hợp lệ (${type})`, 400);
         }
     }
 
@@ -659,4 +728,91 @@ export class WarehousingBillService {
 
     //     return proposal;
     // }
+
+    private async getProposalRequests(id: number, search: string) {
+        const proposals = await this.database.proposal.find({
+            where: { id: id || undefined, type: PROPOSAL_TYPE.SUPPLY, status: PROPOSAL_STATUS.HEAD_APPROVED, name: Like(`%${search}%`) },
+            order: { id: 'DESC' },
+        });
+
+        return proposals.map((proposal) => ({
+            id: proposal.id,
+            entity: 'proposal',
+            name: proposal.name,
+            content: proposal.content,
+            status: proposal.status,
+            wbType: WAREHOUSING_BILL_TYPE.EXPORT,
+        }));
+    }
+
+    private async getOrderRequests(id: number, search: string) {
+        const orders = await this.database.order.find({
+            where: { id: id || undefined, status: ORDER_STATUS.RECEIVED, name: Like(`%${search}%`) },
+            order: { id: 'DESC' },
+        });
+
+        return orders.map((order) => ({
+            id: order.id,
+            entity: 'order',
+            name: order.name,
+            content: order.code,
+            status: order.status,
+            wbType: WAREHOUSING_BILL_TYPE.IMPORT,
+        }));
+    }
+
+    private async getRepairRequests(id: number, search: string) {
+        const repairRequests = await this.database.repairRequest.find({
+            where: { id: id || undefined, status: REPAIR_REQUEST_STATUS.HEAD_APPROVED, name: Like(`%${search}%`) },
+            order: { id: 'DESC' },
+        });
+
+        return repairRequests.map((repairRequest) => ({
+            id: repairRequest.id,
+            entity: 'repairRequest',
+            name: repairRequest.name,
+            content: repairRequest.description,
+            status: repairRequest.status,
+            wbType: WAREHOUSING_BILL_TYPE.EXPORT,
+        }));
+    }
+
+    private async getAllRequests(id: number, search: string) {
+        const whereId = id ? ` AND id = ${id}` : '';
+        const whereSearch = search ? ` AND name LIKE '%${search}%'` : '';
+        const results = await this.database.dataSource.query(
+            `
+            SELECT
+                id,
+                'proposal' as entity,
+                name,
+                content,
+                status,
+                'EXPORT' as wbType
+            FROM proposals
+            WHERE type = 'SUPPLY' AND status = 'HEAD_APPROVED' ${whereId} ${whereSearch}
+            UNION
+            SELECT
+                id,
+                'order' as entity,
+                name,
+                code as content,
+                status,
+                'IMPORT' as wbType
+            FROM orders
+            WHERE status = 'RECEIVED' ${whereId} ${whereSearch}
+            UNION
+            SELECT
+                id,
+                'repairRequest' as entity,
+                name,
+                description as content,
+                status,
+                'EXPORT' as wbType
+            FROM repair_requests
+            WHERE status = 'HEAD_APPROVED' ${whereId} ${whereSearch}
+            `,
+        );
+        return results;
+    }
 }

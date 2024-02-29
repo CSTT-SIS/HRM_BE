@@ -38,6 +38,19 @@ export class WarehousingBillController {
         return this.warehousingBillService.findAll({ ...queries, proposalId, warehouseId, orderId, type, status });
     }
 
+    @Permission('warehousingBill:create')
+    @Get('approved-requests')
+    @ApiQuery({ name: 'id', required: false, type: Number })
+    @ApiQuery({ name: 'entity', required: false, type: String })
+    @ApiQuery({ name: 'search', required: false, type: String })
+    approvedRequests(
+        @Query('id', new ParseIntPipe({ optional: true })) id: string,
+        @Query('entity') entity: string,
+        @Query('search') search: string,
+    ) {
+        return this.warehousingBillService.getApprovedRequests({ id: +id, entity, search });
+    }
+
     @Permission('warehousingBill:findOne')
     @Get(':id')
     findOne(@Param('id', ParseIntPipe) id: string) {
@@ -67,17 +80,17 @@ export class WarehousingBillController {
         return this.warehousingBillService.getDetails({ ...queries, warehousingBillId: +id, productId });
     }
 
-    @Permission('warehousingBill:approve')
-    @Patch(':id/approve')
-    approve(@Param('id', ParseIntPipe) id: string) {
-        return this.warehousingBillService.approve(+id);
-    }
+    // @Permission('warehousingBill:approve')
+    // @Patch(':id/approve')
+    // approve(@Param('id', ParseIntPipe) id: string) {
+    //     return this.warehousingBillService.approve(+id);
+    // }
 
-    @Permission('warehousingBill:reject')
-    @Patch(':id/reject')
-    reject(@Param('id', ParseIntPipe) id: string) {
-        return this.warehousingBillService.reject(+id);
-    }
+    // @Permission('warehousingBill:reject')
+    // @Patch(':id/reject')
+    // reject(@Param('id', ParseIntPipe) id: string) {
+    //     return this.warehousingBillService.reject(+id);
+    // }
 
     @Permission('warehousingBill:finish')
     @Patch(':id/finish')

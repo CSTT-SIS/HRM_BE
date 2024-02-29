@@ -18,8 +18,8 @@ export class RepairRequestService {
     constructor(private readonly utilService: UtilService, private readonly database: DatabaseService, private eventEmitter: EventEmitter2) {}
 
     async create(createRepairRequestDto: CreateRepairRequestDto) {
-        // TODO:
         // with this request, need 1-level approval
+        // can only create warehousing bill if status is HEAD_APPROVED
         const { vehicleRegistrationNumber, ...rest } = createRepairRequestDto;
         const registrationNumber = vehicleRegistrationNumber.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
         const vehicle = await this.database.vehicle.findOrCreate(registrationNumber);
@@ -41,7 +41,7 @@ export class RepairRequestService {
             }),
         );
 
-        // notify who can create proposal
+        // notify to garage or head of department
         this.emitEvent('repairRequest.created', { id: entity.id });
 
         return entity;
@@ -111,10 +111,48 @@ export class RepairRequestService {
     }
 
     async remove(id: number) {
-        await this.isStatusValid({ id, statuses: [REPAIR_REQUEST_STATUS.IN_PROGRESS, REPAIR_REQUEST_STATUS.REJECTED] });
+        await this.isStatusValid({ id, statuses: [REPAIR_REQUEST_STATUS.IN_PROGRESS, REPAIR_REQUEST_STATUS.HEAD_REJECTED] });
         this.database.repairDetail.delete({ repairRequestId: id });
         this.database.repairProgress.delete({ repairRequestId: id });
         return this.database.repairRequest.delete(id);
+    }
+
+    async headApprove(id: number) {
+        await this.isStatusValid({ id, statuses: [REPAIR_REQUEST_STATUS.IN_PROGRESS, REPAIR_REQUEST_STATUS.GARAGE_RECEIVED] });
+        const entity = await this.database.repairRequest.findOneBy({ id });
+        if (!entity) throw new HttpException('Không tìm thấy phiếu sửa chữa', 404);
+
+        this.database.repairProgress.save(
+            this.database.repairProgress.create({
+                repairRequestId: id,
+                repairById: entity.repairById,
+                status: REPAIR_REQUEST_STATUS.HEAD_APPROVED,
+                trackingDate: new Date(),
+            }),
+        );
+
+        // notify who create warehousing bill
+        this.emitEvent('repairRequest.headApprove', { id });
+        return this.database.repairRequest.update(id, { status: REPAIR_REQUEST_STATUS.HEAD_APPROVED });
+    }
+
+    async headReject(id: number, comment: string) {
+        await this.isStatusValid({ id, statuses: [REPAIR_REQUEST_STATUS.IN_PROGRESS, REPAIR_REQUEST_STATUS.GARAGE_RECEIVED] });
+        const entity = await this.database.repairRequest.findOneBy({ id });
+        if (!entity) throw new HttpException('Không tìm thấy phiếu sửa chữa', 404);
+
+        this.database.repairProgress.save(
+            this.database.repairProgress.create({
+                repairRequestId: id,
+                repairById: entity.repairById,
+                status: REPAIR_REQUEST_STATUS.HEAD_REJECTED,
+                trackingDate: new Date(),
+            }),
+        );
+
+        // notify who create request
+        this.emitEvent('repairRequest.headReject', { id });
+        return this.database.repairRequest.update(id, { status: REPAIR_REQUEST_STATUS.HEAD_REJECTED });
     }
 
     async getDetails(queries: FilterDto & { requestId: number; replacementPartId: number }) {
@@ -162,45 +200,45 @@ export class RepairRequestService {
         return this.database.repairDetail.delete({ id: detailId, repairRequestId: id });
     }
 
-    async inProgress(id: number) {
-        await this.isStatusValid({ id, statuses: [REPAIR_REQUEST_STATUS.IN_PROGRESS] });
-        const entity = await this.database.repairRequest.findOneBy({ id });
-        if (!entity) throw new HttpException('Không tìm thấy phiếu sửa chữa', 404);
+    // async inProgress(id: number) {
+    //     await this.isStatusValid({ id, statuses: [REPAIR_REQUEST_STATUS.IN_PROGRESS] });
+    //     const entity = await this.database.repairRequest.findOneBy({ id });
+    //     if (!entity) throw new HttpException('Không tìm thấy phiếu sửa chữa', 404);
 
-        this.database.repairProgress.save(
-            this.database.repairProgress.create({
-                repairRequestId: id,
-                repairById: entity.repairById,
-                status: REPAIR_REQUEST_STATUS.IN_PROGRESS,
-                trackingDate: new Date(),
-            }),
-        );
+    //     this.database.repairProgress.save(
+    //         this.database.repairProgress.create({
+    //             repairRequestId: id,
+    //             repairById: entity.repairById,
+    //             status: REPAIR_REQUEST_STATUS.IN_PROGRESS,
+    //             trackingDate: new Date(),
+    //         }),
+    //     );
 
-        // notify who can complete request
-        this.emitEvent('repairRequest.inProgress', { id });
+    //     // notify who can complete request
+    //     this.emitEvent('repairRequest.inProgress', { id });
 
-        return this.database.repairRequest.update(id, { status: REPAIR_REQUEST_STATUS.IN_PROGRESS });
-    }
+    //     return this.database.repairRequest.update(id, { status: REPAIR_REQUEST_STATUS.IN_PROGRESS });
+    // }
 
-    async complete(id: number) {
-        await this.isStatusValid({ id, statuses: [REPAIR_REQUEST_STATUS.IN_PROGRESS] });
-        const entity = await this.database.repairRequest.findOneBy({ id });
-        if (!entity) throw new HttpException('Không tìm thấy phiếu sửa chữa', 404);
+    // async complete(id: number) {
+    //     await this.isStatusValid({ id, statuses: [REPAIR_REQUEST_STATUS.IN_PROGRESS] });
+    //     const entity = await this.database.repairRequest.findOneBy({ id });
+    //     if (!entity) throw new HttpException('Không tìm thấy phiếu sửa chữa', 404);
 
-        this.database.repairProgress.save(
-            this.database.repairProgress.create({
-                repairRequestId: id,
-                repairById: entity.repairById,
-                status: REPAIR_REQUEST_STATUS.EXPORTED,
-                trackingDate: new Date(),
-            }),
-        );
+    //     this.database.repairProgress.save(
+    //         this.database.repairProgress.create({
+    //             repairRequestId: id,
+    //             repairById: entity.repairById,
+    //             status: REPAIR_REQUEST_STATUS.EXPORTED,
+    //             trackingDate: new Date(),
+    //         }),
+    //     );
 
-        // notify who created request
-        this.emitEvent('repairRequest.completed', { id });
+    //     // notify who created request
+    //     this.emitEvent('repairRequest.completed', { id });
 
-        return this.database.repairRequest.update(id, { status: REPAIR_REQUEST_STATUS.EXPORTED, endDate: new Date() });
-    }
+    //     return this.database.repairRequest.update(id, { status: REPAIR_REQUEST_STATUS.EXPORTED, endDate: new Date() });
+    // }
 
     /**
      * The function checks if a given repair request status is valid.

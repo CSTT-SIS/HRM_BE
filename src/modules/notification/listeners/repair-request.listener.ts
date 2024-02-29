@@ -13,7 +13,7 @@ export class RepairRequestListener {
         const entity = await this.database.repairRequest.findOne({ where: { id: event.id }, relations: ['repairBy'] });
         if (!entity) return;
 
-        const receiverIds = await this.database.getUserIdsByPermission('proposal:create');
+        const receiverIds = await this.database.getUserIdsByPermission('repairRequest:headApprove');
         this.notificationService.createNotification({
             entity: 'repairRequest',
             entityId: entity.id,
@@ -36,6 +36,72 @@ export class RepairRequestListener {
                     lang: 'lo',
                     title: `ຄຳຮ້ອງຂໍສິນຄ້າຄົງຄັງ '${entity.name}' ຖືກສ້າງແລ້ວ`,
                     content: `ຄຳຮ້ອງຂໍສິນຄ້າຄົງຄັງ '${entity.name}' ຖືກສ້າງແລ້ວ`,
+                },
+            ],
+        });
+    }
+
+    @OnEvent('repairRequest.headApprove')
+    async handleRepairRequestHeadApproveEvent(event: RepairRequestEvent) {
+        const entity = await this.database.repairRequest.findOne({ where: { id: event.id }, relations: ['repairBy'] });
+        if (!entity) return;
+
+        const receiverIds = await this.database.getUserIdsByPermission('warehousingBill:create');
+        this.notificationService.createNotification({
+            entity: 'repairRequest',
+            entityId: entity.id,
+            senderId: event.senderId,
+            receiverIds: [...receiverIds, entity.repairById],
+            type: 'repairRequest',
+            link: `/warehouse-process/repair`,
+            details: [
+                {
+                    lang: 'vi',
+                    title: `Yêu cầu sửa chữa '${entity.name}' đã được trưởng bộ phận phê duyệt`,
+                    content: `Yêu cầu sửa chữa '${entity.name}' đã được trưởng bộ phận phê duyệt`,
+                },
+                {
+                    lang: 'en',
+                    title: `Repair request '${entity.name}' has been approved by head of department`,
+                    content: `Repair request '${entity.name}' has been approved by head of department`,
+                },
+                {
+                    lang: 'lo',
+                    title: `ຄຳຮ້ອງຂໍການສ້ອມແປງ '${entity.name}' ໄດ້ຮັບການອະນຸມັດຈາກຫົວໜ້າພະແນກ`,
+                    content: `ຄຄຳຮ້ອງຂໍການສ້ອມແປງ '${entity.name}' ໄດ້ຮັບການອະນຸມັດຈາກຫົວໜ້າພະແນກ`,
+                },
+            ],
+        });
+    }
+
+    @OnEvent('repairRequest.headReject')
+    async handleRepairRequestHeadRejectEvent(event: RepairRequestEvent) {
+        const entity = await this.database.repairRequest.findOne({ where: { id: event.id }, relations: ['repairBy'] });
+        if (!entity) return;
+
+        const receiverIds = [entity.createdById];
+        this.notificationService.createNotification({
+            entity: 'repairRequest',
+            entityId: entity.id,
+            senderId: event.senderId,
+            receiverIds: [...receiverIds, entity.repairById],
+            type: 'repairRequest',
+            link: `/warehouse-process/repair`,
+            details: [
+                {
+                    lang: 'vi',
+                    title: `Yêu cầu sửa chữa '${entity.name}' đã bị trưởng bộ phận từ chối`,
+                    content: `Yêu cầu sửa chữa '${entity.name}' đã bị trưởng bộ phận từ chối`,
+                },
+                {
+                    lang: 'en',
+                    title: `Repair request '${entity.name}' has been rejected by head of department`,
+                    content: `Repair request '${entity.name}' has been rejected by head of department`,
+                },
+                {
+                    lang: 'lo',
+                    title: `ການຮ້ອງຂໍສ້ອມແປງ '${entity.name}' ຖືກປະຕິເສດໂດຍຫົວໜ້າພະແນກ`,
+                    content: `ການຮ້ອງຂໍສ້ອມແປງ '${entity.name}' ຖືກປະຕິເສດໂດຍຫົວໜ້າພະແນກ`,
                 },
             ],
         });
