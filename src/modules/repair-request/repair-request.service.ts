@@ -18,6 +18,7 @@ export class RepairRequestService {
     constructor(private readonly utilService: UtilService, private readonly database: DatabaseService, private eventEmitter: EventEmitter2) {}
 
     async create(createRepairRequestDto: CreateRepairRequestDto) {
+        // TODO:
         // with this request, need 1-level approval
         const { vehicleRegistrationNumber, ...rest } = createRepairRequestDto;
         const registrationNumber = vehicleRegistrationNumber.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();

@@ -18,6 +18,7 @@ export class ProposalService {
     constructor(private readonly utilService: UtilService, private readonly database: DatabaseService, private eventEmitter: EventEmitter2) {}
 
     async create(createProposalDto: CreateProposalDto) {
+        // TODO:
         // with PURCHASE type, need 2-level approval
         // with SUPPLY type, need 1-level approval
         if (!Object.keys(PROPOSAL_TYPE).includes(createProposalDto.type)) throw new HttpException('Loại yêu cầu không hợp lệ', 400);

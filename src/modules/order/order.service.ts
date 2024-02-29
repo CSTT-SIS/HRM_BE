@@ -21,7 +21,7 @@ export class OrderService {
     async create(createOrderDto: CreateOrderDto) {
         const { proposalIds, ...rest } = createOrderDto;
         for (const proposalId of proposalIds) {
-            const proposal = await this.isProposalValid(proposalId, createOrderDto.type);
+            await this.isProposalValid(proposalId, createOrderDto.type);
         }
         const entity = await this.database.order.save(this.database.order.create({ ...rest, createdById: UserStorage.getId() }));
         this.database.order.addProposals(entity.id, proposalIds);

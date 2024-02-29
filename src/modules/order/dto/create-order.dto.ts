@@ -10,7 +10,7 @@ export class CreateOrderDto {
     // @IsIdExist({ entity: 'proposal' }, { message: 'Mã phiếu yêu cầu không tồn tại' })
     // proposalId: number;
 
-    @ApiProperty({ type: 'array', description: 'Proposal Ids' })
+    @ApiProperty({ description: 'Proposal Ids', example: [1, 2, 3] })
     @ArrayNotEmpty({ message: 'Mã phiếu yêu cầu không được để trống' })
     proposalIds: number[];
 
@@ -33,8 +33,8 @@ export class CreateOrderDto {
     @IsString({ message: 'Đơn vị cung cấp phải là chuỗi' })
     provider: string;
 
-    @ApiProperty({ type: 'string', description: 'Estimated Delivery Date' })
+    @ApiProperty({ type: 'string', description: 'Estimated Delivery Date', example: '2021-12-31 23:59:59' })
     @IsNotEmpty({ message: 'Ngày giao hàng dự kiến không được để trống' })
-    @Matches(/^(\d{4})-(\d{2})-(\d{2})$/, { message: 'Ngày giao hàng dự kiến không đúng định dạng YYYY-MM-DD' })
+    @Matches(/^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})$/, { message: 'Ngày giao hàng dự kiến không đúng định dạng YYYY-MM-DD HH:mm:ss' })
     estimatedDeliveryDate: string;
 }
