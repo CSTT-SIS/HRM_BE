@@ -41,6 +41,10 @@ export enum INVENTORY_HISTORY_TYPE {
 export enum PROPOSAL_STATUS {
     DRAFT = 'DRAFT',
     PENDING = 'PENDING',
+    HEAD_APPROVED = 'HEAD_APPROVED', // only for purchase proposal
+    HEAD_REJECTED = 'HEAD_REJECTED', // only for purchase proposal
+    MANAGER_APPROVED = 'MANAGER_APPROVED', // only for purchase proposal
+    MANAGER_REJECTED = 'MANAGER_REJECTED', // only for purchase proposal
     APPROVED = 'APPROVED',
     REJECTED = 'REJECTED',
     COMPLETED = 'COMPLETED',
