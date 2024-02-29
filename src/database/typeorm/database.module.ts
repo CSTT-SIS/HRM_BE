@@ -94,6 +94,8 @@ import { VehicleRepository } from '~/database/typeorm/repositories/vehicle.repos
 import { WarehouseRepository } from '~/database/typeorm/repositories/warehouse.repository';
 import { WarehousingBillRepository } from '~/database/typeorm/repositories/warehousingBill.repository';
 import { WarehousingBillDetailRepository } from '~/database/typeorm/repositories/warehousingBillDetail.repository';
+import { PositionRepository } from '~/database/typeorm/repositories/position.repository';
+import { ContractRepository } from '~/database/typeorm/repositories/contract.repository';
 
 const entities = [
     RoleEntity,
@@ -191,6 +193,8 @@ const repositories = [
     TimeAttendanceRepository,
     TaskRepository,
     FreeTimekeepingRepository,
+    PositionRepository,
+    ContractRepository,
 ];
 
 @Global()
