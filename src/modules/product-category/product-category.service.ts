@@ -32,7 +32,10 @@ export class ProductCategoryService {
     }
 
     findOne(id: number) {
-        return this.database.productCategory.findOne({ where: { id } });
+        const builder = this.database.productCategory.createQueryBuilder('productCategory');
+        builder.leftJoinAndSelect('productCategory.warehouse', 'warehouse');
+        builder.where('productCategory.id = :id', { id });
+        return builder.getOne();
     }
 
     update(id: number, updateProductCategoryDto: UpdateProductCategoryDto) {
