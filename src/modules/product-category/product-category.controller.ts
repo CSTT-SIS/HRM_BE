@@ -21,8 +21,9 @@ export class ProductCategoryController {
     @Permission('productCategory:findAll')
     @Get()
     @ApiQuery({ type: FilterDto })
-    findAll(@Query() queries) {
-        return this.productCategoryService.findAll({ ...queries });
+    @ApiQuery({ name: 'warehouseId', required: false, type: Number })
+    findAll(@Query() queries, @Query('warehouseId', new ParseIntPipe({ optional: true })) warehouseId: string) {
+        return this.productCategoryService.findAll({ ...queries, warehouseId });
     }
 
     @Permission('productCategory:findOne')
