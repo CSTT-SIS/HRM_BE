@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsOptional, Length } from 'class-validator';
+import { IsIdExist } from '~/common/validators/is-id-exist.validator';
 
 export class CreateProductCategoryDto {
     @ApiProperty({ description: 'Tên danh mục sản phẩm' })
@@ -10,4 +11,9 @@ export class CreateProductCategoryDto {
     @ApiProperty({ description: 'Mô tả danh mục sản phẩm' })
     @IsOptional()
     description: string;
+
+    @ApiProperty({ description: 'Kho' })
+    @IsNotEmpty({ message: 'Kho không được để trống' })
+    @IsIdExist({ entity: 'warehouse' }, { message: 'Kho không tồn tại' })
+    warehouseId: number;
 }

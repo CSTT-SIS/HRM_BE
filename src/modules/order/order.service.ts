@@ -7,7 +7,7 @@ import { DatabaseService } from '~/database/typeorm/database.service';
 import { OrderEntity } from '~/database/typeorm/entities/order.entity';
 import { OrderItemEntity } from '~/database/typeorm/entities/orderItem.entity';
 import { ProposalEntity } from '~/database/typeorm/entities/proposal.entity';
-import { CreateOrderItemDto } from '~/modules/order/dto/create-order-item.dto';
+import { CreateOrderItemDto, CreateOrderItemsDto } from '~/modules/order/dto/create-order-item.dto';
 import { UpdateOrderItemDto } from '~/modules/order/dto/update-order-item.dto';
 import { OrderEvent } from '~/modules/order/events/order.event';
 import { UtilService } from '~/shared/services';
@@ -19,26 +19,27 @@ export class OrderService {
     constructor(private readonly utilService: UtilService, private readonly database: DatabaseService, private eventEmitter: EventEmitter2) {}
 
     async create(createOrderDto: CreateOrderDto) {
-        const proposal = await this.isProposalValid(createOrderDto.proposalId, createOrderDto.providerId, createOrderDto.type);
-        const entity = await this.database.order.save(this.database.order.create({ ...createOrderDto, createdById: UserStorage.getId() }));
-        this.createOrderDetails(entity.id, proposal.id);
-
-        // emit event to who can change status
+        const { proposalIds, ...rest } = createOrderDto;
+        for (const proposalId of proposalIds) {
+            await this.isProposalValid(proposalId, createOrderDto.type);
+        }
+        const entity = await this.database.order.save(this.database.order.create({ ...rest, createdById: UserStorage.getId() }));
+        this.database.order.addProposals(entity.id, proposalIds);
+        // this.createOrderDetails(entity.id, proposalIds);
         this.emitEvent('order.created', { id: entity.id });
 
         return entity;
     }
 
-    async findAll(queries: FilterDto & { proposalId: string; providerId: string; status: string }) {
+    async findAll(queries: FilterDto & { proposalId: string; status: string }) {
         const { builder, take, pagination } = this.utilService.getQueryBuilderAndPagination(this.database.order, queries);
 
-        builder.andWhere(this.utilService.getConditionsFromQuery(queries, ['proposalId', 'providerId', 'status']));
+        builder.andWhere(this.utilService.getConditionsFromQuery(queries, ['proposalId', 'status']));
         builder.andWhere(this.utilService.fullTextSearch({ fields: ['name'], keyword: queries.search }));
 
         builder.leftJoinAndSelect('entity.createdBy', 'createdBy');
-        builder.leftJoinAndSelect('entity.proposal', 'proposal');
-        builder.leftJoinAndSelect('entity.provider', 'provider');
-        builder.select(['entity', 'createdBy.id', 'createdBy.fullName', 'proposal.id', 'proposal.name', 'provider.id', 'provider.name']);
+        builder.leftJoinAndSelect('entity.proposals', 'proposals');
+        builder.select(['entity', 'createdBy.id', 'createdBy.fullName', 'proposals.id', 'proposals.name']);
 
         const [result, total] = await builder.getManyAndCount();
         const totalPages = Math.ceil(total / take);
@@ -56,18 +57,15 @@ export class OrderService {
         const builder = this.database.order.createQueryBuilder('order');
         builder.where({ id });
 
-        builder.leftJoinAndSelect('order.proposal', 'proposal');
-        builder.leftJoinAndSelect('order.provider', 'provider');
+        builder.leftJoinAndSelect('order.proposals', 'proposals');
         builder.leftJoinAndSelect('order.createdBy', 'createdBy');
         builder.leftJoinAndSelect('order.updatedBy', 'updatedBy');
         builder.leftJoinAndSelect('order.items', 'items');
         builder.leftJoinAndSelect('items.product', 'product');
         builder.select([
             'order',
-            'proposal.id',
-            'proposal.name',
-            'provider.id',
-            'provider.name',
+            'proposals.id',
+            'proposals.name',
             'createdBy.id',
             'createdBy.fullName',
             'updatedBy.id',
@@ -83,9 +81,23 @@ export class OrderService {
     }
 
     async update(id: number, updateOrderDto: UpdateOrderDto) {
+        const { proposalIds, ...rest } = updateOrderDto;
+
         await this.isStatusValid({ id, statuses: [ORDER_STATUS.PENDING] });
-        await this.isProposalValid(updateOrderDto.proposalId, updateOrderDto.providerId, updateOrderDto.type);
-        return this.database.order.update(id, updateOrderDto);
+        for (const proposalId of proposalIds) {
+            const proposal = await this.isProposalValid(proposalId, updateOrderDto.type);
+        }
+
+        const result = await this.database.order.update(id, rest);
+        if (result.affected && proposalIds.length > 0) {
+            await this.database.order.removeProposals(id, proposalIds);
+            await this.database.order.addProposals(id, proposalIds);
+
+            await this.database.orderItem.delete({ orderId: id });
+            this.createOrderDetails(id, proposalIds);
+        }
+
+        return result;
     }
 
     async remove(id: number) {
@@ -119,14 +131,22 @@ export class OrderService {
     async addItem(id: number, item: CreateOrderItemDto) {
         await this.isStatusValid({ id, statuses: [ORDER_STATUS.PENDING] });
         // check if the product have been added to the proposal
-        await this.isProductAddedToProposal(id, item.productId);
-        return this.database.orderItem.save(item);
+        // await this.isProductAddedToProposal(id, item.productId);
+        return this.database.orderItem.upsert(this.database.orderItem.create({ ...item, orderId: id }), ['orderId', 'productId']);
+    }
+
+    async addItems(id: number, items: CreateOrderItemsDto) {
+        await this.isStatusValid({ id, statuses: [ORDER_STATUS.PENDING] });
+        // check if the product have been added to the proposal
+        // await this.isProductAddedToProposal(id, item.productId);
+        const entities = items.details.map((item) => this.database.orderItem.create({ ...item, orderId: id }));
+        return this.database.orderItem.upsert(entities, ['orderId', 'productId']);
     }
 
     async updateItem(id: number, itemId: number, item: UpdateOrderItemDto) {
         await this.isStatusValid({ id, statuses: [ORDER_STATUS.PENDING] });
         // check if the product have been added to the proposal
-        await this.isProductAddedToProposal(id, item.productId);
+        // await this.isProductAddedToProposal(id, item.productId);
         return this.database.orderItem.update({ id: itemId, orderId: id }, item);
     }
 
@@ -153,25 +173,24 @@ export class OrderService {
 
     /**
      * The function `isProposalValid` retrieves a proposal from the database based on the provided proposal
-     * ID, provider ID, and order type, and performs various checks and validations before returning
+     * ID, and order type, and performs various checks and validations before returning
      * the proposal.
      * @param {number} proposalId - The ID of the proposal you want to retrieve.
-     * @param {number} providerId - The `providerId` parameter is the ID of the provider associated
-     * with the proposal.
      * @param {ORDER_TYPE} orderType - The orderType parameter is of type ORDER_TYPE, which is an enum
      * representing different types of orders.
      * @returns a Promise that resolves to a ProposalEntity.
      */
-    private async isProposalValid(proposalId: number, providerId: number, orderType: ORDER_TYPE): Promise<ProposalEntity> {
+    private async isProposalValid(proposalId: number, orderType: ORDER_TYPE): Promise<ProposalEntity> {
+        // proposal with PURCHASE type, only create order when status is MANAGER_APPROVED
         const proposal = await this.database.proposal.findOne({ where: { id: proposalId } });
-        if (!proposal) throw new HttpException('Phiếu đề xuất không tồn tại', 400);
-        if (proposal.status !== PROPOSAL_STATUS.APPROVED) throw new HttpException('Phiếu đề xuất chưa được duyệt', 400);
-        if (proposal.type !== PROPOSAL_TYPE.PURCHASE) throw new HttpException('Phiếu đề xuất không phải là phiếu mua hàng', 400);
+        if (!proposal) throw new HttpException('Phiếu yêu cầu không tồn tại', 400);
+        if (proposal.type !== PROPOSAL_TYPE.PURCHASE) throw new HttpException('Phiếu yêu cầu không phải là phiếu mua hàng', 400);
+        if (proposal.status !== PROPOSAL_STATUS.MANAGER_APPROVED) throw new HttpException('Phiếu yêu cầu chưa được ban lãnh đạo duyệt', 400);
         if (orderType !== ORDER_TYPE.PURCHASE && proposal.type !== PROPOSAL_TYPE.PURCHASE)
             throw new HttpException('Loại đơn hàng không phải là đơn hàng mua hàng', 400);
 
-        const count = await this.database.order.count({ where: { proposalId, providerId } });
-        if (count > 0) throw new HttpException('Đơn hàng đã tồn tại', 400);
+        const check = await this.database.order.isProposalAdded(proposalId);
+        if (check) throw new HttpException('Phiếu yêu cầu đã được thêm vào một đơn hàng khác', 400);
 
         return proposal;
     }
@@ -185,20 +204,44 @@ export class OrderService {
      * find the proposal details associated with the given proposal ID.
      * @returns a Promise that resolves to an array of OrderItemEntity objects.
      */
-    private async createOrderDetails(orderId: number, proposalId: number): Promise<OrderItemEntity[]> {
+    private async createOrderDetailsByProposalId(orderId: number, proposalId: number): Promise<OrderItemEntity[]> {
         const proposalDetails = await this.database.proposalDetail.find({ where: { proposalId: proposalId }, relations: ['product'] });
         if (!proposalDetails || proposalDetails.length === 0) return [];
 
-        const orderItemEntities = proposalDetails.map((proposalDetail) => {
-            return this.database.orderItem.create({
-                orderId,
-                productId: proposalDetail.productId,
-                quantity: proposalDetail.quantity,
-                price: proposalDetail.price,
-            });
-        });
+        // const orderItemEntities = proposalDetails.map((proposalDetail) => {
+        //     return this.database.orderItem.create({
+        //         orderId,
+        //         productId: proposalDetail.productId,
+        //         quantity: proposalDetail.quantity,
+        //         price: proposalDetail.price,
+        //     });
+        // });
+
+        const orderItemEntities: OrderItemEntity[] = [];
+        for (const proposalDetail of proposalDetails) {
+            const isItemExist = await this.database.orderItem.findOne({ where: { orderId, productId: proposalDetail.productId } });
+            if (isItemExist) {
+                isItemExist.quantity += proposalDetail.quantity;
+                orderItemEntities.push(isItemExist);
+            } else {
+                orderItemEntities.push(
+                    this.database.orderItem.create({
+                        orderId,
+                        productId: proposalDetail.productId,
+                        quantity: proposalDetail.quantity,
+                        price: proposalDetail.price,
+                    }),
+                );
+            }
+        }
 
         return this.database.orderItem.save(orderItemEntities);
+    }
+
+    private async createOrderDetails(orderId: number, proposalIds: number[]): Promise<void> {
+        for (const proposalId of proposalIds) {
+            await this.createOrderDetailsByProposalId(orderId, proposalId);
+        }
     }
 
     /**
@@ -222,7 +265,6 @@ export class OrderService {
     private async updateStatus(data: { id: number; from: ORDER_STATUS[]; to: ORDER_STATUS }) {
         await this.isStatusValid({ id: data.id, statuses: data.from });
         this.database.orderProgressTracking.save({ orderId: data.id, status: data.to, trackingDate: new Date() });
-        // emit event
         this.emitEventByStatus(data.to, { id: data.id });
         return this.database.order.update(data.id, { status: data.to });
     }
@@ -235,7 +277,7 @@ export class OrderService {
      */
     private async isProductAddedToProposal(orderId: number, productId: number) {
         const result = await this.database.order.isProductAddedToProposal(orderId, productId);
-        if (!result) throw new HttpException('Sản phẩm chưa được thêm vào phiếu đề xuất', 400);
+        if (!result) throw new HttpException('Sản phẩm chưa được thêm vào phiếu yêu cầu', 400);
     }
 
     private emitEventByStatus(status: ORDER_STATUS, data: { id: number }) {

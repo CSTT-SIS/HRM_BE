@@ -18,12 +18,11 @@ export class ProposalService {
     constructor(private readonly utilService: UtilService, private readonly database: DatabaseService, private eventEmitter: EventEmitter2) {}
 
     async create(createProposalDto: CreateProposalDto) {
-        if (!Object.keys(PROPOSAL_TYPE).includes(createProposalDto.type)) throw new HttpException('Loại đề xuất không hợp lệ', 400);
-        if (createProposalDto.type === PROPOSAL_TYPE.REPAIR) {
-            return this.repairFlow(createProposalDto);
-        }
-
-        return this.database.proposal.save(this.database.proposal.create({ ...createProposalDto, createdById: UserStorage.getId() }));
+        // with PURCHASE type, need 2-level approval
+        // with SUPPLY type, need 1-level approval
+        const proposal = await this.database.proposal.save(this.database.proposal.create({ ...createProposalDto, createdById: UserStorage.getId() }));
+        this.emitEvent('proposal.created', { id: proposal.id });
+        return proposal;
     }
 
     async findAll(queries: FilterDto & { type: PROPOSAL_TYPE; status: PROPOSAL_STATUS }) {
@@ -32,18 +31,10 @@ export class ProposalService {
         builder.andWhere(this.utilService.fullTextSearch({ fields: ['name'], keyword: queries.search }));
         builder.andWhere(this.utilService.getConditionsFromQuery(queries, ['type', 'status']));
 
-        builder.leftJoinAndSelect('entity.repairRequest', 'repairRequest');
+        builder.leftJoinAndSelect('entity.department', 'department');
         builder.leftJoinAndSelect('entity.createdBy', 'createdBy');
         builder.leftJoinAndSelect('entity.updatedBy', 'updatedBy');
-        builder.select([
-            'entity',
-            'repairRequest.id',
-            'repairRequest.name',
-            'createdBy.id',
-            'createdBy.fullName',
-            'updatedBy.id',
-            'updatedBy.fullName',
-        ]);
+        builder.select(['entity', 'department.id', 'department.name', 'createdBy.id', 'createdBy.fullName', 'updatedBy.id', 'updatedBy.fullName']);
 
         const [result, total] = await builder.getManyAndCount();
         const totalPages = Math.ceil(total / take);
@@ -59,7 +50,7 @@ export class ProposalService {
 
     findOne(id: number) {
         const builder = this.database.proposal.createQueryBuilder('entity');
-        builder.leftJoinAndSelect('entity.repairRequest', 'repairRequest');
+        builder.leftJoinAndSelect('entity.department', 'department');
         builder.leftJoinAndSelect('entity.createdBy', 'createdBy');
         builder.leftJoinAndSelect('entity.updatedBy', 'updatedBy');
         builder.leftJoinAndSelect('entity.details', 'details');
@@ -69,8 +60,8 @@ export class ProposalService {
         builder.where('entity.id = :id', { id });
         builder.select([
             'entity',
-            'repairRequest.id',
-            'repairRequest.name',
+            'department.id',
+            'department.name',
             'createdBy.id',
             'createdBy.fullName',
             'updatedBy.id',
@@ -90,7 +81,7 @@ export class ProposalService {
 
     async update(id: number, updateProposalDto: UpdateProposalDto) {
         await this.isProposalStatusValid({ id, statuses: [PROPOSAL_STATUS.DRAFT], userId: UserStorage.getId() });
-        if (!Object.keys(PROPOSAL_TYPE).includes(updateProposalDto.type)) throw new HttpException('Loại đề xuất không hợp lệ', 400);
+        if (!Object.keys(PROPOSAL_TYPE).includes(updateProposalDto.type)) throw new HttpException('Loại yêu cầu không hợp lệ', 400);
         return this.database.proposal.update(id, {
             ...updateProposalDto,
             updatedById: UserStorage.getId(),
@@ -99,7 +90,11 @@ export class ProposalService {
     }
 
     async remove(id: number) {
-        await this.isProposalStatusValid({ id, statuses: [PROPOSAL_STATUS.DRAFT, PROPOSAL_STATUS.REJECTED], userId: UserStorage.getId() });
+        await this.isProposalStatusValid({
+            id,
+            statuses: [PROPOSAL_STATUS.DRAFT, PROPOSAL_STATUS.HEAD_REJECTED, PROPOSAL_STATUS.MANAGER_REJECTED],
+            userId: UserStorage.getId(),
+        });
         await this.database.proposalDetail.delete({ proposalId: id });
         return this.database.proposal.delete(id);
     }
@@ -112,61 +107,105 @@ export class ProposalService {
             userId: UserStorage.getId(),
         });
 
-        // Notify user who can approve this proposal
         this.emitEvent('proposal.pending', { id });
-
-        return { message: 'Đã trình đề xuất', data: { id } };
+        return { message: 'Đã trình yêu cầu', data: { id } };
     }
 
-    async approve(id: number) {
-        // TODO: check if user have permission to approve
-        // maybe use a table to store who can approve which proposal is created by who
+    // async approve(id: number) {
+    //     // TODO: check if user have permission to approve
+    //     // maybe use a table to store who can approve which proposal is created by who
 
+    //     await this.updateStatus({
+    //         id,
+    //         from: PROPOSAL_STATUS.PENDING,
+    //         to: PROPOSAL_STATUS.APPROVED,
+    //     });
+
+    //     // Notify user who can create warehousing bill
+    //     // maybe use a table to store who can receive notification when a proposal is approved
+    //     // or send notification to all users who have permission to create warehousing bill (fastest way)
+    //     this.emitEvent('proposal.approved', { id });
+
+    //     return { message: 'Đã duyệt yêu cầu', data: { id } };
+    // }
+
+    // async reject(id: number, comment: string) {
+    //     // TODO: check if user have permission to reject
+
+    //     await this.updateStatus({
+    //         id,
+    //         from: PROPOSAL_STATUS.PENDING,
+    //         to: PROPOSAL_STATUS.REJECTED,
+    //         comment,
+    //     });
+
+    //     // Notify creator of this proposal
+    //     this.emitEvent('proposal.rejected', { id });
+
+    //     return { message: 'Đã từ chối yêu cầu', data: { id } };
+    // }
+
+    // async return(id: number, comment: string) {
+    //     // TODO: check if user have permission to return
+
+    //     await this.updateStatus({
+    //         id,
+    //         from: PROPOSAL_STATUS.APPROVED,
+    //         to: PROPOSAL_STATUS.DRAFT,
+    //         comment,
+    //         checkIfBillCreated: true,
+    //     });
+
+    //     // Notify creator of this proposal
+    //     this.emitEvent('proposal.returned', { id });
+
+    //     return { message: 'Đã trả lại yêu cầu', data: { id } };
+    // }
+
+    async headApprove(id: number) {
         await this.updateStatus({
             id,
             from: PROPOSAL_STATUS.PENDING,
-            to: PROPOSAL_STATUS.APPROVED,
+            to: PROPOSAL_STATUS.HEAD_APPROVED,
         });
 
-        // Notify user who can create warehousing bill
-        // maybe use a table to store who can receive notification when a proposal is approved
-        // or send notification to all users who have permission to create warehousing bill (fastest way)
-        this.emitEvent('proposal.approved', { id });
-
-        return { message: 'Đã duyệt đề xuất', data: { id } };
+        this.emitEvent('proposal.headApproved', { id });
+        return { message: 'Đã duyệt yêu cầu', data: { id } };
     }
 
-    async reject(id: number, comment: string) {
-        // TODO: check if user have permission to reject
-
+    async headReject(id: number, comment: string) {
         await this.updateStatus({
             id,
             from: PROPOSAL_STATUS.PENDING,
-            to: PROPOSAL_STATUS.REJECTED,
+            to: PROPOSAL_STATUS.HEAD_REJECTED,
             comment,
         });
 
-        // Notify creator of this proposal
-        this.emitEvent('proposal.rejected', { id });
-
-        return { message: 'Đã từ chối đề xuất', data: { id } };
+        this.emitEvent('proposal.headRejected', { id });
+        return { message: 'Đã từ chối yêu cầu', data: { id } };
     }
 
-    async return(id: number, comment: string) {
-        // TODO: check if user have permission to return
-
+    async managerApprove(id: number) {
         await this.updateStatus({
             id,
-            from: PROPOSAL_STATUS.APPROVED,
-            to: PROPOSAL_STATUS.DRAFT,
-            comment,
-            checkIfBillCreated: true,
+            from: PROPOSAL_STATUS.HEAD_APPROVED,
+            to: PROPOSAL_STATUS.MANAGER_APPROVED,
         });
 
-        // Notify creator of this proposal
-        this.emitEvent('proposal.returned', { id });
+        this.emitEvent('proposal.managerApproved', { id });
+        return { message: 'Đã duyệt yêu cầu', data: { id } };
+    }
 
-        return { message: 'Đã trả lại đề xuất', data: { id } };
+    async managerReject(id: number, comment: string) {
+        await this.updateStatus({
+            id,
+            from: PROPOSAL_STATUS.HEAD_APPROVED,
+            to: PROPOSAL_STATUS.MANAGER_REJECTED,
+            comment,
+        });
+
+        this.emitEvent('proposal.managerRejected', { id });
+        return { message: 'Đã từ chối yêu cầu', data: { id } };
     }
 
     async getDetails(queries: FilterDto & { proposalId: number; productId: number }) {
@@ -244,15 +283,15 @@ export class ProposalService {
         checkIfBillCreated?: boolean;
     }): Promise<ProposalEntity> {
         const entity = await this.database.proposal.findOneBy({ id: data.id });
-        if (!entity) throw new HttpException('Không tìm thấy đề xuất', 404);
-        if (!data.statuses.includes(entity.status)) throw new HttpException('Không thể chỉnh sửa đề xuất do trạng thái không hợp lệ', 400);
-        if (data.userId && entity.createdById !== data.userId) throw new HttpException('Bạn không có quyền chỉnh sửa đề xuất này', 403);
+        if (!entity) throw new HttpException('Không tìm thấy yêu cầu', 404);
+        if (!data.statuses.includes(entity.status)) throw new HttpException('Không thể chỉnh sửa yêu cầu do trạng thái không hợp lệ', 400);
+        if (data.userId && entity.createdById !== data.userId) throw new HttpException('Bạn không có quyền chỉnh sửa yêu cầu này', 403);
         if (data.checkIfBillCreated) {
-            const order = await this.database.order.countBy({ proposalId: data.id });
-            if (order) throw new HttpException('Không thể chỉnh sửa đề xuất do đơn hàng đã được tạo', 400);
+            const order = await this.database.order.isProposalAdded(data.id);
+            if (order) throw new HttpException('Không thể chỉnh sửa yêu cầu do đơn hàng đã được tạo', 400);
 
             const bill = await this.database.warehousingBill.countBy({ proposalId: data.id });
-            if (bill) throw new HttpException('Không thể chỉnh sửa đề xuất do phiếu kho đã được tạo', 400);
+            if (bill) throw new HttpException('Không thể chỉnh sửa yêu cầu do phiếu kho đã được tạo', 400);
         }
         return entity;
     }
@@ -271,7 +310,7 @@ export class ProposalService {
 
         if (proposalId) {
             const isDuplicate = await this.database.proposalDetail.findOneBy({ proposalId, productId: In(productIds) });
-            if (isDuplicate) throw new HttpException('Sản phẩm đã được thêm vào đề xuất', 400);
+            if (isDuplicate) throw new HttpException('Sản phẩm đã được thêm vào yêu cầu', 400);
         }
     }
 
@@ -282,7 +321,7 @@ export class ProposalService {
                 productId: detail.productId,
                 id: detailId ? Not(detailId) : undefined,
             });
-            if (isDuplicate) throw new HttpException('Sản phẩm đã được thêm vào đề xuất', 400);
+            if (isDuplicate) throw new HttpException('Sản phẩm đã được thêm vào yêu cầu', 400);
         }
     }
 
@@ -305,30 +344,6 @@ export class ProposalService {
                 comment: data.comment,
             }),
         );
-    }
-
-    private async repairFlow(createProposalDto: CreateProposalDto) {
-        if (!createProposalDto.repairRequestId) throw new HttpException('Yêu cầu sửa chữa không được để trống', 400);
-
-        const countProposal = await this.database.proposal.countBy({ repairRequestId: createProposalDto.repairRequestId });
-        if (countProposal) throw new HttpException(`Yêu cầu sửa chữa ${createProposalDto.repairRequestId} đã được tạo đề xuất`, 400);
-
-        const repairDetails = await this.database.repairDetail.find({
-            where: { repairRequestId: createProposalDto.repairRequestId },
-        });
-        const details = repairDetails.map((detail) => ({
-            productId: detail.replacementPartId,
-            quantity: detail.quantity,
-        }));
-
-        await this.verifyDetails(null, details);
-        const proposal = await this.database.proposal.save(this.database.proposal.create({ ...createProposalDto, createdById: UserStorage.getId() }));
-        await this.database.proposalDetail.save(details.map((detail) => ({ ...detail, proposalId: proposal.id })));
-
-        // notify who created repair request
-        this.emitEvent('proposal.created', { id: proposal.id });
-
-        return proposal;
     }
 
     private emitEvent(event: string, data: { id: number }) {

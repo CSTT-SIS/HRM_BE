@@ -23,60 +23,56 @@ export class AuthService {
     ) {}
 
     public async login(data: { username: string; password: string }) {
-        try {
-            const account = await this.accountRepository.findOne({
-                select: ['id', 'username', 'password', 'secretToken', 'isActive'],
-                where: {
-                    username: data.username,
-                },
-            });
+        const account = await this.accountRepository.findOne({
+            select: ['id', 'username', 'password', 'secretToken', 'isActive'],
+            where: {
+                username: data.username,
+            },
+        });
 
-            if (!account) {
-                throw new UnauthorizedException('Wrong username or password');
-            }
-
-            if (!account.isActive) {
-                throw new UnauthorizedException('User disabled');
-            }
-
-            if (!this.tokenService.isPasswordCorrect(data.password, account.password)) {
-                throw new UnauthorizedException('Wrong username or password');
-            }
-
-            const secretToken = this.utilService.generateString();
-            const tokenData = this.tokenService.createAuthToken({
-                id: account.id,
-                password: account.password,
-                secretToken,
-            });
-            const refreshTokenData = this.tokenService.createRefreshToken({
-                id: account.id,
-                password: account.password,
-                secretToken,
-            });
-            this.accountRepository.update(account.id, { secretToken });
-
-            const user = await this.userRepository.findOne({
-                where: { accountId: account.id, status: USER_STATUS.ACTIVE },
-                relations: ['role'],
-            });
-            if (!user) throw new UnauthorizedException('User not found');
-
-            this.cacheService.delete(`account:${account.id}`);
-            return {
-                result: true,
-                message: 'Login successfully',
-                data: {
-                    id: account.id,
-                    session: tokenData.authToken,
-                    expired: tokenData.authTokenExpiresIn,
-                    refreshToken: refreshTokenData.refreshToken,
-                    role: user.role,
-                },
-            };
-        } catch (err) {
-            throw new UnauthorizedException('Login error');
+        if (!account) {
+            throw new UnauthorizedException('Wrong username or password');
         }
+
+        if (!account.isActive) {
+            throw new UnauthorizedException('User disabled');
+        }
+
+        if (!this.tokenService.isPasswordCorrect(data.password, account.password)) {
+            throw new UnauthorizedException('Wrong username or password');
+        }
+
+        const secretToken = this.utilService.generateString();
+        const tokenData = this.tokenService.createAuthToken({
+            id: account.id,
+            password: account.password,
+            secretToken,
+        });
+        const refreshTokenData = this.tokenService.createRefreshToken({
+            id: account.id,
+            password: account.password,
+            secretToken,
+        });
+        this.accountRepository.update(account.id, { secretToken });
+
+        const user = await this.userRepository.findOne({
+            where: { accountId: account.id, status: USER_STATUS.ACTIVE },
+            relations: ['role'],
+        });
+        if (!user) throw new UnauthorizedException('User not found');
+
+        this.cacheService.delete(`account:${account.id}`);
+        return {
+            result: true,
+            message: 'Login successfully',
+            data: {
+                id: account.id,
+                session: tokenData.authToken,
+                expired: tokenData.authTokenExpiresIn,
+                refreshToken: refreshTokenData.refreshToken,
+                role: user.role,
+            },
+        };
     }
 
     public async logout(data: { session: string }) {

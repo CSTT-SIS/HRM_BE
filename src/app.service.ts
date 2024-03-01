@@ -6,5 +6,8 @@ import { TokenService } from '~/shared/services';
 export class AppService {
     constructor(private readonly tokenService: TokenService, private readonly database: DatabaseService) {}
 
-    async test(str) {}
+    async test(str) {
+        // return this.tokenService.hashPassword(str);
+        return this.database.repairDetail.getDetailByRequestId(1);
+    }
 }

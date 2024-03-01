@@ -38,7 +38,11 @@ export class WarehouseService {
     }
 
     findOne(id: number) {
-        return this.database.warehouse.findOne({ where: { id } });
+        const builder = this.database.warehouse.createQueryBuilder('warehouse');
+        builder.where('warehouse.id = :id', { id });
+        builder.leftJoinAndSelect('warehouse.productCategories', 'productCategories');
+        builder.select(['warehouse', 'productCategories.id', 'productCategories.name', 'productCategories.description']);
+        return builder.getOne();
     }
 
     async update(id: number, updateWarehouseDto: UpdateWarehouseDto) {

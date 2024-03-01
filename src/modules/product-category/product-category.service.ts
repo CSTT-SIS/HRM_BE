@@ -13,11 +13,14 @@ export class ProductCategoryService {
         return this.database.productCategory.save(this.database.productCategory.create(createProductCategoryDto));
     }
 
-    async findAll(queries: FilterDto) {
+    async findAll(queries: FilterDto & { warehouseId: number }) {
         const { builder, take, pagination } = this.utilService.getQueryBuilderAndPagination(this.database.productCategory, queries);
 
-        if (!this.utilService.isEmpty(queries.search))
-            builder.andWhere(this.utilService.rawQuerySearch({ fields: ['name'], keyword: queries.search }));
+        builder.andWhere(this.utilService.relationQuerySearch({ warehouseId: queries.warehouseId }));
+        builder.andWhere(this.utilService.rawQuerySearch({ fields: ['name'], keyword: queries.search }));
+
+        builder.leftJoinAndSelect('productCategory.warehouse', 'warehouse');
+        builder.select(['productCategory', 'warehouse.id', 'warehouse.name']);
 
         const [result, total] = await builder.getManyAndCount();
         const totalPages = Math.ceil(total / take);
@@ -32,7 +35,10 @@ export class ProductCategoryService {
     }
 
     findOne(id: number) {
-        return this.database.productCategory.findOne({ where: { id } });
+        const builder = this.database.productCategory.createQueryBuilder('productCategory');
+        builder.leftJoinAndSelect('productCategory.warehouse', 'warehouse');
+        builder.where('productCategory.id = :id', { id });
+        return builder.getOne();
     }
 
     update(id: number, updateProductCategoryDto: UpdateProductCategoryDto) {

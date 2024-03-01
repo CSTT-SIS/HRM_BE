@@ -31,6 +31,10 @@ export class ProductEntity extends AbstractEntity {
     @Column({ name: 'description', type: 'text', nullable: true })
     description: string;
 
+    // 9,999,999,999,999.999
+    // @Column({ name: 'price', type: 'decimal', precision: 16, scale: 3, nullable: true, transformer: new ColumnNumericTransformer() })
+    // price: number;
+
     /* RELATIONS */
     @ManyToOne(() => ProductCategoryEntity, (category) => category.products, { createForeignKeyConstraints: false })
     @JoinColumn({ name: 'category_id', referencedColumnName: 'id' })

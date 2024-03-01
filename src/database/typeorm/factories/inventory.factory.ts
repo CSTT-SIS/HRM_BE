@@ -1,7 +1,8 @@
+import { faker } from '@faker-js/faker/locale/vi';
 import { setSeederFactory } from 'typeorm-extension';
 import { InventoryEntity } from '~/database/typeorm/entities/inventory.entity';
 
-export default setSeederFactory(InventoryEntity, (faker) => {
+export default setSeederFactory(InventoryEntity, () => {
     const entity = new InventoryEntity();
 
     entity.warehouseId = faker.helpers.rangeToNumber({ min: 1, max: 10 });

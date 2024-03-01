@@ -41,7 +41,6 @@ import { AppService } from './app.service';
 import { DepartmentModule } from './modules/department/department.module';
 import { ProductCategoryModule } from './modules/product-category/product-category.module';
 import { ProductModule } from './modules/product/product.module';
-import { ProviderModule } from './modules/provider/provider.module';
 import { UnitModule } from './modules/unit/unit.module';
 import { UserModule } from './modules/user/user.module';
 import { WarehouseModule } from './modules/warehouse/warehouse.module';
@@ -53,6 +52,8 @@ import { OverTimeModule } from '~/modules/over-time/over-time.module';
 import { TimeKeepingModule } from '~/modules/time-keeping/time-keeping.module';
 import { TaskModule } from '~/modules/task/task.module';
 import { FreeTimekeepingModule } from '~/modules/free-timekeeping/free-timekeeping.module';
+import { PositionModule } from '~/modules/position/position.module';
+import { ContractModule } from '~/modules/contract/contract.module';
 
 @Module({
     imports: [
@@ -89,7 +90,6 @@ import { FreeTimekeepingModule } from '~/modules/free-timekeeping/free-timekeepi
         UserModule,
         DepartmentModule,
         WarehouseModule,
-        ProviderModule,
         ProductModule,
         ProductCategoryModule,
         UnitModule,
@@ -109,6 +109,8 @@ import { FreeTimekeepingModule } from '~/modules/free-timekeeping/free-timekeepi
         TimeKeepingModule,
         TaskModule,
         FreeTimekeepingModule,
+        PositionModule,
+        ContractModule,
     ],
     controllers: [AppController],
     providers: [

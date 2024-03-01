@@ -41,15 +41,19 @@ export enum INVENTORY_HISTORY_TYPE {
 export enum PROPOSAL_STATUS {
     DRAFT = 'DRAFT',
     PENDING = 'PENDING',
-    APPROVED = 'APPROVED',
-    REJECTED = 'REJECTED',
+    HEAD_APPROVED = 'HEAD_APPROVED', // only for purchase proposal
+    HEAD_REJECTED = 'HEAD_REJECTED', // only for purchase proposal
+    MANAGER_APPROVED = 'MANAGER_APPROVED', // only for purchase proposal
+    MANAGER_REJECTED = 'MANAGER_REJECTED', // only for purchase proposal
+    // APPROVED = 'APPROVED',
+    // REJECTED = 'REJECTED',
     COMPLETED = 'COMPLETED',
 }
 
 export enum PROPOSAL_TYPE {
     PURCHASE = 'PURCHASE',
-    REPAIR = 'REPAIR',
     SUPPLY = 'SUPPLY',
+    // REPAIR = 'REPAIR',
     // ADJUSTMENT = 'ADJUSTMENT',
     // TRANSFER = 'TRANSFER',
     // STOCKING = 'STOCKING',
@@ -58,8 +62,8 @@ export enum PROPOSAL_TYPE {
 
 export enum PROPOSAL_TYPE_NAME {
     PURCHASE = 'Yêu cầu mua hàng',
-    REPAIR = 'Yêu cầu sửa chữa',
     SUPPLY = 'Yêu cầu cấp vật tư',
+    // REPAIR = 'Yêu cầu sửa chữa',
 }
 
 export enum WAREHOUSING_BILL_TYPE {
@@ -73,13 +77,13 @@ export enum WAREHOUSING_BILL_TYPE {
 
 export enum WAREHOUSING_BILL_TYPE_NAME {
     IMPORT = 'Phiếu nhập kho',
-    EXPORT = 'Phiếu xuất kho',
+    EXPORT = 'Phiếu xuất kho (sửa chữa)',
 }
 
 export enum WAREHOUSING_BILL_STATUS {
     PENDING = 'PENDING',
-    APPROVED = 'APPROVED',
-    REJECTED = 'REJECTED',
+    // APPROVED = 'APPROVED',
+    // REJECTED = 'REJECTED',
     COMPLETED = 'COMPLETED',
 }
 
@@ -124,10 +128,11 @@ export enum DAMAGE_LEVEL_NAME {
 }
 
 export enum REPAIR_REQUEST_STATUS {
-    PENDING = 'PENDING',
     IN_PROGRESS = 'IN_PROGRESS',
-    COMPLETED = 'COMPLETED',
-    CANCELLED = 'CANCELLED',
+    GARAGE_RECEIVED = 'GARAGE_RECEIVED',
+    HEAD_APPROVED = 'HEAD_APPROVED',
+    HEAD_REJECTED = 'HEAD_REJECTED',
+    EXPORTED = 'EXPORTED',
 }
 
 export enum HUMAN_DASHBOARD_TYPE {

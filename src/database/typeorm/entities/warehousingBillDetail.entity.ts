@@ -10,9 +10,6 @@ export class WarehousingBillDetailEntity extends AbstractEntity {
     @PrimaryGeneratedColumn('increment', { name: 'id', type: 'int', unsigned: true })
     id: number;
 
-    @Column({ name: 'proposal_id', type: 'int', unsigned: true, nullable: true })
-    proposalId: number;
-
     @Column({ name: 'warehousing_bill_id', type: 'int', unsigned: true, nullable: true })
     warehousingBillId: number;
 

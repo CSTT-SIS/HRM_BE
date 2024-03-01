@@ -50,16 +50,6 @@ export class DropdownService {
         });
     }
 
-    provider(queries: FilterDto) {
-        return this.getDropdown({
-            entity: 'provider',
-            queries,
-            label: 'name',
-            value: 'id',
-            fulltext: true,
-        });
-    }
-
     proposal(queries: FilterDto & { type: PROPOSAL_TYPE; status: PROPOSAL_STATUS }) {
         return this.getDropdown({
             entity: 'proposal',
@@ -86,14 +76,14 @@ export class DropdownService {
         });
     }
 
-    order(queries: FilterDto & { proposalId: string; providerId: string; status: ORDER_STATUS }) {
+    order(queries: FilterDto & { proposalId: string; status: ORDER_STATUS }) {
         return this.getDropdown({
             entity: 'order',
             queries,
             label: 'name',
             value: 'id',
             fulltext: true,
-            andWhere: this.utilService.getConditionsFromQuery(queries, ['proposalId', 'providerId', 'status']),
+            andWhere: this.utilService.getConditionsFromQuery(queries, ['proposalId', 'status']),
         });
     }
 
@@ -102,7 +92,13 @@ export class DropdownService {
     }
 
     warehousingBillType() {
-        return Object.values(WAREHOUSING_BILL_TYPE).map((item) => ({ value: item, label: WAREHOUSING_BILL_TYPE_NAME[item] }));
+        return [
+            ...Object.values(WAREHOUSING_BILL_TYPE).map((item) => ({ value: item, label: WAREHOUSING_BILL_TYPE_NAME[item] })),
+            {
+                value: 'EXPORT',
+                label: 'Phiếu xuất kho (mìn)',
+            },
+        ];
     }
 
     user(queries: FilterDto & { fullName: string }) {
@@ -138,6 +134,16 @@ export class DropdownService {
 
     damageLevel() {
         return Object.values(DAMAGE_LEVEL).map((item) => ({ value: item, label: DAMAGE_LEVEL_NAME[item] }));
+    }
+
+    department(queries: FilterDto) {
+        return this.getDropdown({
+            entity: 'department',
+            queries,
+            label: 'name',
+            value: 'id',
+            fulltext: true,
+        });
     }
 
     private async getDropdown(data: {

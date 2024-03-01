@@ -22,12 +22,12 @@ export class CreateStocktakeDto {
 
     @ApiProperty()
     @IsNotEmpty({ message: 'Ngày bắt đầu không được để trống' })
-    @Matches(/^(\d{4})-(\d{2})-(\d{2})$/, { message: 'Ngày bắt đầu không đúng định dạng YYYY-MM-DD' })
+    @Matches(/^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})$/, { message: 'Ngày bắt đầu dự kiến không đúng định dạng YYYY-MM-DD HH:mm:ss' })
     startDate: Date;
 
     @ApiProperty()
     @IsNotEmpty({ message: 'Ngày kết thúc không được để trống' })
-    @Matches(/^(\d{4})-(\d{2})-(\d{2})$/, { message: 'Ngày kết thúc không đúng định dạng YYYY-MM-DD' })
+    @Matches(/^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})$/, { message: 'Ngày kết thúc dự kiến không đúng định dạng YYYY-MM-DD HH:mm:ss' })
     endDate: Date;
 
     @ApiProperty({ type: [Number] })

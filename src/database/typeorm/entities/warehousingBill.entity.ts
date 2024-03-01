@@ -2,6 +2,7 @@ import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGene
 import { WAREHOUSING_BILL_STATUS, WAREHOUSING_BILL_TYPE } from '~/common/enums/enum';
 import { OrderEntity } from '~/database/typeorm/entities/order.entity';
 import { ProposalEntity } from '~/database/typeorm/entities/proposal.entity';
+import { RepairRequestEntity } from '~/database/typeorm/entities/repairRequest.entity';
 import { UserEntity } from '~/database/typeorm/entities/user.entity';
 import { WarehouseEntity } from '~/database/typeorm/entities/warehouse.entity';
 import { WarehousingBillDetailEntity } from '~/database/typeorm/entities/warehousingBillDetail.entity';
@@ -17,6 +18,9 @@ export class WarehousingBillEntity extends AbstractEntity {
 
     @Column({ name: 'order_id', type: 'int', unsigned: true, nullable: true })
     orderId: number;
+
+    @Column({ name: 'repair_request_id', type: 'int', unsigned: true, nullable: true })
+    repairRequestId: number;
 
     @Column({ name: 'warehouse_id', type: 'int', unsigned: true, nullable: true })
     warehouseId: number;
@@ -50,6 +54,10 @@ export class WarehousingBillEntity extends AbstractEntity {
     @OneToOne(() => OrderEntity, { createForeignKeyConstraints: false })
     @JoinColumn({ name: 'order_id', referencedColumnName: 'id' })
     order: Relation<OrderEntity>;
+
+    @OneToOne(() => RepairRequestEntity, { createForeignKeyConstraints: false })
+    @JoinColumn({ name: 'repair_request_id', referencedColumnName: 'id' })
+    repairRequest: Relation<RepairRequestEntity>;
 
     @ManyToOne(() => WarehouseEntity, { createForeignKeyConstraints: false })
     @JoinColumn({ name: 'warehouse_id', referencedColumnName: 'id' })

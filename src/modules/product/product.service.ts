@@ -39,7 +39,13 @@ export class ProductService {
     }
 
     findOne(id: number) {
-        return this.database.product.findOne({ where: { id }, relations: ['category', 'media'] });
+        const builder = this.database.product.createQueryBuilder('product');
+        builder.where('product.id = :id', { id });
+        builder.leftJoinAndSelect('product.category', 'category');
+        builder.leftJoinAndSelect('product.unit', 'unit');
+        builder.leftJoinAndSelect('product.media', 'media');
+        builder.select(['product', 'category.id', 'category.name', 'media.id', 'media.path', 'unit.id', 'unit.name']);
+        return builder.getOne();
     }
 
     async update(id: number, updateProductDto: UpdateProductDto) {

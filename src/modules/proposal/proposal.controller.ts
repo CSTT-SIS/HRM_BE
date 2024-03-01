@@ -54,10 +54,48 @@ export class ProposalController {
         return this.proposalService.pending(+id);
     }
 
-    @Permission('proposal:approve')
-    @Patch(':id/approve')
-    approve(@Param('id', ParseIntPipe) id: string) {
-        return this.proposalService.approve(+id);
+    // @Permission('proposal:approve')
+    // @Patch(':id/approve')
+    // approve(@Param('id', ParseIntPipe) id: string) {
+    //     return this.proposalService.approve(+id);
+    // }
+
+    // @ApiBody({
+    //     schema: {
+    //         type: 'object',
+    //         properties: {
+    //             comment: {
+    //                 type: 'string',
+    //             },
+    //         },
+    //     },
+    // })
+    // @Permission('proposal:reject')
+    // @Patch(':id/reject')
+    // reject(@Param('id', ParseIntPipe) id: string, @Body() body: { comment: string }) {
+    //     return this.proposalService.reject(+id, body?.comment);
+    // }
+
+    // @ApiBody({
+    //     schema: {
+    //         type: 'object',
+    //         properties: {
+    //             comment: {
+    //                 type: 'string',
+    //             },
+    //         },
+    //     },
+    // })
+    // @Permission('proposal:return')
+    // @Patch(':id/return')
+    // return(@Param('id', ParseIntPipe) id: string, @Body() body: { comment: string }) {
+    //     return this.proposalService.return(+id, body?.comment);
+    // }
+
+    @Permission('proposal:headApprove')
+    @Patch(':id/head-approve')
+    headApprove(@Param('id', ParseIntPipe) id: string) {
+        return this.proposalService.headApprove(+id);
     }
 
     @ApiBody({
@@ -70,10 +108,16 @@ export class ProposalController {
             },
         },
     })
-    @Permission('proposal:reject')
-    @Patch(':id/reject')
-    reject(@Param('id', ParseIntPipe) id: string, @Body() body: { comment: string }) {
-        return this.proposalService.reject(+id, body?.comment);
+    @Permission('proposal:headReject')
+    @Patch(':id/head-reject')
+    headReject(@Param('id', ParseIntPipe) id: string, @Body() body: { comment: string }) {
+        return this.proposalService.headReject(+id, body?.comment);
+    }
+
+    @Permission('proposal:managerApprove')
+    @Patch(':id/manager-approve')
+    managerApprove(@Param('id', ParseIntPipe) id: string) {
+        return this.proposalService.managerApprove(+id);
     }
 
     @ApiBody({
@@ -86,10 +130,10 @@ export class ProposalController {
             },
         },
     })
-    @Permission('proposal:return')
-    @Patch(':id/return')
-    return(@Param('id', ParseIntPipe) id: string, @Body() body: { comment: string }) {
-        return this.proposalService.return(+id, body?.comment);
+    @Permission('proposal:managerReject')
+    @Patch(':id/manager-reject')
+    managerReject(@Param('id', ParseIntPipe) id: string, @Body() body: { comment: string }) {
+        return this.proposalService.managerReject(+id, body?.comment);
     }
 
     @Permission('proposal:getDetails')

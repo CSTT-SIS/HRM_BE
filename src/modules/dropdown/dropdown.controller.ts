@@ -33,13 +33,6 @@ export class DropdownController {
         return this.dropdownService.unit({ ...queries });
     }
 
-    @Permission('provider:findAll')
-    @Get('provider')
-    @ApiQuery({ type: FilterDto })
-    provider(@Query() queries) {
-        return this.dropdownService.provider({ ...queries });
-    }
-
     @Permission('proposal:findAll')
     @Get('proposal')
     @ApiQuery({ type: FilterDto })
@@ -67,15 +60,9 @@ export class DropdownController {
     @Get('order')
     @ApiQuery({ type: FilterDto })
     @ApiQuery({ name: 'proposalId', required: false, type: Number })
-    @ApiQuery({ name: 'providerId', required: false, type: Number })
     @ApiQuery({ name: 'status', enum: ORDER_STATUS, required: false })
-    order(
-        @Query() queries,
-        @Query('proposalId', new ParseIntPipe({ optional: true })) proposalId: string,
-        @Query('providerId', new ParseIntPipe({ optional: true })) providerId: string,
-        @Query('status') status: string,
-    ) {
-        return this.dropdownService.order({ ...queries, proposalId, providerId, status });
+    order(@Query() queries, @Query('proposalId', new ParseIntPipe({ optional: true })) proposalId: string, @Query('status') status: string) {
+        return this.dropdownService.order({ ...queries, proposalId, status });
     }
 
     @Permission('order:findAll')
@@ -117,5 +104,12 @@ export class DropdownController {
     @Get('damage-level')
     damageLevel() {
         return this.dropdownService.damageLevel();
+    }
+
+    @Permission('department:findAll')
+    @Get('department')
+    @ApiQuery({ type: FilterDto })
+    department(@Query() queries) {
+        return this.dropdownService.department({ ...queries });
     }
 }

@@ -1,7 +1,8 @@
+import { faker } from '@faker-js/faker/locale/vi';
 import { setSeederFactory } from 'typeorm-extension';
 import { ProductEntity } from '~/database/typeorm/entities/product.entity';
 
-export default setSeederFactory(ProductEntity, (faker) => {
+export default setSeederFactory(ProductEntity, () => {
     const entity = new ProductEntity();
 
     entity.name = faker.commerce.productName();

@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsNumber, IsOptional, Max, Min } from 'class-validator';
+import { ArrayNotEmpty, IsNotEmpty, IsNumber, IsOptional, Max, Min } from 'class-validator';
 import { IsIdExist } from '~/common/validators/is-id-exist.validator';
 
 export class CreateOrderItemDto {
@@ -21,4 +21,10 @@ export class CreateOrderItemDto {
     @Min(0, { message: 'Đơn giá phải lớn hơn hoặc bằng 0' })
     @Max(9999999999, { message: 'Giá sản phẩm không được lớn hơn 9,999,999,999' })
     price: number;
+}
+
+export class CreateOrderItemsDto {
+    @ApiProperty({ type: [CreateOrderItemDto] })
+    @ArrayNotEmpty({ message: 'Danh sách sản phẩm không được để trống' })
+    details: CreateOrderItemDto[];
 }

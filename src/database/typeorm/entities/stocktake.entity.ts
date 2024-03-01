@@ -21,10 +21,10 @@ export class StocktakeEntity extends AbstractEntity {
     @Column({ name: 'status', type: 'varchar', length: 50, nullable: true })
     status: string;
 
-    @Column({ name: 'start_date', type: 'datetime', nullable: true })
+    @Column({ name: 'start_date', type: 'timestamp', nullable: true })
     startDate: Date;
 
-    @Column({ name: 'end_date', type: 'datetime', nullable: true })
+    @Column({ name: 'end_date', type: 'timestamp', nullable: true })
     endDate: Date;
 
     @Column({ name: 'created_by_id', type: 'int', unsigned: true, nullable: true })

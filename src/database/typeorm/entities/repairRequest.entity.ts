@@ -32,7 +32,7 @@ export class RepairRequestEntity extends AbstractEntity {
     @Column({ name: 'end_date', type: 'datetime', nullable: true })
     endDate: Date;
 
-    @Column({ name: 'status', type: 'varchar', length: 50, nullable: true, default: REPAIR_REQUEST_STATUS.PENDING })
+    @Column({ name: 'status', type: 'varchar', length: 50, nullable: true, default: REPAIR_REQUEST_STATUS.IN_PROGRESS })
     status: string;
 
     @Column({ name: 'created_by_id', type: 'int', unsigned: true, nullable: true })

@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query } from '@nestjs/common';
-import { ApiBasicAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiBasicAuth, ApiBody, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Permission } from '~/common/decorators/permission.decorator';
 import { FilterDto } from '~/common/dtos/filter.dto';
 import { CreateRepairDetailDto, CreateRepairDetailsDto } from '~/modules/repair-request/dto/create-repair-detail.dto';
@@ -45,6 +45,28 @@ export class RepairRequestController {
         return this.repairRequestService.remove(+id);
     }
 
+    @Permission('repairRequest:headApprove')
+    @Patch(':id/head-approve')
+    headApprove(@Param('id', ParseIntPipe) id: string) {
+        return this.repairRequestService.headApprove(+id);
+    }
+
+    @ApiBody({
+        schema: {
+            type: 'object',
+            properties: {
+                comment: {
+                    type: 'string',
+                },
+            },
+        },
+    })
+    @Permission('repairRequest:headReject')
+    @Patch(':id/head-reject')
+    headReject(@Param('id', ParseIntPipe) id: string, @Body() body: { comment: string }) {
+        return this.repairRequestService.headReject(+id, body?.comment);
+    }
+
     @Permission('repairRequest:getDetails')
     @Get(':id/detail')
     @ApiQuery({ type: FilterDto })
@@ -81,15 +103,15 @@ export class RepairRequestController {
         return this.repairRequestService.removeDetail(+id, +detailId);
     }
 
-    @Permission('repairRequest:inProgress')
-    @Patch(':id/in-progress')
-    inProgress(@Param('id', ParseIntPipe) id: string) {
-        return this.repairRequestService.inProgress(+id);
-    }
+    // @Permission('repairRequest:inProgress')
+    // @Patch(':id/in-progress')
+    // inProgress(@Param('id', ParseIntPipe) id: string) {
+    //     return this.repairRequestService.inProgress(+id);
+    // }
 
-    @Permission('repairRequest:complete')
-    @Patch(':id/complete')
-    complete(@Param('id', ParseIntPipe) id: string) {
-        return this.repairRequestService.complete(+id);
-    }
+    // @Permission('repairRequest:complete')
+    // @Patch(':id/complete')
+    // complete(@Param('id', ParseIntPipe) id: string) {
+    //     return this.repairRequestService.complete(+id);
+    // }
 }

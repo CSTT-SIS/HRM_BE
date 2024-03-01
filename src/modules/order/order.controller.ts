@@ -3,7 +3,7 @@ import { ApiBasicAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Permission } from '~/common/decorators/permission.decorator';
 import { FilterDto } from '~/common/dtos/filter.dto';
 import { ORDER_STATUS } from '~/common/enums/enum';
-import { CreateOrderItemDto } from '~/modules/order/dto/create-order-item.dto';
+import { CreateOrderItemDto, CreateOrderItemsDto } from '~/modules/order/dto/create-order-item.dto';
 import { UpdateOrderItemDto } from '~/modules/order/dto/update-order-item.dto';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
@@ -24,17 +24,15 @@ export class OrderController {
     @Permission('order:findAll')
     @Get()
     @ApiQuery({ name: 'proposalId', required: false, type: Number })
-    @ApiQuery({ name: 'providerId', required: false, type: Number })
     @ApiQuery({ name: 'status', required: false, enum: ORDER_STATUS })
     findAll(
         @Query() queries: FilterDto,
         @Query('proposalId', new ParseIntPipe({ optional: true })) proposalId: string,
-        @Query('providerId', new ParseIntPipe({ optional: true })) providerId: string,
         @Query('status') status: string,
     ) {
         console.log('queries', queries);
 
-        return this.orderService.findAll({ ...queries, proposalId, providerId, status });
+        return this.orderService.findAll({ ...queries, proposalId, status });
     }
 
     @Permission('order:findOne')
@@ -94,6 +92,12 @@ export class OrderController {
     @Post(':id/add-item')
     addItem(@Param('id', ParseIntPipe) id: string, @Body() body: CreateOrderItemDto) {
         return this.orderService.addItem(+id, body);
+    }
+
+    @Permission('order:addItem')
+    @Post(':id/add-items')
+    addItems(@Param('id', ParseIntPipe) id: string, @Body() body: CreateOrderItemsDto) {
+        return this.orderService.addItems(+id, body);
     }
 
     @Permission('order:updateItem')

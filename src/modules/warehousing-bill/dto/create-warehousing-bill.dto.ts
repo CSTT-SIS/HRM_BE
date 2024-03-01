@@ -5,9 +5,10 @@ import { IsIdExist } from '~/common/validators/is-id-exist.validator';
 
 export class CreateWarehousingBillDto {
     @ApiProperty({ type: 'integer', required: true })
-    @IsNotEmpty({ message: 'Mã phiếu đề xuất không được để trống' })
-    @IsNumber({}, { message: 'Mã phiếu đề xuất phải là số' })
-    @IsIdExist({ entity: 'proposal' }, { message: 'Mã phiếu đề xuất không tồn tại' })
+    // @IsNotEmpty({ message: 'Mã phiếu yêu cầu không được để trống' })
+    @IsOptional()
+    @IsNumber({}, { message: 'Mã phiếu yêu cầu phải là số' })
+    @IsIdExist({ entity: 'proposal' }, { message: 'Mã phiếu yêu cầu không tồn tại' })
     proposalId: number;
 
     @ApiProperty({ type: 'integer', required: false })
@@ -17,6 +18,12 @@ export class CreateWarehousingBillDto {
     @IsNumber({}, { message: 'Mã đơn hàng phải là số' })
     @IsIdExist({ entity: 'order' }, { message: 'Mã đơn hàng không tồn tại' })
     orderId: number;
+
+    @ApiProperty({ type: 'integer', required: false })
+    @IsOptional()
+    @IsNumber({}, { message: 'Mã yêu cầu sửa chữa phải là số' })
+    @IsIdExist({ entity: 'repairRequest' }, { message: 'Mã yêu cầu sửa chữa không tồn tại' })
+    repairRequestId: number;
 
     @ApiProperty({ type: 'integer', required: true })
     @IsNotEmpty({ message: 'Mã kho không được để trống' })
