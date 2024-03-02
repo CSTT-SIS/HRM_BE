@@ -8,10 +8,11 @@ import { UtilService } from '~/shared/services';
 export class NotificationService {
     constructor(private readonly utilService: UtilService, private readonly database: DatabaseService) {}
 
-    async findAll(queries: FilterDto & { lang?: string }) {
+    async findAll(queries: FilterDto & { lang?: string; type?: string }) {
         return this.database.notification.getNotificationByReceiverId({
             receiverId: UserStorage.getId(),
             ...queries,
+            type: queries.type,
             lang: queries.lang || 'vi',
         });
     }

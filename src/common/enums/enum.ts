@@ -22,6 +22,15 @@ export enum MEDIA_TYPE {
     MISC = 'MISC',
 }
 
+export enum NOTIFICATION_TYPE {
+    NEW_TASK = 'NHIỆM VỤ MỚI',
+    NEW_LEAVE_REQUEST = 'YÊU CẦU NGHỈ PHÉP MỚI',
+    NEW_CLAIM = 'ĐƠN YÊU CẦU MỚI',
+    WORK_SOLVING_STATUS = 'TÌNH TRẠNG GIẢI QUYẾT CÔNG VIỆC',
+    APPLICATION_RESOLUTION_STATUS = 'TÌNH TRẠNG GIẢI QUYẾT ĐƠN TỪ',
+    EXPIRED_PASSPORT = 'HỘ CHIẾU HẾT HẠN',
+}
+
 export enum CACHE_TIME {
     ONE_MINUTE = 60,
     THIRTY_MINUTES = 1800,

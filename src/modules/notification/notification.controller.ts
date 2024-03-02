@@ -4,6 +4,7 @@ import { BYPASS_PERMISSION } from '~/common/constants/constant';
 import { Permission } from '~/common/decorators/permission.decorator';
 import { FilterDto } from '~/common/dtos/filter.dto';
 import { NotificationService } from './notification.service';
+import { NOTIFICATION_TYPE } from '~/common/enums/enum';
 
 @ApiTags('Notification')
 @ApiBasicAuth('authorization')
@@ -14,8 +15,14 @@ export class NotificationController {
     @Permission(BYPASS_PERMISSION)
     @Get()
     @ApiQuery({ name: 'lang', required: false })
-    findAll(@Query() queries: FilterDto, @Query('lang') lang: string) {
-        return this.notificationService.findAll({ ...queries, lang });
+    @ApiQuery({
+        name: 'type',
+        enum: NOTIFICATION_TYPE,
+        // description: 'SEX: Theo giới tính, SENIORITY: Thâm niên, BY_MONTH: Tình hình biến động theo tháng',
+        required: true,
+    })
+    findAll(@Query() queries: FilterDto, @Query('lang') lang: string, @Query('type') type: string) {
+        return this.notificationService.findAll({ ...queries, lang, type });
     }
 
     @Permission(BYPASS_PERMISSION)

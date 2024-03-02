@@ -19,7 +19,7 @@ export class NotificationRepository extends Repository<NotificationEntity> {
      * contains information about the pagination of the query, including the current page, number of
      * records per page, total number of records, and total number of pages.
      */
-    async getNotificationByReceiverId(data: { receiverId: number; page?: number; perPage?: number; lang: string }) {
+    async getNotificationByReceiverId(data: { receiverId: number; page?: number; perPage?: number; type?: string; lang: string }) {
         const { receiverId, page = 1, perPage = 10 } = data;
 
         const query = this.createQueryBuilder('notification')
@@ -31,6 +31,7 @@ export class NotificationRepository extends Repository<NotificationEntity> {
             .leftJoinAndSelect('notification.sender', 'sender')
             .leftJoinAndSelect('notification.details', 'details')
             .andWhere('details.lang = :lang', { lang: data.lang })
+            .andWhere('notification.type = :type', { type: data.type })
             .select(['notification', 'sender.id', 'sender.fullName', 'details.title', 'details.content', 'details.lang']);
 
         const [result, total] = await query.getManyAndCount();
