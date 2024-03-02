@@ -49,6 +49,7 @@ export class HumanService {
     }
 
     async dashboard(queries: FilterDto, type: string) {
+        const { page, perPage, sortBy } = queries;
         if (type === HUMAN_DASHBOARD_TYPE.SEX) {
             return this.database.user.getStatisBySex();
         }
@@ -58,7 +59,7 @@ export class HumanService {
         }
 
         if (type === HUMAN_DASHBOARD_TYPE.BY_MONTH) {
-            return this.database.user.getStatisByMonth();
+            return this.database.user.getStatisByMonth(page, perPage, sortBy);
         }
 
         throw new BadRequestException('Loại thống kê không hợp lệ!');
