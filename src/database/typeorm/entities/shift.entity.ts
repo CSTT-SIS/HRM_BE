@@ -20,7 +20,7 @@ export class ShiftEntity extends AbstractEntity {
     @Column({ name: 'end_date', type: 'datetime', nullable: true })
     endDate: Date;
 
-    @Column({ type: 'enum', enum: SHIFT_TYPE, default: SHIFT_TYPE.MORNING })
+    @Column({ type: 'enum', enum: SHIFT_TYPE, default: SHIFT_TYPE.TIME_RANGE })
     type: SHIFT_TYPE;
 
     /* RELATION */
