@@ -137,6 +137,7 @@ export class OrderService {
 
     async addItems(id: number, items: CreateOrderItemsDto) {
         await this.isStatusValid({ id, statuses: [ORDER_STATUS.PENDING] });
+        await this.validateOrderItems(items);
         // check if the product have been added to the proposal
         // await this.isProductAddedToProposal(id, item.productId);
         const entities = items.details.map((item) => this.database.orderItem.create({ ...item, orderId: id }));
@@ -304,5 +305,18 @@ export class OrderService {
         eventObj.id = data.id;
         eventObj.senderId = UserStorage.getId();
         this.eventEmitter.emit(event, eventObj);
+    }
+
+    private async validateOrderItems(items: CreateOrderItemsDto) {
+        for (const item of items.details) {
+            if (!item.productId) throw new HttpException('Sản phẩm không hợp lệ', 400);
+            if (!item.quantity) throw new HttpException('Số lượng phải lớn hơn 0', 400);
+            if (isNaN(Number(item.quantity))) throw new HttpException('Số lượng phải là số', 400);
+            if (isNaN(Number(item.price))) throw new HttpException('Giá phải là số', 400);
+            if (item.price <= 0) throw new HttpException('Giá phải lớn hơn 0', 400);
+
+            const isProductExist = await this.database.product.findOne({ where: { id: item.productId } });
+            if (!isProductExist) throw new HttpException('Sản phẩm không tồn tại', 400);
+        }
     }
 }
