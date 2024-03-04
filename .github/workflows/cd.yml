@@ -1,0 +1,21 @@
+name: Deploy HRM_BE
+
+on:
+    push:
+        branches: [dev]
+
+jobs:
+    deploy:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Deploy using ssh
+              uses: appleboy/ssh-action@master
+              with:
+                  host: ${{ secrets.HOST }}
+                  username: ${{ secrets.USERNAME }}
+                  password: ${{ secrets.PASSWORD }}
+                  port: 22
+                  script: |
+                      cd /home/vangtats/HRM_BE
+                      git pull origin dev
+                      docker compose up -d --build

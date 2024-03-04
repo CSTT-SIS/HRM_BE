@@ -156,6 +156,11 @@ export enum CONTRACT_TYPE {
     // ----
 }
 
+export enum HOLIDAY_TYPE {
+    TET = 'TET',
+    // ----
+}
+
 export enum CONTRACT_RESULT {
     GENERAL = 1,
     // ----
