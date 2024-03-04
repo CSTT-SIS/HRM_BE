@@ -2,7 +2,7 @@ import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query 
 import { ApiBasicAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Permission } from '~/common/decorators/permission.decorator';
 import { FilterDto } from '~/common/dtos/filter.dto';
-import { CreateStocktakeDetailDto } from '~/modules/stocktake/dto/create-stocktake-detail.dto';
+import { CreateStocktakeDetailDto, CreateStocktakeDetailsDto } from '~/modules/stocktake/dto/create-stocktake-detail.dto';
 import { TallyStocktakeDetailDto } from '~/modules/stocktake/dto/tally-stocktake-detail.dto';
 import { UpdateStocktakeDetailDto } from '~/modules/stocktake/dto/update-stocktake-detail.dto';
 import { CreateStocktakeDto } from './dto/create-stocktake.dto';
@@ -64,6 +64,14 @@ export class StocktakeController {
     @Post(':id/add-detail')
     addDetail(@Param('id', ParseIntPipe) id: string, @Body() createStocktakeDetailDto: CreateStocktakeDetailDto) {
         return this.stocktakeService.addDetail(+id, createStocktakeDetailDto);
+    }
+
+    @Permission('stocktake:addDetail')
+    @Post(':id/add-details')
+    addDetails(@Param('id', ParseIntPipe) id: string, @Body() createStocktakeDetailsDto: CreateStocktakeDetailsDto) {
+        console.log('detail', createStocktakeDetailsDto.details);
+
+        return this.stocktakeService.addDetails(+id, createStocktakeDetailsDto);
     }
 
     @Permission('stocktake:updateDetail')
