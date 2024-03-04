@@ -11,8 +11,9 @@ export function bootstrapValidation(app: INestApplication): void {
             whitelist: true,
             transform: true,
             // transformOptions: {
-            //   // strategy: 'exposeAll',
-            //   excludeExtraneousValues: true,
+            //     // strategy: 'exposeAll',
+            //     excludeExtraneousValues: true,
+            //     enableImplicitConversion: true,
             // },
             // stopAtFirstError: false,
             // forbidUnknownValues: true,
