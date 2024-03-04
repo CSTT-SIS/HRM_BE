@@ -140,8 +140,22 @@ export class OrderService {
         await this.validateOrderItems(items);
         // check if the product have been added to the proposal
         // await this.isProductAddedToProposal(id, item.productId);
-        const entities = items.details.map((item) => this.database.orderItem.create({ ...item, orderId: id }));
-        return this.database.orderItem.upsert(entities, ['orderId', 'productId']);
+
+        // update or insert
+        const result = [];
+        for (const item of items.details) {
+            const isItemExist = await this.database.orderItem.findOne({ where: { orderId: id, productId: item.productId } });
+            if (isItemExist) {
+                isItemExist.quantity += item.quantity;
+                isItemExist.price = item.price;
+                await this.database.orderItem.update({ id: isItemExist.id }, isItemExist);
+                result.push(isItemExist);
+            } else {
+                result.push(await this.database.orderItem.save(this.database.orderItem.create({ ...item, orderId: id })));
+            }
+        }
+
+        return { result: true, message: 'Thêm sản phẩm vào đơn hàng thành công', data: result };
     }
 
     async updateItem(id: number, itemId: number, item: UpdateOrderItemDto) {
@@ -309,7 +323,7 @@ export class OrderService {
 
     private async validateOrderItems(items: CreateOrderItemsDto) {
         for (const item of items.details) {
-            if (!item.productId) throw new HttpException('Sản phẩm không hợp lệ', 400);
+            if (!item.productId) throw new HttpException('Sản phẩm không tồn tại', 400);
             if (!item.quantity) throw new HttpException('Số lượng phải lớn hơn 0', 400);
             if (isNaN(Number(item.quantity))) throw new HttpException('Số lượng phải là số', 400);
             if (isNaN(Number(item.price))) throw new HttpException('Giá phải là số', 400);
