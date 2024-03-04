@@ -30,8 +30,6 @@ export class OrderController {
         @Query('proposalId', new ParseIntPipe({ optional: true })) proposalId: string,
         @Query('status') status: string,
     ) {
-        console.log('queries', queries);
-
         return this.orderService.findAll({ ...queries, proposalId, status });
     }
 
