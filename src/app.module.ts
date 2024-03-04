@@ -54,6 +54,7 @@ import { TaskModule } from '~/modules/task/task.module';
 import { FreeTimekeepingModule } from '~/modules/free-timekeeping/free-timekeeping.module';
 import { PositionModule } from '~/modules/position/position.module';
 import { ContractModule } from '~/modules/contract/contract.module';
+import { HolidayModule } from '~/modules/holiday/holiday.module';
 
 @Module({
     imports: [
@@ -111,6 +112,7 @@ import { ContractModule } from '~/modules/contract/contract.module';
         FreeTimekeepingModule,
         PositionModule,
         ContractModule,
+        HolidayModule,
     ],
     controllers: [AppController],
     providers: [
