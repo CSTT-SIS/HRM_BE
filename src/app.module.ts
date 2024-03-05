@@ -55,6 +55,8 @@ import { FreeTimekeepingModule } from '~/modules/free-timekeeping/free-timekeepi
 import { PositionModule } from '~/modules/position/position.module';
 import { ContractModule } from '~/modules/contract/contract.module';
 import { HolidayModule } from '~/modules/holiday/holiday.module';
+import { ShiftModule } from '~/modules/shift/shift.module';
+import { UserShiftModule } from '~/modules/user-shift/user-shift.module';
 
 @Module({
     imports: [
@@ -113,6 +115,8 @@ import { HolidayModule } from '~/modules/holiday/holiday.module';
         PositionModule,
         ContractModule,
         HolidayModule,
+        ShiftModule,
+        UserShiftModule,
     ],
     controllers: [AppController],
     providers: [

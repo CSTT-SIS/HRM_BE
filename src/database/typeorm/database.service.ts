@@ -44,6 +44,8 @@ import { CacheService } from '~/shared/services/cache.service';
 import { PositionRepository } from '~/database/typeorm/repositories/position.repository';
 import { ContractRepository } from '~/database/typeorm/repositories/contract.repository';
 import { HolidayRepository } from '~/database/typeorm/repositories/holiday.repository';
+import { ShiftRepository } from '~/database/typeorm/repositories/shift.repository';
+import { UserShiftRepository } from '~/database/typeorm/repositories/userShift.repository';
 
 @Injectable()
 export class DatabaseService {
@@ -92,6 +94,8 @@ export class DatabaseService {
         public readonly position: PositionRepository,
         public readonly contract: ContractRepository,
         public readonly holiday: HolidayRepository,
+        public readonly shift: ShiftRepository,
+        public readonly userShift: UserShiftRepository,
     ) {
         // load all departments to cache
         // this.loadDepartmentsToCache();
