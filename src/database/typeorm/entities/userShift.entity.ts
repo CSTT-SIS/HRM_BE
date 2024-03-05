@@ -16,14 +16,14 @@ export class UserShiftEntity extends AbstractEntity {
 
     /* RELATION */
     @ManyToOne(() => UserEntity, (entity: UserEntity) => entity.userShifts, {
-        nullable: true,
+        nullable: false,
         createForeignKeyConstraints: false,
     })
     @JoinColumn({ name: 'user_id', referencedColumnName: 'id' })
     user: Relation<UserEntity>;
 
     @ManyToOne(() => ShiftEntity, (entity: ShiftEntity) => entity.userShifts, {
-        nullable: true,
+        nullable: false,
         createForeignKeyConstraints: false,
     })
     @JoinColumn({ name: 'shift_id', referencedColumnName: 'id' })
