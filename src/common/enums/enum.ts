@@ -212,7 +212,7 @@ export enum TASK_PRIORITY {
 
 export enum ASSET_STATUS {
     ACTIVE = 1,
-    // ----
+    INACTIVE = 0,
 }
 
 export enum LETTER_TYPE {

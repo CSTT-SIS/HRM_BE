@@ -9,4 +9,11 @@ export class PositionRepository extends Repository<PositionEntity> {
     constructor(private dataSource: DataSource) {
         super(PositionEntity, dataSource.createEntityManager());
     }
+
+    findOnePositiontWithAllRelationsById = (id: number) => {
+        return this.findOne({
+            where: { id: id },
+            relations: ['contracts'],
+        });
+    };
 }
