@@ -55,7 +55,22 @@ export class RepairRequestService {
 
         builder.leftJoinAndSelect('entity.vehicle', 'vehicle');
         builder.leftJoinAndSelect('entity.repairBy', 'repairBy');
-        builder.select(['entity', 'vehicle.id', 'vehicle.registrationNumber', 'repairBy.id', 'repairBy.fullName']);
+        builder.leftJoinAndSelect('repairBy.department', 'rbDepartment');
+        builder.leftJoinAndSelect('entity.createdBy', 'createdBy');
+        builder.leftJoinAndSelect('createdBy.department', 'cbDepartment');
+        builder.select([
+            'entity',
+            'vehicle.id',
+            'vehicle.registrationNumber',
+            'repairBy.id',
+            'repairBy.fullName',
+            'rbDepartment.id',
+            'rbDepartment.name',
+            'createdBy.id',
+            'createdBy.fullName',
+            'cbDepartment.id',
+            'cbDepartment.name',
+        ]);
 
         const [result, total] = await builder.getManyAndCount();
         const totalPages = Math.ceil(total / take);
@@ -72,24 +87,33 @@ export class RepairRequestService {
     findOne(id: number) {
         const builder = this.database.repairRequest.createQueryBuilder('entity');
         builder.leftJoinAndSelect('entity.vehicle', 'vehicle');
-        builder.leftJoinAndSelect('entity.repairBy', 'repairBy');
         builder.leftJoinAndSelect('entity.details', 'details');
         builder.leftJoinAndSelect('details.replacementPart', 'replacementPart');
         builder.leftJoinAndSelect('entity.progresses', 'progresses');
         builder.leftJoinAndSelect('progresses.repairBy', 'progressRepairBy');
+        builder.leftJoinAndSelect('entity.repairBy', 'repairBy');
+        builder.leftJoinAndSelect('repairBy.department', 'rbDepartment');
+        builder.leftJoinAndSelect('entity.createdBy', 'createdBy');
+        builder.leftJoinAndSelect('createdBy.department', 'cbDepartment');
 
         builder.select([
             'entity',
             'vehicle.id',
             'vehicle.registrationNumber',
-            'repairBy.id',
-            'repairBy.fullName',
             'details',
             'replacementPart.id',
             'replacementPart.name',
             'progresses',
             'progressRepairBy.id',
             'progressRepairBy.fullName',
+            'repairBy.id',
+            'repairBy.fullName',
+            'rbDepartment.id',
+            'rbDepartment.name',
+            'createdBy.id',
+            'createdBy.fullName',
+            'cbDepartment.id',
+            'cbDepartment.name',
         ]);
 
         builder.where({ id });
