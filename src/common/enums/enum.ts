@@ -172,8 +172,8 @@ export enum LEAVE_STATUS {
 }
 
 export enum SHIFT_TYPE {
-    MORNING = 1,
-    // ----
+    TIME_RANGE = 1,
+    HOUR_BASED = 0,
 }
 
 export enum RESIGNATION_STATUS {
@@ -212,7 +212,7 @@ export enum TASK_PRIORITY {
 
 export enum ASSET_STATUS {
     ACTIVE = 1,
-    // ----
+    INACTIVE = 0,
 }
 
 export enum LETTER_TYPE {

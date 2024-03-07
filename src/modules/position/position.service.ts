@@ -36,9 +36,7 @@ export class PositionService {
     }
 
     findOne(id: number) {
-        const builder = this.database.position.createQueryBuilder('entity');
-        builder.where({ id });
-        return builder.getOne();
+        return this.database.position.findOnePositiontWithAllRelationsById(id);
     }
 
     update(id: number, updatePositionDto: UpdatePositionDto) {

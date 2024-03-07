@@ -1,28 +1,25 @@
 import { Injectable } from '@nestjs/common';
 import { DatabaseService } from '~/database/typeorm/database.service';
 import { UtilService } from '~/shared/services';
-import { CreateContractDto } from './dto/create-contract.dto';
-import { UpdateContractDto } from './dto/update-contract.dto';
+import { CreateShiftDto } from './dto/create-shift.dto';
+import { UpdateShiftDto } from './dto/update-shift.dto';
 import { FilterDto } from '~/common/dtos/filter.dto';
 
 @Injectable()
-export class ContractService {
+export class ShiftService {
     constructor(private readonly utilService: UtilService, private readonly database: DatabaseService) {}
 
-    create(createContractDto: CreateContractDto) {
-        return this.database.contract.save(this.database.contract.create(createContractDto));
+    create(createShiftDto: CreateShiftDto) {
+        return this.database.shift.save(this.database.shift.create(createShiftDto));
     }
 
     async findAll(queries: FilterDto) {
-        const { builder, take, pagination } = this.utilService.getQueryBuilderAndPagination(this.database.contract, queries);
+        const { builder, take, pagination } = this.utilService.getQueryBuilderAndPagination(this.database.shift, queries);
 
         // change to `rawQuerySearch` if entity don't have fulltext indices
         builder.andWhere(this.utilService.fullTextSearch({ fields: ['name'], keyword: queries.search }));
 
-        builder.leftJoinAndSelect('entity.position', 'position');
-        builder.leftJoinAndSelect('entity.user', 'user');
-
-        builder.select(['entity', 'position', 'user']);
+        builder.select(['entity']);
 
         const [result, total] = await builder.getManyAndCount();
         const totalPages = Math.ceil(total / take);
@@ -37,14 +34,16 @@ export class ContractService {
     }
 
     findOne(id: number) {
-        return this.database.contract.findOneContractWithAllRelationsById(id);
+        const builder = this.database.shift.createQueryBuilder('entity');
+        builder.where({ id });
+        return builder.getOne();
     }
 
-    update(id: number, updateContractDto: UpdateContractDto) {
-        return this.database.contract.update(id, updateContractDto);
+    update(id: number, updateShiftDto: UpdateShiftDto) {
+        return this.database.shift.update(id, updateShiftDto);
     }
 
     remove(id: number) {
-        return this.database.contract.delete(id);
+        return this.database.shift.delete(id);
     }
 }
