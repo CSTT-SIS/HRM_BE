@@ -293,6 +293,11 @@ export class ProposalService {
             const bill = await this.database.warehousingBill.countBy({ proposalId: data.id });
             if (bill) throw new HttpException('Không thể chỉnh sửa yêu cầu do phiếu kho đã được tạo', 400);
         }
+
+        // TODO:
+        // PURCHASE type, need 2-level approval
+        // SUPPLY type, need 1-level approval
+
         return entity;
     }
 
