@@ -20,7 +20,8 @@ export class ProductCategoryService {
         builder.andWhere(this.utilService.rawQuerySearch({ fields: ['name'], keyword: queries.search }));
 
         builder.leftJoinAndSelect('entity.warehouse', 'warehouse');
-        builder.select(['entity', 'warehouse.id', 'warehouse.name']);
+        builder.leftJoinAndSelect('warehouse.manager', 'whManager');
+        builder.select(['entity', 'warehouse.id', 'warehouse.name', 'whManager.id', 'whManager.fullName']);
 
         const [result, total] = await builder.getManyAndCount();
         const totalPages = Math.ceil(total / take);
@@ -37,6 +38,7 @@ export class ProductCategoryService {
     findOne(id: number) {
         const builder = this.database.productCategory.createQueryBuilder('entity');
         builder.leftJoinAndSelect('entity.warehouse', 'warehouse');
+        builder.leftJoinAndSelect('warehouse.manager', 'whManager');
         builder.where('entity.id = :id', { id });
         return builder.getOne();
     }

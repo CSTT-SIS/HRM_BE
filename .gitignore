@@ -40,3 +40,4 @@ package-lock.json
 .vscode
 swagger-spec.json
 yarn.lock
+/notes
