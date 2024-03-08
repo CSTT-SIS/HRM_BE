@@ -54,6 +54,8 @@ export class RepairRequestService {
         builder.andWhere(this.utilService.rawQuerySearch({ fields: ['name', 'vehicle.registrationNumber'], keyword: queries.search }));
 
         builder.leftJoinAndSelect('entity.vehicle', 'vehicle');
+        builder.leftJoinAndSelect('vehicle.user', 'vehicleUser');
+        builder.leftJoinAndSelect('vehicleUser.department', 'vuDepartment');
         builder.leftJoinAndSelect('entity.repairBy', 'repairBy');
         builder.leftJoinAndSelect('repairBy.department', 'rbDepartment');
         builder.leftJoinAndSelect('entity.createdBy', 'createdBy');
@@ -62,6 +64,10 @@ export class RepairRequestService {
             'entity',
             'vehicle.id',
             'vehicle.registrationNumber',
+            'vehicleUser.id',
+            'vehicleUser.fullName',
+            'vuDepartment.id',
+            'vuDepartment.name',
             'repairBy.id',
             'repairBy.fullName',
             'rbDepartment.id',
@@ -87,6 +93,8 @@ export class RepairRequestService {
     findOne(id: number) {
         const builder = this.database.repairRequest.createQueryBuilder('entity');
         builder.leftJoinAndSelect('entity.vehicle', 'vehicle');
+        builder.leftJoinAndSelect('vehicle.user', 'vehicleUser');
+        builder.leftJoinAndSelect('vehicleUser.department', 'vuDepartment');
         builder.leftJoinAndSelect('entity.details', 'details');
         builder.leftJoinAndSelect('details.replacementPart', 'replacementPart');
         builder.leftJoinAndSelect('entity.progresses', 'progresses');
@@ -100,6 +108,10 @@ export class RepairRequestService {
             'entity',
             'vehicle.id',
             'vehicle.registrationNumber',
+            'vehicleUser.id',
+            'vehicleUser.fullName',
+            'vuDepartment.id',
+            'vuDepartment.name',
             'details',
             'replacementPart.id',
             'replacementPart.name',
