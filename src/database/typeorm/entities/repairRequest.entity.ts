@@ -38,6 +38,9 @@ export class RepairRequestEntity extends AbstractEntity {
     @Column({ name: 'created_by_id', type: 'int', unsigned: true, nullable: true })
     createdById: number;
 
+    @Column({ name: 'customer_name', type: 'varchar', length: 255, nullable: true })
+    customerName: string;
+
     /* RELATIONS */
     @ManyToOne(() => VehicleEntity, { createForeignKeyConstraints: false })
     @JoinColumn({ name: 'vehicle_id', referencedColumnName: 'id' })

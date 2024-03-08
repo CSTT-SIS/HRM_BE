@@ -10,6 +10,11 @@ export class CreateRepairRequestDto {
     vehicleRegistrationNumber: string;
 
     @ApiProperty()
+    @IsNotEmpty({ message: 'Tên người mang xe đến không được để trống' })
+    @IsString()
+    customerName: string;
+
+    @ApiProperty()
     @IsNotEmpty({ message: 'Mô tả không được để trống' })
     @IsString()
     description: string;
