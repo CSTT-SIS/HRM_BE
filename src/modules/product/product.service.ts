@@ -61,7 +61,7 @@ export class ProductService {
         builder.leftJoinAndSelect('product.category', 'category');
         builder.leftJoinAndSelect('product.unit', 'unit');
         builder.leftJoinAndSelect('product.media', 'media');
-        builder.leftJoinAndSelect('entity.quantityLimit', 'limit');
+        builder.leftJoinAndSelect('product.quantityLimit', 'limit');
         builder.select([
             'product',
             'category.id',
