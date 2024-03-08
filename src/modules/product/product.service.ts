@@ -12,7 +12,13 @@ export class ProductService {
     constructor(private readonly database: DatabaseService, private readonly utilService: UtilService) {}
 
     async create(createProductDto: CreateProductDto) {
-        return this.database.product.save(this.database.product.create(createProductDto));
+        const { minQuantity, maxQuantity, ...rest } = createProductDto;
+        const product = await this.database.product.save(this.database.product.create(rest));
+        if ((minQuantity >= 0 || maxQuantity >= 0) && product.id) {
+            await this.updateLimit(product.id, { minQuantity, maxQuantity });
+        }
+
+        return product;
     }
 
     async findAll(queries: FilterDto & { categoryId: number }) {
@@ -49,7 +55,11 @@ export class ProductService {
     }
 
     async update(id: number, updateProductDto: UpdateProductDto) {
-        return this.database.product.update(id, updateProductDto);
+        const { minQuantity, maxQuantity, ...rest } = updateProductDto;
+        if ((minQuantity >= 0 || maxQuantity >= 0) && id) {
+            await this.updateLimit(id, { minQuantity, maxQuantity });
+        }
+        return this.database.product.update(id, rest);
     }
 
     async remove(id: number) {
@@ -72,7 +82,7 @@ export class ProductService {
         return this.database.product.delete(id);
     }
 
-    async updateLimit(id: number, data: UpdateProductLimitDto) {
+    private async updateLimit(id: number, data: UpdateProductLimitDto) {
         const limit = await this.database.quantityLimit.findOne({ where: { productId: id } });
         if (limit) {
             return this.database.quantityLimit.update(limit.id, { updatedById: UserStorage.getId(), ...data });
