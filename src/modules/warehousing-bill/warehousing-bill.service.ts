@@ -30,6 +30,7 @@ export class WarehousingBillService {
         const entity = await this.database.warehousingBill.save(
             this.database.warehousingBill.create({
                 ...createWarehousingBillDto,
+                name: createWarehousingBillDto.name || `${createWarehousingBillDto.type}-${moment().format('YYYYMMDD:HHmmss')}`,
                 createdById: UserStorage.getId(),
                 code: `${createWarehousingBillDto.type}-${moment().unix()}`,
             }),
@@ -61,7 +62,9 @@ export class WarehousingBillService {
         builder.leftJoinAndSelect('entity.order', 'order');
         builder.leftJoinAndSelect('entity.warehouse', 'warehouse');
         builder.leftJoinAndSelect('entity.createdBy', 'createdBy');
+        builder.leftJoinAndSelect('createdBy.department', 'cbDepartment');
         builder.leftJoinAndSelect('entity.updatedBy', 'updatedBy');
+        builder.leftJoinAndSelect('createdBy.department', 'cbDepartment');
         builder.select([
             'entity',
             'proposal.id',
@@ -74,8 +77,12 @@ export class WarehousingBillService {
             'warehouse.name',
             'createdBy.id',
             'createdBy.fullName',
+            'cbDepartment.id',
+            'cbDepartment.name',
             'updatedBy.id',
             'updatedBy.fullName',
+            'ubDepartment.id',
+            'ubDepartment.name',
         ]);
 
         const [result, total] = await builder.getManyAndCount();
@@ -100,8 +107,12 @@ export class WarehousingBillService {
         builder.leftJoinAndSelect('details.product', 'product');
         builder.leftJoinAndSelect('product.unit', 'unit');
         builder.leftJoinAndSelect('entity.warehouse', 'warehouse');
+        builder.leftJoinAndSelect('warehouse.manager', 'whManager');
+        builder.leftJoinAndSelect('whManager.department', 'whManagerDepartment');
         builder.leftJoinAndSelect('entity.createdBy', 'createdBy');
+        builder.leftJoinAndSelect('createdBy.department', 'cbDepartment');
         builder.leftJoinAndSelect('entity.updatedBy', 'updatedBy');
+        builder.leftJoinAndSelect('createdBy.department', 'cbDepartment');
         builder.select([
             'entity',
             'proposal.id',
@@ -120,10 +131,18 @@ export class WarehousingBillService {
             'unit.name',
             'warehouse.id',
             'warehouse.name',
+            'whManager.id',
+            'whManager.fullName',
+            'whManagerDepartment.id',
+            'whManagerDepartment.name',
             'createdBy.id',
             'createdBy.fullName',
+            'cbDepartment.id',
+            'cbDepartment.name',
             'updatedBy.id',
             'updatedBy.fullName',
+            'ubDepartment.id',
+            'ubDepartment.name',
         ]);
         return builder.getOne();
     }

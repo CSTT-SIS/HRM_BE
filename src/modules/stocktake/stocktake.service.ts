@@ -39,17 +39,26 @@ export class StocktakeService {
             builder.andWhere(this.utilService.rawQuerySearch({ fields: ['name'], keyword: queries.search }));
 
         builder.leftJoinAndSelect('entity.createdBy', 'createdBy');
+        builder.leftJoinAndSelect('createdBy.department', 'cbDepartment');
         builder.leftJoinAndSelect('entity.updatedBy', 'updatedBy');
+        builder.leftJoinAndSelect('updatedBy.department', 'ubDepartment');
         builder.leftJoinAndSelect('entity.participants', 'participants');
+        builder.leftJoinAndSelect('participants.department', 'pDepartment');
         builder.leftJoinAndSelect('entity.warehouse', 'warehouse');
         builder.select([
             'entity',
             'createdBy.id',
             'createdBy.fullName',
+            'cbDepartment.id',
+            'cbDepartment.name',
             'updatedBy.id',
             'updatedBy.fullName',
+            'ubDepartment.id',
+            'ubDepartment.name',
             'participants.id',
             'participants.fullName',
+            'pDepartment.id',
+            'pDepartment.name',
             'warehouse.id',
             'warehouse.name',
         ]);
@@ -70,8 +79,11 @@ export class StocktakeService {
         const builder = this.database.stocktake.createQueryBuilder('entity');
         builder.where('entity.id = :id', { id });
         builder.leftJoinAndSelect('entity.createdBy', 'createdBy');
+        builder.leftJoinAndSelect('createdBy.department', 'cbDepartment');
         builder.leftJoinAndSelect('entity.updatedBy', 'updatedBy');
+        builder.leftJoinAndSelect('updatedBy.department', 'ubDepartment');
         builder.leftJoinAndSelect('entity.participants', 'participants');
+        builder.leftJoinAndSelect('participants.department', 'pDepartment');
         builder.leftJoinAndSelect('entity.warehouse', 'warehouse');
         builder.leftJoinAndSelect('entity.details', 'details');
         builder.leftJoinAndSelect('details.product', 'product');
@@ -80,9 +92,15 @@ export class StocktakeService {
             'entity',
             'createdBy.id',
             'createdBy.fullName',
+            'cbDepartment.id',
+            'cbDepartment.name',
             'updatedBy.id',
             'updatedBy.fullName',
+            'ubDepartment.id',
+            'ubDepartment.name',
             'participants',
+            'pDepartment.id',
+            'pDepartment.name',
             'warehouse.id',
             'warehouse.name',
             'details.id',

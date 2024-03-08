@@ -33,8 +33,22 @@ export class ProposalService {
 
         builder.leftJoinAndSelect('entity.department', 'department');
         builder.leftJoinAndSelect('entity.createdBy', 'createdBy');
+        builder.leftJoinAndSelect('createdBy.department', 'cbDepartment');
         builder.leftJoinAndSelect('entity.updatedBy', 'updatedBy');
-        builder.select(['entity', 'department.id', 'department.name', 'createdBy.id', 'createdBy.fullName', 'updatedBy.id', 'updatedBy.fullName']);
+        builder.leftJoinAndSelect('updatedBy.department', 'ubDepartment');
+        builder.select([
+            'entity',
+            'department.id',
+            'department.name',
+            'createdBy.id',
+            'createdBy.fullName',
+            'cbDepartment.id',
+            'cbDepartment.name',
+            'updatedBy.id',
+            'updatedBy.fullName',
+            'ubDepartment.id',
+            'ubDepartment.name',
+        ]);
 
         const [result, total] = await builder.getManyAndCount();
         const totalPages = Math.ceil(total / take);
@@ -52,7 +66,9 @@ export class ProposalService {
         const builder = this.database.proposal.createQueryBuilder('entity');
         builder.leftJoinAndSelect('entity.department', 'department');
         builder.leftJoinAndSelect('entity.createdBy', 'createdBy');
+        builder.leftJoinAndSelect('createdBy.department', 'cbDepartment');
         builder.leftJoinAndSelect('entity.updatedBy', 'updatedBy');
+        builder.leftJoinAndSelect('updatedBy.department', 'ubDepartment');
         builder.leftJoinAndSelect('entity.details', 'details');
         builder.leftJoinAndSelect('details.product', 'product');
         builder.leftJoinAndSelect('product.unit', 'unit');
@@ -64,8 +80,12 @@ export class ProposalService {
             'department.name',
             'createdBy.id',
             'createdBy.fullName',
+            'cbDepartment.id',
+            'cbDepartment.name',
             'updatedBy.id',
             'updatedBy.fullName',
+            'ubDepartment.id',
+            'ubDepartment.name',
             'details.id',
             'details.productId',
             'details.quantity',
