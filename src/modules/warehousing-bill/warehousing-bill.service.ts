@@ -64,7 +64,7 @@ export class WarehousingBillService {
         builder.leftJoinAndSelect('entity.createdBy', 'createdBy');
         builder.leftJoinAndSelect('createdBy.department', 'cbDepartment');
         builder.leftJoinAndSelect('entity.updatedBy', 'updatedBy');
-        builder.leftJoinAndSelect('createdBy.department', 'cbDepartment');
+        builder.leftJoinAndSelect('updatedBy.department', 'ubDepartment');
         builder.select([
             'entity',
             'proposal.id',
@@ -112,7 +112,7 @@ export class WarehousingBillService {
         builder.leftJoinAndSelect('entity.createdBy', 'createdBy');
         builder.leftJoinAndSelect('createdBy.department', 'cbDepartment');
         builder.leftJoinAndSelect('entity.updatedBy', 'updatedBy');
-        builder.leftJoinAndSelect('createdBy.department', 'cbDepartment');
+        builder.leftJoinAndSelect('updatedBy.department', 'ubDepartment');
         builder.select([
             'entity',
             'proposal.id',
