@@ -21,7 +21,16 @@ export class ProductCategoryService {
 
         builder.leftJoinAndSelect('entity.warehouse', 'warehouse');
         builder.leftJoinAndSelect('warehouse.manager', 'whManager');
-        builder.select(['entity', 'warehouse.id', 'warehouse.name', 'whManager.id', 'whManager.fullName']);
+        builder.leftJoinAndSelect('whManager.department', 'whManagerDepartment');
+        builder.select([
+            'entity',
+            'warehouse.id',
+            'warehouse.name',
+            'whManager.id',
+            'whManager.fullName',
+            'whManagerDepartment.id',
+            'whManagerDepartment.name',
+        ]);
 
         const [result, total] = await builder.getManyAndCount();
         const totalPages = Math.ceil(total / take);
@@ -39,6 +48,7 @@ export class ProductCategoryService {
         const builder = this.database.productCategory.createQueryBuilder('entity');
         builder.leftJoinAndSelect('entity.warehouse', 'warehouse');
         builder.leftJoinAndSelect('warehouse.manager', 'whManager');
+        builder.leftJoinAndSelect('whManager.department', 'whManagerDepartment');
         builder.where('entity.id = :id', { id });
         return builder.getOne();
     }

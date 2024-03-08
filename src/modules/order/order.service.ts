@@ -38,8 +38,9 @@ export class OrderService {
         builder.andWhere(this.utilService.fullTextSearch({ fields: ['name'], keyword: queries.search }));
 
         builder.leftJoinAndSelect('entity.createdBy', 'createdBy');
+        builder.leftJoinAndSelect('createdBy.department', 'department');
         builder.leftJoinAndSelect('entity.proposals', 'proposals');
-        builder.select(['entity', 'createdBy.id', 'createdBy.fullName', 'proposals.id', 'proposals.name']);
+        builder.select(['entity', 'createdBy.id', 'createdBy.fullName', 'department.id', 'department.name', 'proposals.id', 'proposals.name']);
 
         const [result, total] = await builder.getManyAndCount();
         const totalPages = Math.ceil(total / take);
@@ -59,7 +60,9 @@ export class OrderService {
 
         builder.leftJoinAndSelect('order.proposals', 'proposals');
         builder.leftJoinAndSelect('order.createdBy', 'createdBy');
+        builder.leftJoinAndSelect('createdBy.department', 'cbDepartment');
         builder.leftJoinAndSelect('order.updatedBy', 'updatedBy');
+        builder.leftJoinAndSelect('updatedBy.department', 'ubDepartment');
         builder.leftJoinAndSelect('order.items', 'items');
         builder.leftJoinAndSelect('items.product', 'product');
         builder.select([
@@ -68,8 +71,12 @@ export class OrderService {
             'proposals.name',
             'createdBy.id',
             'createdBy.fullName',
+            'cbDepartment.id',
+            'cbDepartment.name',
             'updatedBy.id',
             'updatedBy.fullName',
+            'ubDepartment.id',
+            'ubDepartment.name',
             'items.id',
             'items.quantity',
             'items.price',
