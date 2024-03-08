@@ -30,7 +30,18 @@ export class ProductService {
         builder.leftJoinAndSelect('entity.category', 'category');
         builder.leftJoinAndSelect('entity.unit', 'unit');
         builder.leftJoinAndSelect('entity.media', 'media');
-        builder.select(['entity', 'category.id', 'category.name', 'media.id', 'media.path', 'unit.id', 'unit.name']);
+        builder.leftJoinAndSelect('entity.quantityLimit', 'limit');
+        builder.select([
+            'entity',
+            'category.id',
+            'category.name',
+            'media.id',
+            'media.path',
+            'unit.id',
+            'unit.name',
+            'limit.minQuantity',
+            'limit.maxQuantity',
+        ]);
 
         const [result, total] = await builder.getManyAndCount();
         const totalPages = Math.ceil(total / take);
@@ -50,7 +61,18 @@ export class ProductService {
         builder.leftJoinAndSelect('product.category', 'category');
         builder.leftJoinAndSelect('product.unit', 'unit');
         builder.leftJoinAndSelect('product.media', 'media');
-        builder.select(['product', 'category.id', 'category.name', 'media.id', 'media.path', 'unit.id', 'unit.name']);
+        builder.leftJoinAndSelect('entity.quantityLimit', 'limit');
+        builder.select([
+            'product',
+            'category.id',
+            'category.name',
+            'media.id',
+            'media.path',
+            'unit.id',
+            'unit.name',
+            'limit.minQuantity',
+            'limit.maxQuantity',
+        ]);
         return builder.getOne();
     }
 
