@@ -47,6 +47,7 @@ import { HolidayRepository } from '~/database/typeorm/repositories/holiday.repos
 import { ShiftRepository } from '~/database/typeorm/repositories/shift.repository';
 import { UserShiftRepository } from '~/database/typeorm/repositories/userShift.repository';
 import { AssetRepository } from '~/database/typeorm/repositories/asset.repository';
+import { ApprovalConfigRepository } from '~/database/typeorm/repositories/approvalConfig.repository';
 
 @Injectable()
 export class DatabaseService {
@@ -98,6 +99,7 @@ export class DatabaseService {
         public readonly shift: ShiftRepository,
         public readonly userShift: UserShiftRepository,
         public readonly asset: AssetRepository,
+        public readonly approvalConfig: ApprovalConfigRepository,
     ) {
         // load all departments to cache
         // this.loadDepartmentsToCache();

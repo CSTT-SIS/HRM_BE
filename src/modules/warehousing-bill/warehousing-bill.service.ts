@@ -180,6 +180,41 @@ export class WarehousingBillService {
         };
     }
 
+    async addDetail(warehousingBillId: number, detail: { productId: number; proposalQuantity: number }) {
+        await this.isStatusValid({ id: warehousingBillId, statuses: [WAREHOUSING_BILL_STATUS.PENDING] });
+        await this.validateDetails([{ productId: detail.productId, proposalQuantity: detail.proposalQuantity }]);
+        const newDetail = {
+            warehousingBillId,
+            productId: detail.productId,
+            proposalQuantity: detail.proposalQuantity,
+        };
+
+        return this.database.warehousingBillDetail.save(this.database.warehousingBillDetail.create(newDetail));
+    }
+
+    async addDetails(warehousingBillId: number, details: { productId: number; proposalQuantity: number }[]) {
+        await this.isStatusValid({ id: warehousingBillId, statuses: [WAREHOUSING_BILL_STATUS.PENDING] });
+        await this.validateDetails(details);
+        const newDetails = details.map((detail) => ({
+            warehousingBillId,
+            productId: detail.productId,
+            proposalQuantity: detail.proposalQuantity,
+        }));
+
+        return this.database.warehousingBillDetail.save(this.database.warehousingBillDetail.create(newDetails));
+    }
+
+    async updateDetail(warehousingBillId: number, detailId: number, update: { proposalQuantity: number }) {
+        await this.isStatusValid({ id: warehousingBillId, statuses: [WAREHOUSING_BILL_STATUS.PENDING] });
+        if (update.proposalQuantity <= 0) throw new HttpException('Số lượng yêu cầu không hợp lệ', 400);
+        return this.database.warehousingBillDetail.update(detailId, update);
+    }
+
+    async removeDetail(warehousingBillId: number, detailId: number) {
+        await this.isStatusValid({ id: warehousingBillId, statuses: [WAREHOUSING_BILL_STATUS.PENDING] });
+        return this.database.warehousingBillDetail.delete(detailId);
+    }
+
     // async approve(id: number) {
     //     // TODO: check if user have permission to approve
     //     // maybe use a table to store who can approve which proposal is created by who
@@ -289,8 +324,9 @@ export class WarehousingBillService {
     }
 
     private async validateCreate(createWarehousingBillDto: CreateWarehousingBillDto): Promise<void> {
-        if (!createWarehousingBillDto.proposalId && !createWarehousingBillDto.orderId && !createWarehousingBillDto.repairRequestId)
-            throw new HttpException('Mã yêu cầu hoặc mã đơn hàng không được để trống', 400);
+        // can create warehousing bill from proposal, order, repair request or directly
+        // if (!createWarehousingBillDto.proposalId && !createWarehousingBillDto.orderId && !createWarehousingBillDto.repairRequestId)
+        //     throw new HttpException('Mã yêu cầu hoặc mã đơn hàng không được để trống', 400);
 
         if (
             (createWarehousingBillDto.proposalId && createWarehousingBillDto.orderId) ||
@@ -309,8 +345,8 @@ export class WarehousingBillService {
                 await this.utilService.checkRelationIdExist({
                     order: {
                         id: createWarehousingBillDto.orderId,
-                        status: ORDER_STATUS.RECEIVED,
-                        errorMessage: 'Không tìm thấy phiếu đặt hàng hoặc hàng chưa được nhận',
+                        status: ORDER_STATUS.MANAGER_APPROVED,
+                        errorMessage: 'Không tìm thấy phiếu đặt hàng hoặc phiếu chưa được duyệt',
                     },
                 });
             }
@@ -766,7 +802,7 @@ export class WarehousingBillService {
 
     private async getOrderRequests(id: number, search: string) {
         const orders = await this.database.order.find({
-            where: { id: id || undefined, status: ORDER_STATUS.RECEIVED, name: Like(`%${search}%`) },
+            where: { id: id || undefined, status: ORDER_STATUS.MANAGER_APPROVED, name: Like(`%${search}%`) },
             order: { id: 'DESC' },
         });
 
@@ -819,7 +855,7 @@ export class WarehousingBillService {
                 status,
                 'IMPORT' as wbType
             FROM orders
-            WHERE status = 'RECEIVED' ${whereId} ${whereSearch}
+            WHERE status = 'MANAGER_APPROVED' ${whereId} ${whereSearch}
             UNION
             SELECT
                 id,
@@ -833,5 +869,19 @@ export class WarehousingBillService {
             `,
         );
         return results;
+    }
+
+    private async validateDetails(details: { productId: number; proposalQuantity: number }[]) {
+        if (details.length === 0) throw new HttpException('Chi tiết phiếu không được để trống', 400);
+        if (details.some((detail) => isNaN(detail.proposalQuantity))) throw new HttpException('Số lượng yêu cầu không hợp lệ', 400);
+        if (details.some((detail) => detail.proposalQuantity <= 0)) throw new HttpException('Số lượng yêu cầu không được nhỏ hoặc bằng 0', 400);
+
+        const productIds = details.map((detail) => detail.productId);
+        const products = await this.database.product.find({ where: { id: In(productIds) } });
+        const productsNotFound = details.filter((detail) => !products.some((product) => product.id === detail.productId));
+        if (productsNotFound.length > 0) {
+            const productNames = productsNotFound.map((detail) => detail.productId).join(', ');
+            throw new HttpException(`Không tìm thấy sản phẩm ${productNames}`, 400);
+        }
     }
 }

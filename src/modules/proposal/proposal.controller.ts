@@ -1,5 +1,6 @@
 import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query } from '@nestjs/common';
 import { ApiBasicAuth, ApiBody, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { BYPASS_PERMISSION } from '~/common/constants/constant';
 import { Permission } from '~/common/decorators/permission.decorator';
 import { FilterDto } from '~/common/dtos/filter.dto';
 import { PROPOSAL_STATUS, PROPOSAL_TYPE } from '~/common/enums/enum';
@@ -92,7 +93,7 @@ export class ProposalController {
     //     return this.proposalService.return(+id, body?.comment);
     // }
 
-    @Permission('proposal:headApprove')
+    @Permission(BYPASS_PERMISSION)
     @Patch(':id/head-approve')
     headApprove(@Param('id', ParseIntPipe) id: string) {
         return this.proposalService.headApprove(+id);
@@ -108,33 +109,33 @@ export class ProposalController {
             },
         },
     })
-    @Permission('proposal:headReject')
+    @Permission(BYPASS_PERMISSION)
     @Patch(':id/head-reject')
     headReject(@Param('id', ParseIntPipe) id: string, @Body() body: { comment: string }) {
         return this.proposalService.headReject(+id, body?.comment);
     }
 
-    @Permission('proposal:managerApprove')
-    @Patch(':id/manager-approve')
-    managerApprove(@Param('id', ParseIntPipe) id: string) {
-        return this.proposalService.managerApprove(+id);
-    }
+    // @Permission(BYPASS_PERMISSION)
+    // @Patch(':id/manager-approve')
+    // managerApprove(@Param('id', ParseIntPipe) id: string) {
+    //     return this.proposalService.managerApprove(+id);
+    // }
 
-    @ApiBody({
-        schema: {
-            type: 'object',
-            properties: {
-                comment: {
-                    type: 'string',
-                },
-            },
-        },
-    })
-    @Permission('proposal:managerReject')
-    @Patch(':id/manager-reject')
-    managerReject(@Param('id', ParseIntPipe) id: string, @Body() body: { comment: string }) {
-        return this.proposalService.managerReject(+id, body?.comment);
-    }
+    // @ApiBody({
+    //     schema: {
+    //         type: 'object',
+    //         properties: {
+    //             comment: {
+    //                 type: 'string',
+    //             },
+    //         },
+    //     },
+    // })
+    // @Permission(BYPASS_PERMISSION)
+    // @Patch(':id/manager-reject')
+    // managerReject(@Param('id', ParseIntPipe) id: string, @Body() body: { comment: string }) {
+    //     return this.proposalService.managerReject(+id, body?.comment);
+    // }
 
     @Permission('proposal:getDetails')
     @Get(':id/get-details')

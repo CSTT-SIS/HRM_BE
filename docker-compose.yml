@@ -5,6 +5,7 @@ services:
         container_name: redis
         environment:
             - REDIS_PASSWORD=${REDIS_PASSWORD}
+            - ENABLE_OVERCOMMIT_MEMORY=true
         networks:
             - myNetwork
         ports:
