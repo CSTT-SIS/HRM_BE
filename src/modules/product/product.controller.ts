@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query } from '@nestjs/common';
-import { ApiBasicAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiBasicAuth, ApiBody, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Permission } from '~/common/decorators/permission.decorator';
 import { FilterDto } from '~/common/dtos/filter.dto';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -49,4 +49,20 @@ export class ProductController {
     // updateLimit(@Param('id', ParseIntPipe) id: string, @Body() data: UpdateProductLimitDto) {
     //     return this.productService.updateLimit(+id, data);
     // }
+
+    @Permission('product:createBarcode')
+    @Post(':id/barcode')
+    @ApiBody({
+        schema: {
+            type: 'object',
+            properties: {
+                barcode: {
+                    type: 'string',
+                },
+            },
+        },
+    })
+    createBarcode(@Param('id', ParseIntPipe) id: string, @Body() data: { barcode: string }) {
+        return this.productService.createBarcode(+id, data.barcode);
+    }
 }

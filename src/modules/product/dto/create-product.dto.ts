@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsNumber, IsOptional, Length, Min } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsOptional, IsString, Length, Min } from 'class-validator';
 import { IsIdExist } from '~/common/validators/is-id-exist.validator';
 
 export class CreateProductDto {
@@ -11,6 +11,11 @@ export class CreateProductDto {
     @ApiProperty()
     @IsNotEmpty({ message: 'Mã sản phẩm không được để trống' })
     code: string;
+
+    @ApiProperty()
+    @IsOptional()
+    @IsString({ message: 'Mã vạch phải là chuỗi' })
+    barcode: string;
 
     @ApiProperty()
     @IsNotEmpty({ message: 'Đơn vị sản phẩm không được để trống' })

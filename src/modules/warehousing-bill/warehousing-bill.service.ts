@@ -204,7 +204,7 @@ export class WarehousingBillService {
         return this.database.warehousingBillDetail.save(this.database.warehousingBillDetail.create(newDetails));
     }
 
-    async updateDetail(warehousingBillId: number, detailId: number, update: { proposalQuantity: number }) {
+    async updateDetail(warehousingBillId: number, detailId: number, update: { proposalQuantity?: number }) {
         await this.isStatusValid({ id: warehousingBillId, statuses: [WAREHOUSING_BILL_STATUS.PENDING] });
         if (update.proposalQuantity <= 0) throw new HttpException('Số lượng yêu cầu không hợp lệ', 400);
         return this.database.warehousingBillDetail.update(detailId, update);
@@ -733,13 +733,6 @@ export class WarehousingBillService {
         switch (type) {
             case PROPOSAL_TYPE.PURCHASE:
                 throw new HttpException('Không thể tạo phiếu nhập kho từ đơn yêu cầu mua hàng, chỉ có thể tạo từ đơn đặt hàng', 400);
-            // if (status !== PROPOSAL_STATUS.MANAGER_APPROVED) {
-            //     throw new HttpException(`Đơn yêu cầu mua hàng chưa được duyệt`, 400);
-            // }
-            // if (wbType !== WAREHOUSING_BILL_TYPE.IMPORT) {
-            //     throw new HttpException(`Loại phiếu kho không hợp lệ, chỉ có thể tạo phiếu nhập kho từ đơn yêu cầu mua hàng`, 400);
-            // }
-            // break;
             case PROPOSAL_TYPE.SUPPLY:
                 if (status !== PROPOSAL_STATUS.HEAD_APPROVED) {
                     throw new HttpException(`Đơn yêu cầu cung cấp vật tư chưa được duyệt`, 400);
@@ -759,30 +752,6 @@ export class WarehousingBillService {
         eventObj.senderId = UserStorage.getId();
         this.eventEmitter.emit(event, eventObj);
     }
-
-    // private async repairFlow(createProposalDto: CreateProposalDto) {
-    //     if (!createProposalDto.repairRequestId) throw new HttpException('Yêu cầu sửa chữa không được để trống', 400);
-
-    //     const countProposal = await this.database.proposal.countBy({ repairRequestId: createProposalDto.repairRequestId });
-    //     if (countProposal) throw new HttpException(`Yêu cầu sửa chữa ${createProposalDto.repairRequestId} đã được tạo yêu cầu`, 400);
-
-    //     const repairDetails = await this.database.repairDetail.find({
-    //         where: { repairRequestId: createProposalDto.repairRequestId },
-    //     });
-    //     const details = repairDetails.map((detail) => ({
-    //         productId: detail.replacementPartId,
-    //         quantity: detail.quantity,
-    //     }));
-
-    //     await this.verifyDetails(null, details);
-    //     const proposal = await this.database.proposal.save(this.database.proposal.create({ ...createProposalDto, createdById: UserStorage.getId() }));
-    //     await this.database.proposalDetail.save(details.map((detail) => ({ ...detail, proposalId: proposal.id })));
-
-    //     // notify who created repair request
-    //     this.emitEvent('proposal.created', { id: proposal.id });
-
-    //     return proposal;
-    // }
 
     private async getProposalRequests(id: number, search: string) {
         const proposals = await this.database.proposal.find({

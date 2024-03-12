@@ -25,7 +25,7 @@ export class ProductService {
         const { builder, take, pagination } = this.utilService.getQueryBuilderAndPagination(this.database.product, queries);
 
         builder.andWhere(this.utilService.relationQuerySearch({ categoryId: queries.categoryId }));
-        builder.andWhere(this.utilService.fullTextSearch({ fields: ['name', 'code'], keyword: queries.search }));
+        builder.andWhere(this.utilService.fullTextSearch({ fields: ['name', 'code', 'barcode'], keyword: queries.search }));
 
         builder.leftJoinAndSelect('entity.category', 'category');
         builder.leftJoinAndSelect('entity.unit', 'unit');
@@ -102,6 +102,15 @@ export class ProductService {
         await this.database.stocktakeDetail.delete({ productId: id });
         await this.database.warehousingBillDetail.delete({ productId: id });
         return this.database.product.delete(id);
+    }
+
+    async createBarcode(id: number, barcode: string) {
+        const product = await this.database.product.findOneBy({ id });
+        if (!product) {
+            throw new HttpException('Sản phẩm không tồn tại', 404);
+        }
+
+        return this.database.product.update(id, { barcode });
     }
 
     private async updateLimit(id: number, data: UpdateProductLimitDto) {

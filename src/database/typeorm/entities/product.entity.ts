@@ -28,6 +28,10 @@ export class ProductEntity extends AbstractEntity {
     @Column({ name: 'code', type: 'varchar', length: 255, nullable: true })
     code: string;
 
+    @Index('IDX_PRODUCT_BAR_CODE', { fulltext: true })
+    @Column({ name: 'barcode', type: 'varchar', length: 255, nullable: true })
+    barcode: string;
+
     @Column({ name: 'description', type: 'text', nullable: true })
     description: string;
 

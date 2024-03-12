@@ -3,6 +3,8 @@ import { ApiBasicAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Permission } from '~/common/decorators/permission.decorator';
 import { FilterDto } from '~/common/dtos/filter.dto';
 import { WAREHOUSING_BILL_STATUS, WAREHOUSING_BILL_TYPE } from '~/common/enums/enum';
+import { CreateWarehousingBillDetailDto, CreateWarehousingBillDetailsDto } from '~/modules/warehousing-bill/dto/create-warehousing-bill-detail.dto';
+import { UpdateWarehousingBillDetailDto } from '~/modules/warehousing-bill/dto/update-warehousing-bill-detail.dto';
 import { CreateWarehousingBillDto } from './dto/create-warehousing-bill.dto';
 import { UpdateWarehousingBillDto } from './dto/update-warehousing-bill.dto';
 import { WarehousingBillService } from './warehousing-bill.service';
@@ -78,6 +80,30 @@ export class WarehousingBillController {
         @Query('productId', new ParseIntPipe({ optional: true })) productId: string,
     ) {
         return this.warehousingBillService.getDetails({ ...queries, warehousingBillId: +id, productId });
+    }
+
+    @Permission('warehousingBill:addDetail')
+    @Post(':id/add-detail')
+    addDetail(@Param('id', ParseIntPipe) id: string, @Body() body: CreateWarehousingBillDetailDto) {
+        return this.warehousingBillService.addDetail(+id, body);
+    }
+
+    @Permission('warehousingBill:addDetail')
+    @Post(':id/add-details')
+    addDetails(@Param('id', ParseIntPipe) id: string, @Body() body: CreateWarehousingBillDetailsDto) {
+        return this.warehousingBillService.addDetails(+id, body.details);
+    }
+
+    @Permission('warehousingBill:updateDetail')
+    @Patch(':id/update-detail/:detailId')
+    updateDetail(@Param('id', ParseIntPipe) id: string, @Param('detailId') detailId: string, @Body() body: UpdateWarehousingBillDetailDto) {
+        return this.warehousingBillService.updateDetail(+id, +detailId, body);
+    }
+
+    @Permission('warehousingBill:removeDetail')
+    @Delete(':id/remove-detail/:detailId')
+    removeDetail(@Param('id', ParseIntPipe) id: string, @Param('detailId') detailId: string) {
+        return this.warehousingBillService.removeDetail(+id, +detailId);
     }
 
     // @Permission('warehousingBill:approve')

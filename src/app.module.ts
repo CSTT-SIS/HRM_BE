@@ -58,6 +58,7 @@ import { HolidayModule } from '~/modules/holiday/holiday.module';
 import { ShiftModule } from '~/modules/shift/shift.module';
 import { UserShiftModule } from '~/modules/user-shift/user-shift.module';
 import { AssetModule } from '~/modules/asset/asset.module';
+import { ApprovalManagementModule } from '~/modules/approval-management/approval-management.module';
 
 @Module({
     imports: [
@@ -119,6 +120,7 @@ import { AssetModule } from '~/modules/asset/asset.module';
         ShiftModule,
         UserShiftModule,
         AssetModule,
+        ApprovalManagementModule,
     ],
     controllers: [AppController],
     providers: [
