@@ -145,7 +145,7 @@ export class RepairRequestService {
             addUpdate['vehicleId'] = vehicle.id;
         }
 
-        if (imageIds.length) {
+        if (!this.utilService.isEmpty(imageIds)) {
             await this.database.repairRequest.removeAllImages(id);
             this.database.repairRequest.addImages(id, imageIds);
         }

@@ -11,7 +11,7 @@ export class RepairRequestRepository extends Repository<RepairRequestEntity> {
     }
 
     addImages(repairRequestId: number, imageIds: number[]): Promise<any> {
-        if (!imageIds.length) {
+        if (!imageIds?.length) {
             return Promise.resolve();
         }
 
@@ -23,7 +23,7 @@ export class RepairRequestRepository extends Repository<RepairRequestEntity> {
     }
 
     removeImages(repairRequestId: number, imageIds: number[]): Promise<any> {
-        if (!imageIds.length) {
+        if (!imageIds?.length) {
             return Promise.resolve();
         }
 
