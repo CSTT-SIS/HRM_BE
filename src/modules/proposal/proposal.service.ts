@@ -19,7 +19,12 @@ export class ProposalService {
 
     async create(createProposalDto: CreateProposalDto) {
         // 1-level approval for ALL type
-        const proposal = await this.database.proposal.save(this.database.proposal.create({ ...createProposalDto, createdById: UserStorage.getId() }));
+        const { warehouseIds, ...rest } = createProposalDto;
+        const proposal = await this.database.proposal.save(this.database.proposal.create({ ...rest, createdById: UserStorage.getId() }));
+        if (!this.utilService.isEmpty(warehouseIds)) {
+            await this.database.proposal.addWarehouses(proposal.id, warehouseIds);
+        }
+
         this.emitEvent('proposal.created', { id: proposal.id });
         return proposal;
     }
@@ -35,6 +40,7 @@ export class ProposalService {
         builder.leftJoinAndSelect('createdBy.department', 'cbDepartment');
         builder.leftJoinAndSelect('entity.updatedBy', 'updatedBy');
         builder.leftJoinAndSelect('updatedBy.department', 'ubDepartment');
+        builder.leftJoinAndSelect('entity.warehouses', 'warehouses');
         builder.select([
             'entity',
             'department.id',
@@ -47,6 +53,8 @@ export class ProposalService {
             'updatedBy.fullName',
             'ubDepartment.id',
             'ubDepartment.name',
+            'warehouses.id',
+            'warehouses.name',
         ]);
 
         const [result, total] = await builder.getManyAndCount();
@@ -71,6 +79,7 @@ export class ProposalService {
         builder.leftJoinAndSelect('entity.details', 'details');
         builder.leftJoinAndSelect('details.product', 'product');
         builder.leftJoinAndSelect('product.unit', 'unit');
+        builder.leftJoinAndSelect('entity.warehouses', 'warehouses');
 
         builder.where('entity.id = :id', { id });
         builder.select([
@@ -93,6 +102,8 @@ export class ProposalService {
             'product.name',
             'unit.id',
             'unit.name',
+            'warehouses.id',
+            'warehouses.name',
         ]);
 
         return builder.getOne();
@@ -101,8 +112,15 @@ export class ProposalService {
     async update(id: number, updateProposalDto: UpdateProposalDto) {
         await this.isProposalStatusValid({ id, statuses: [PROPOSAL_STATUS.DRAFT], userId: UserStorage.getId() });
         if (!Object.keys(PROPOSAL_TYPE).includes(updateProposalDto.type)) throw new HttpException('Loại yêu cầu không hợp lệ', 400);
+
+        const { warehouseIds, ...rest } = updateProposalDto;
+        if (!this.utilService.isEmpty(warehouseIds)) {
+            await this.database.proposal.removeWarehouses(id);
+            this.database.proposal.addWarehouses(id, warehouseIds);
+        }
+
         return this.database.proposal.update(id, {
-            ...updateProposalDto,
+            ...rest,
             updatedById: UserStorage.getId(),
             status: PROPOSAL_STATUS.DRAFT,
         });

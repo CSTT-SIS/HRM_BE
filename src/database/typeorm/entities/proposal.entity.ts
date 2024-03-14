@@ -1,8 +1,9 @@
-import { Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, Relation } from 'typeorm';
+import { Column, Entity, Index, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn, Relation } from 'typeorm';
 import { PROPOSAL_STATUS } from '~/common/enums/enum';
 import { DepartmentEntity } from '~/database/typeorm/entities/department.entity';
 import { ProposalDetailEntity } from '~/database/typeorm/entities/proposalDetail.entity';
 import { UserEntity } from '~/database/typeorm/entities/user.entity';
+import { WarehouseEntity } from '~/database/typeorm/entities/warehouse.entity';
 import { AbstractEntity } from './abstract.entity';
 
 @Entity({ name: 'proposals' })
@@ -47,4 +48,13 @@ export class ProposalEntity extends AbstractEntity {
     @ManyToOne(() => DepartmentEntity, { createForeignKeyConstraints: false })
     @JoinColumn({ name: 'department_id', referencedColumnName: 'id' })
     department: Relation<DepartmentEntity>;
+
+    // to know which warehouses are replenished
+    @ManyToMany(() => WarehouseEntity, { createForeignKeyConstraints: false })
+    @JoinTable({
+        name: 'proposals_warehouses',
+        joinColumn: { name: 'proposal_id', referencedColumnName: 'id' },
+        inverseJoinColumn: { name: 'warehouse_id', referencedColumnName: 'id' },
+    })
+    warehouses: Relation<WarehouseEntity>[];
 }
