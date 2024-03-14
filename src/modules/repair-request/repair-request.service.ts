@@ -20,7 +20,7 @@ export class RepairRequestService {
     async create(createRepairRequestDto: CreateRepairRequestDto) {
         // with this request, need 1-level approval
         // can only create warehousing bill if status is HEAD_APPROVED
-        const { vehicleRegistrationNumber, ...rest } = createRepairRequestDto;
+        const { vehicleRegistrationNumber, imageIds, ...rest } = createRepairRequestDto;
         const registrationNumber = vehicleRegistrationNumber.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
         const vehicle = await this.database.vehicle.findOrCreate(registrationNumber);
         const entity = await this.database.repairRequest.save(
@@ -40,6 +40,7 @@ export class RepairRequestService {
                 trackingDate: entity.createdAt,
             }),
         );
+        this.database.repairRequest.addImages(entity.id, imageIds);
 
         // notify to garage or head of department
         this.emitEvent('repairRequest.created', { id: entity.id });
@@ -136,25 +137,38 @@ export class RepairRequestService {
         await this.isStatusValid({ id, statuses: [REPAIR_REQUEST_STATUS.IN_PROGRESS] });
         // TODO: check if warehousing bill was created by this repair request; if yes, throw error
 
-        const { vehicleRegistrationNumber, ...rest } = updateRepairRequestDto;
+        const { vehicleRegistrationNumber, imageIds, ...rest } = updateRepairRequestDto;
         const addUpdate = {};
         if (vehicleRegistrationNumber) {
             const registrationNumber = vehicleRegistrationNumber.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
             const vehicle = await this.database.vehicle.findOrCreate(registrationNumber);
             addUpdate['vehicleId'] = vehicle.id;
         }
+
+        if (imageIds.length) {
+            await this.database.repairRequest.removeAllImages(id);
+            this.database.repairRequest.addImages(id, imageIds);
+        }
+
         return this.database.repairRequest.update(id, { ...rest, ...addUpdate });
     }
 
     async remove(id: number) {
         await this.isStatusValid({ id, statuses: [REPAIR_REQUEST_STATUS.IN_PROGRESS, REPAIR_REQUEST_STATUS.HEAD_REJECTED] });
         this.database.repairDetail.delete({ repairRequestId: id });
+        this.database.repairRequest.removeAllImages(id);
         this.database.repairProgress.delete({ repairRequestId: id });
         return this.database.repairRequest.delete(id);
     }
 
     async headApprove(id: number) {
         await this.isStatusValid({ id, statuses: [REPAIR_REQUEST_STATUS.IN_PROGRESS, REPAIR_REQUEST_STATUS.GARAGE_RECEIVED] });
+        await this.utilService.checkApprovalPermission({
+            entity: 'repairRequest',
+            approverId: UserStorage.getId(),
+            toStatus: REPAIR_REQUEST_STATUS.HEAD_APPROVED,
+        });
+
         const entity = await this.database.repairRequest.findOneBy({ id });
         if (!entity) throw new HttpException('Không tìm thấy phiếu sửa chữa', 404);
 
@@ -174,6 +188,12 @@ export class RepairRequestService {
 
     async headReject(id: number, comment: string) {
         await this.isStatusValid({ id, statuses: [REPAIR_REQUEST_STATUS.IN_PROGRESS, REPAIR_REQUEST_STATUS.GARAGE_RECEIVED] });
+        await this.utilService.checkApprovalPermission({
+            entity: 'repairRequest',
+            approverId: UserStorage.getId(),
+            toStatus: REPAIR_REQUEST_STATUS.HEAD_REJECTED,
+        });
+
         const entity = await this.database.repairRequest.findOneBy({ id });
         if (!entity) throw new HttpException('Không tìm thấy phiếu sửa chữa', 404);
 

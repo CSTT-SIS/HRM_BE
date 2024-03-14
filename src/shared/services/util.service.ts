@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, HttpException, Injectable } from '@nestjs/common';
 import { createCipheriv, createDecipheriv } from 'crypto';
 import fs from 'fs';
 import moment from 'moment';
@@ -367,5 +367,10 @@ export class UtilService {
             if (!this.isEmpty(queries[key])) result[key] = queries[key];
         }
         return result;
+    }
+
+    async checkApprovalPermission(data: { entity: string; approverId: number; toStatus: string }) {
+        const config = await this.database.approvalConfig.getConfig(data);
+        if (!config) throw new HttpException('Bạn không có quyền duyệt phiếu sửa chữa', 403);
     }
 }

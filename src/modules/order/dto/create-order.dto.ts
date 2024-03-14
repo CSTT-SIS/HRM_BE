@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { ArrayNotEmpty, IsEnum, IsNotEmpty, IsString, Matches } from 'class-validator';
+import { ArrayNotEmpty, IsEnum, IsNotEmpty, IsOptional, IsString, Matches } from 'class-validator';
 import { ORDER_TYPE } from '~/common/enums/enum';
 
 export class CreateOrderDto {
@@ -25,13 +25,13 @@ export class CreateOrderDto {
     name: string;
 
     @ApiProperty({ type: 'string', description: 'code' })
-    @IsNotEmpty({ message: 'Mã không được để trống' })
+    @IsOptional()
     code: string;
 
     @ApiProperty({ type: 'string', description: 'Provider information' })
-    @IsNotEmpty({ message: 'Đơn vị cung cấp không được để trống' })
+    @IsOptional()
     @IsString({ message: 'Đơn vị cung cấp phải là chuỗi' })
-    provider: string;
+    note: string;
 
     @ApiProperty({ type: 'string', description: 'Estimated Delivery Date', example: '2021-12-31 23:59:59' })
     @IsNotEmpty({ message: 'Ngày giao hàng dự kiến không được để trống' })

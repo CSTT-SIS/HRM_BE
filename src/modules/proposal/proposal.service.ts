@@ -18,8 +18,7 @@ export class ProposalService {
     constructor(private readonly utilService: UtilService, private readonly database: DatabaseService, private eventEmitter: EventEmitter2) {}
 
     async create(createProposalDto: CreateProposalDto) {
-        // with PURCHASE type, need 2-level approval
-        // with SUPPLY type, need 1-level approval
+        // 1-level approval for ALL type
         const proposal = await this.database.proposal.save(this.database.proposal.create({ ...createProposalDto, createdById: UserStorage.getId() }));
         this.emitEvent('proposal.created', { id: proposal.id });
         return proposal;
@@ -112,7 +111,7 @@ export class ProposalService {
     async remove(id: number) {
         await this.isProposalStatusValid({
             id,
-            statuses: [PROPOSAL_STATUS.DRAFT, PROPOSAL_STATUS.HEAD_REJECTED, PROPOSAL_STATUS.MANAGER_REJECTED],
+            statuses: [PROPOSAL_STATUS.DRAFT, PROPOSAL_STATUS.HEAD_REJECTED],
             userId: UserStorage.getId(),
         });
         await this.database.proposalDetail.delete({ proposalId: id });
@@ -183,6 +182,11 @@ export class ProposalService {
     // }
 
     async headApprove(id: number) {
+        await this.utilService.checkApprovalPermission({
+            entity: 'proposal',
+            approverId: UserStorage.getId(),
+            toStatus: PROPOSAL_STATUS.HEAD_APPROVED,
+        });
         await this.updateStatus({
             id,
             from: PROPOSAL_STATUS.PENDING,
@@ -194,6 +198,11 @@ export class ProposalService {
     }
 
     async headReject(id: number, comment: string) {
+        await this.utilService.checkApprovalPermission({
+            entity: 'proposal',
+            approverId: UserStorage.getId(),
+            toStatus: PROPOSAL_STATUS.HEAD_REJECTED,
+        });
         await this.updateStatus({
             id,
             from: PROPOSAL_STATUS.PENDING,
@@ -205,28 +214,28 @@ export class ProposalService {
         return { message: 'Đã từ chối yêu cầu', data: { id } };
     }
 
-    async managerApprove(id: number) {
-        await this.updateStatus({
-            id,
-            from: PROPOSAL_STATUS.HEAD_APPROVED,
-            to: PROPOSAL_STATUS.MANAGER_APPROVED,
-        });
+    // async managerApprove(id: number) {
+    //     await this.updateStatus({
+    //         id,
+    //         from: PROPOSAL_STATUS.HEAD_APPROVED,
+    //         to: PROPOSAL_STATUS.MANAGER_APPROVED,
+    //     });
 
-        this.emitEvent('proposal.managerApproved', { id });
-        return { message: 'Đã duyệt yêu cầu', data: { id } };
-    }
+    //     this.emitEvent('proposal.managerApproved', { id });
+    //     return { message: 'Đã duyệt yêu cầu', data: { id } };
+    // }
 
-    async managerReject(id: number, comment: string) {
-        await this.updateStatus({
-            id,
-            from: PROPOSAL_STATUS.HEAD_APPROVED,
-            to: PROPOSAL_STATUS.MANAGER_REJECTED,
-            comment,
-        });
+    // async managerReject(id: number, comment: string) {
+    //     await this.updateStatus({
+    //         id,
+    //         from: PROPOSAL_STATUS.HEAD_APPROVED,
+    //         to: PROPOSAL_STATUS.MANAGER_REJECTED,
+    //         comment,
+    //     });
 
-        this.emitEvent('proposal.managerRejected', { id });
-        return { message: 'Đã từ chối yêu cầu', data: { id } };
-    }
+    //     this.emitEvent('proposal.managerRejected', { id });
+    //     return { message: 'Đã từ chối yêu cầu', data: { id } };
+    // }
 
     async getDetails(queries: FilterDto & { proposalId: number; productId: number }) {
         const { builder, take, pagination } = this.utilService.getQueryBuilderAndPagination(this.database.proposalDetail, queries);
@@ -315,8 +324,7 @@ export class ProposalService {
         }
 
         // TODO:
-        // PURCHASE type, need 2-level approval
-        // SUPPLY type, need 1-level approval
+        // 1-level approval for ALL type
 
         return entity;
     }
