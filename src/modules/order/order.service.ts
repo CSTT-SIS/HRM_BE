@@ -94,7 +94,7 @@ export class OrderService {
 
         await this.isStatusValid({ id, statuses: [ORDER_STATUS.PENDING, ORDER_STATUS.HEAD_REJECTED, ORDER_STATUS.MANAGER_REJECTED] });
         for (const proposalId of proposalIds) {
-            const proposal = await this.isProposalValid(proposalId, updateOrderDto.type);
+            const proposal = await this.isProposalValid(proposalId, updateOrderDto.type, id);
         }
 
         const result = await this.database.order.update(id, { ...rest, status: ORDER_STATUS.PENDING });
@@ -252,7 +252,7 @@ export class OrderService {
      * representing different types of orders.
      * @returns a Promise that resolves to a ProposalEntity.
      */
-    private async isProposalValid(proposalId: number, orderType: ORDER_TYPE): Promise<ProposalEntity> {
+    private async isProposalValid(proposalId: number, orderType: ORDER_TYPE, orderId?: number): Promise<ProposalEntity> {
         // proposal with PURCHASE type, only create order when status is MANAGER_APPROVED
         const proposal = await this.database.proposal.findOne({ where: { id: proposalId } });
         if (!proposal) throw new HttpException('Phiếu yêu cầu không tồn tại', 400);
@@ -261,7 +261,7 @@ export class OrderService {
         if (orderType !== ORDER_TYPE.PURCHASE && proposal.type !== PROPOSAL_TYPE.PURCHASE)
             throw new HttpException('Loại đơn hàng không phải là đơn hàng mua hàng', 400);
 
-        const check = await this.database.order.isProposalAdded(proposalId);
+        const check = await this.database.order.isProposalAdded(proposalId, orderId);
         if (check) throw new HttpException('Phiếu yêu cầu đã được thêm vào một đơn hàng khác', 400);
 
         return proposal;
@@ -384,7 +384,7 @@ export class OrderService {
             if (!item.quantity) throw new HttpException('Số lượng phải lớn hơn 0', 400);
             if (isNaN(Number(item.quantity))) throw new HttpException('Số lượng phải là số', 400);
             if (isNaN(Number(item.price))) throw new HttpException('Giá phải là số', 400);
-            if (item.price <= 0) throw new HttpException('Giá phải lớn hơn 0', 400);
+            // if (item.price <= 0) throw new HttpException('Giá phải lớn hơn 0', 400);
 
             const isProductExist = await this.database.product.findOne({ where: { id: item.productId } });
             if (!isProductExist) throw new HttpException('Sản phẩm không tồn tại', 400);
