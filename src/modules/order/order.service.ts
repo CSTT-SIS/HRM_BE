@@ -92,13 +92,13 @@ export class OrderService {
     async update(id: number, updateOrderDto: UpdateOrderDto) {
         const { proposalIds, ...rest } = updateOrderDto;
 
-        await this.isStatusValid({ id, statuses: [ORDER_STATUS.PENDING] });
+        await this.isStatusValid({ id, statuses: [ORDER_STATUS.PENDING, ORDER_STATUS.HEAD_REJECTED, ORDER_STATUS.MANAGER_REJECTED] });
         for (const proposalId of proposalIds) {
             const proposal = await this.isProposalValid(proposalId, updateOrderDto.type);
         }
 
-        const result = await this.database.order.update(id, rest);
-        if (result.affected && proposalIds.length > 0) {
+        const result = await this.database.order.update(id, { ...rest, status: ORDER_STATUS.PENDING });
+        if (result.affected && proposalIds?.length > 0) {
             await this.database.order.removeProposals(id, proposalIds);
             await this.database.order.addProposals(id, proposalIds);
 
