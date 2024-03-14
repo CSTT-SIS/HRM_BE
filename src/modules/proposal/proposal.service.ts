@@ -338,7 +338,7 @@ export class ProposalService {
         if (!data.statuses.includes(entity.status)) throw new HttpException('Không thể chỉnh sửa yêu cầu do trạng thái không hợp lệ', 400);
         if (data.userId && entity.createdById !== data.userId) throw new HttpException('Bạn không có quyền chỉnh sửa yêu cầu này', 403);
         if (data.checkIfBillCreated) {
-            const order = await this.database.order.isProposalAdded(data.id);
+            const order = await this.database.order.isProposalAdded(data.id, null);
             if (order) throw new HttpException('Không thể chỉnh sửa yêu cầu do đơn hàng đã được tạo', 400);
 
             const bill = await this.database.warehousingBill.countBy({ proposalId: data.id });

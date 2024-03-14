@@ -45,9 +45,10 @@ export class OrderRepository extends Repository<OrderEntity> {
         return !!Number(res[0].count);
     }
 
-    async isProposalAdded(proposalId: number): Promise<boolean> {
+    async isProposalAdded(proposalId: number, orderId: number): Promise<boolean> {
+        const where = orderId ? `AND order_id <> ${orderId}` : '';
         const res = await this.query(`
-            SELECT COUNT(*) as count FROM orders_proposals WHERE proposal_id = ${proposalId}
+            SELECT COUNT(*) as count FROM orders_proposals WHERE proposal_id = ${proposalId} ${where}
         `);
 
         return !!Number(res[0].count);
