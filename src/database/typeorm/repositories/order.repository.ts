@@ -23,6 +23,10 @@ export class OrderRepository extends Repository<OrderEntity> {
     }
 
     addProposals(orderId: number, proposalIds: number[]): Promise<any> {
+        if (!proposalIds?.length) {
+            return Promise.resolve();
+        }
+
         // Insert proposal that is not added to order
         return this.query(`
             INSERT INTO orders_proposals (order_id, proposal_id)
@@ -32,6 +36,10 @@ export class OrderRepository extends Repository<OrderEntity> {
     }
 
     removeProposals(orderId: number, proposalIds: number[]): Promise<any> {
+        if (!proposalIds?.length) {
+            return Promise.resolve();
+        }
+
         return this.query(`
             DELETE FROM orders_proposals WHERE order_id = ${orderId} AND proposal_id IN (${proposalIds.join(',')})
         `);
