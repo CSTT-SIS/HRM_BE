@@ -110,7 +110,11 @@ export class ProposalService {
     }
 
     async update(id: number, updateProposalDto: UpdateProposalDto) {
-        await this.isProposalStatusValid({ id, statuses: [PROPOSAL_STATUS.DRAFT], userId: UserStorage.getId() });
+        await this.isProposalStatusValid({
+            id,
+            statuses: [PROPOSAL_STATUS.DRAFT, PROPOSAL_STATUS.PENDING, PROPOSAL_STATUS.HEAD_REJECTED],
+            userId: UserStorage.getId(),
+        });
         if (!Object.keys(PROPOSAL_TYPE).includes(updateProposalDto.type)) throw new HttpException('Loại yêu cầu không hợp lệ', 400);
 
         const { warehouseIds, ...rest } = updateProposalDto;
@@ -122,7 +126,7 @@ export class ProposalService {
         return this.database.proposal.update(id, {
             ...rest,
             updatedById: UserStorage.getId(),
-            status: PROPOSAL_STATUS.DRAFT,
+            status: PROPOSAL_STATUS.PENDING,
         });
     }
 

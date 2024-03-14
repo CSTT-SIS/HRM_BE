@@ -134,7 +134,10 @@ export class RepairRequestService {
     }
 
     async update(id: number, updateRepairRequestDto: UpdateRepairRequestDto) {
-        await this.isStatusValid({ id, statuses: [REPAIR_REQUEST_STATUS.IN_PROGRESS] });
+        await this.isStatusValid({
+            id,
+            statuses: [REPAIR_REQUEST_STATUS.IN_PROGRESS, REPAIR_REQUEST_STATUS.GARAGE_RECEIVED, REPAIR_REQUEST_STATUS.HEAD_REJECTED],
+        });
         // TODO: check if warehousing bill was created by this repair request; if yes, throw error
 
         const { vehicleRegistrationNumber, imageIds, ...rest } = updateRepairRequestDto;
@@ -150,7 +153,7 @@ export class RepairRequestService {
             this.database.repairRequest.addImages(id, imageIds);
         }
 
-        return this.database.repairRequest.update(id, { ...rest, ...addUpdate });
+        return this.database.repairRequest.update(id, { ...rest, ...addUpdate, status: REPAIR_REQUEST_STATUS.IN_PROGRESS });
     }
 
     async remove(id: number) {
