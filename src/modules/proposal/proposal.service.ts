@@ -95,6 +95,7 @@ export class ProposalService {
             'details.note',
             'product.id',
             'product.name',
+            'product.quantity',
             'unit.id',
             'unit.name',
             'warehouse.id',
@@ -256,7 +257,7 @@ export class ProposalService {
         builder.leftJoinAndSelect('product.unit', 'unit');
         builder.andWhere('entity.proposalId = :id', { id: queries.proposalId });
         builder.andWhere(this.utilService.getConditionsFromQuery(queries, ['productId']));
-        builder.select(['entity', 'product.id', 'product.name', 'unit.id', 'unit.name']);
+        builder.select(['entity', 'product.id', 'product.name', 'product.quantity', 'unit.id', 'unit.name']);
 
         const [result, total] = await builder.getManyAndCount();
         const totalPages = Math.ceil(total / take);

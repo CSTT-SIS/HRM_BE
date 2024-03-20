@@ -93,6 +93,7 @@ export class OrderService {
             'items.price',
             'product.id',
             'product.name',
+            'product.quantity',
             'warehouse.id',
             'warehouse.name',
         ]);
@@ -137,7 +138,7 @@ export class OrderService {
         builder.leftJoinAndSelect('product.unit', 'unit');
         builder.andWhere('entity.orderId = :id', { id: queries.orderId });
         builder.andWhere(this.utilService.getConditionsFromQuery(queries, ['productId']));
-        builder.select(['entity', 'product.id', 'product.name', 'product.code', 'unit.id', 'unit.name']);
+        builder.select(['entity', 'product.id', 'product.name', 'product.quantity', 'product.code', 'unit.id', 'unit.name']);
 
         const [result, total] = await builder.getManyAndCount();
         const totalPages = Math.ceil(total / take);

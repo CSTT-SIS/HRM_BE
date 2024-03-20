@@ -67,6 +67,7 @@ export class WarehouseService {
             'product.id',
             'product.name',
             'product.code',
+            'product.quantity',
             'unit.id',
             'unit.name',
             'category.id',

@@ -112,6 +112,7 @@ export class StocktakeService {
             'product.id',
             'product.name',
             'product.code',
+            'product.quantity',
             'unit.id',
             'unit.name',
         ]);
@@ -168,7 +169,7 @@ export class StocktakeService {
         builder.leftJoinAndSelect('product.unit', 'unit');
         builder.andWhere('entity.stocktakeId = :id', { id: queries.stocktakeId });
         builder.andWhere(this.utilService.getConditionsFromQuery(queries, ['productId']));
-        builder.select(['entity', 'product.id', 'product.name', 'product.code', 'unit.id', 'unit.name']);
+        builder.select(['entity', 'product.id', 'product.name', 'product.code', 'product.quantity', 'unit.id', 'unit.name']);
 
         const [result, total] = await builder.getManyAndCount();
         const totalPages = Math.ceil(total / take);
