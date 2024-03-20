@@ -29,7 +29,7 @@ export class ImportGoodDto {
     @Matches(/^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})$/, { message: 'Ngày hết hạn dự kiến không đúng định dạng YYYY-MM-DD HH:mm:ss' })
     expiredDate: string;
 
-    @ApiProperty()
+    @ApiProperty({ example: 1 })
     @IsOptional()
     @IsNumber({}, { message: 'Số ngày cảnh báo phải là số' })
     notifyBefore: number;

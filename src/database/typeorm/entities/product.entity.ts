@@ -35,7 +35,8 @@ export class ProductEntity extends AbstractEntity {
     @Column({ name: 'description', type: 'text', nullable: true })
     description: string;
 
-    // get quantity from inventories
+    // get quantity in inventory from all warehouses of this product
+    // need to find a way to get quantity from specific warehouse
     @VirtualColumn({
         query: (alias) => `IFNULL((SELECT SUM(inventory.quantity) FROM inventory WHERE inventory.product_id = ${alias}.id), 0)`,
     })
