@@ -1,9 +1,11 @@
 import { Injectable } from '@nestjs/common';
+import moment from 'moment';
 import { FilterDto } from '~/common/dtos/filter.dto';
 import { INVENTORY_HISTORY_TYPE } from '~/common/enums/enum';
 import { UserStorage } from '~/common/storages/user.storage';
 import { DatabaseService } from '~/database/typeorm/database.service';
 import { ImportGoodDto } from '~/modules/warehouse/dto/import-good.dto';
+import { UpdateGoodDto } from '~/modules/warehouse/dto/update-good.dto';
 import { UtilService } from '~/shared/services';
 import { CreateWarehouseDto } from './dto/create-warehouse.dto';
 import { UpdateWarehouseDto } from './dto/update-warehouse.dto';
@@ -125,6 +127,31 @@ export class WarehouseService {
                     type: INVENTORY_HISTORY_TYPE.IMPORT,
                 }),
             );
+        }
+
+        return inventory;
+    }
+
+    async updateGood(warehouseId: number, inventoryId: number, data: UpdateGoodDto) {
+        await this.utilService.checkRelationIdExist({ warehouse: warehouseId });
+
+        const inventory = await this.database.inventory.findOneBy({ id: inventoryId });
+        if (inventory) {
+            this.database.inventory.update(inventoryId, {
+                ...data,
+                expiredAt: moment(data.expiredDate).toDate(),
+                notifyBefore: data.notifyBefore,
+            });
+            // this.database.inventoryHistory.save(
+            //     this.database.inventoryHistory.create({
+            //         inventoryId: inventory.id,
+            //         from: inventory.quantity,
+            //         to: data.quantity,
+            //         change: data.quantity - inventory.quantity,
+            //         updatedById: UserStorage.getId(),
+            //         type: INVENTORY_HISTORY_TYPE.UPDATE,
+            //     }),
+            // );
         }
 
         return inventory;

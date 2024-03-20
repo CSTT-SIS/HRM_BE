@@ -134,16 +134,18 @@ export class InventoryRepository extends Repository<InventoryEntity> {
         }
     }
 
-    async getExpiredProducts(
-        daysToExpire = 15,
-    ): Promise<{ productId: number; productName: string; warehouseId: number; warehouseName: string; warehouseManager: number; expiredAt: Date }[]> {
+    async getExpiredProducts(): Promise<
+        { productId: number; productName: string; warehouseId: number; warehouseName: string; warehouseManager: number; expiredAt: Date }[]
+    > {
+        // get interval from field notify_before
         const products = await this.query(`
         SELECT p.id as productId, p.name as productName, w.id as warehouseId, w.name as warehouseName, w.manager_id as warehouseManager, i.expired_at as expiredAt
         FROM inventory as i, products as p, warehouses as w
         WHERE i.product_id = p.id
             AND i.warehouse_id = w.id
             AND i.expired_at IS NOT NULL
-            AND i.expired_at <= DATE_ADD(NOW(), INTERVAL ${daysToExpire} DAY)
+            AND i.expired_at <= DATE_ADD(NOW(), INTERVAL (i.notify_before) DAY)
+            AND i.expired_at >= NOW()
         `);
 
         return products;

@@ -15,8 +15,15 @@ export class DropdownController {
     @Get('product')
     @ApiQuery({ type: FilterDto })
     @ApiQuery({ name: 'categoryId', required: false, type: Number })
-    product(@Query() queries, @Query('categoryId', new ParseIntPipe({ optional: true })) categoryId: string) {
-        return this.dropdownService.product({ ...queries, categoryId });
+    @ApiQuery({ name: 'code', required: false, type: String })
+    @ApiQuery({ name: 'barcode', required: false, type: String })
+    product(
+        @Query() queries,
+        @Query('categoryId', new ParseIntPipe({ optional: true })) categoryId: string,
+        @Query('code') code: string,
+        @Query('barcode') barcode: string,
+    ) {
+        return this.dropdownService.product({ ...queries, categoryId, code, barcode });
     }
 
     @Permission('productCategory:findAll')

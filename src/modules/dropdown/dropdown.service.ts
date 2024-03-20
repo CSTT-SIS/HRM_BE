@@ -19,14 +19,15 @@ import { UtilService } from '~/shared/services';
 export class DropdownService {
     constructor(private readonly utilService: UtilService, private readonly database: DatabaseService) {}
 
-    product(queries: FilterDto & { categoryId: number }) {
+    product(queries: FilterDto & { categoryId: number; code: string; barcode: string }) {
         return this.getDropdown({
             entity: 'product',
             queries,
             label: 'name',
             value: 'id',
             fulltext: true,
-            andWhere: this.utilService.relationQuerySearch({ categoryId: queries.categoryId }),
+            andWhere: this.utilService.relationQuerySearch({ categoryId: queries.categoryId, code: queries.code, barcode: queries.barcode }),
+            addSelect: ['code', 'barcode'],
         });
     }
 
@@ -168,6 +169,7 @@ export class DropdownService {
         andWhere?: string | string[] | object;
         relation?: string;
         alias?: string;
+        addSelect?: string[];
     }) {
         const alias = data.alias || 'entity';
         const { builder, take, pagination } = this.utilService.getQueryBuilderAndPagination(this.database[data.entity], data.queries);
@@ -186,13 +188,18 @@ export class DropdownService {
         if (data.relation) {
             builder.leftJoinAndSelect(`entity.${data.relation}`, data.relation);
         }
+        if (data.addSelect?.length) {
+            data.addSelect.forEach((item) => {
+                builder.addSelect(`${alias}.${item} as ${item}`);
+            });
+        }
 
         const result = await builder.getRawMany();
         const total = Number(result?.[0]?.['total'] || 0);
         const totalPages = Math.ceil(total / take);
 
         return {
-            data: result?.map((item) => ({ value: item.value, label: item.label })),
+            data: result?.map((item) => ({ ...item, value: item.value, label: item.label })),
             pagination: {
                 ...pagination,
                 totalRecords: total,
