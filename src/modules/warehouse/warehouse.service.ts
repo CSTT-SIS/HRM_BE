@@ -98,7 +98,7 @@ export class WarehouseService {
         if (inventory) {
             this.database.inventory.update(inventory.id, {
                 quantity: inventory.quantity + data.quantity,
-                expiredAt: moment(data.expiredDate).toDate(),
+                expiredAt: data.expiredDate ? moment(data.expiredDate).toDate() : null,
                 notifyBefore: data.notifyBefore,
             });
             this.database.inventoryHistory.save(
@@ -115,7 +115,7 @@ export class WarehouseService {
             inventory = await this.database.inventory.save(
                 this.database.inventory.create({
                     ...data,
-                    expiredAt: moment(data.expiredDate).toDate(),
+                    expiredAt: data.expiredDate ? moment(data.expiredDate).toDate() : null,
                     notifyBefore: data.notifyBefore,
                     warehouseId: id,
                     createdById: UserStorage.getId(),
@@ -143,7 +143,7 @@ export class WarehouseService {
         if (inventory) {
             this.database.inventory.update(inventoryId, {
                 ...data,
-                expiredAt: moment(data.expiredDate).toDate(),
+                expiredAt: data.expiredDate ? moment(data.expiredDate).toDate() : null,
                 notifyBefore: data.notifyBefore,
             });
             // this.database.inventoryHistory.save(
