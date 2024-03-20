@@ -112,4 +112,12 @@ export class DropdownController {
     department(@Query() queries) {
         return this.dropdownService.department({ ...queries });
     }
+
+    @Permission('product:findAll')
+    @Get('inventory')
+    @ApiQuery({ type: FilterDto })
+    @ApiQuery({ name: 'warehouseId', required: false, type: Number })
+    inventory(@Query() queries, @Query('warehouseId', new ParseIntPipe({ optional: true })) warehouseId: string) {
+        return this.dropdownService.inventory({ ...queries, warehouseId });
+    }
 }

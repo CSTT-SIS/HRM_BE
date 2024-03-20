@@ -18,3 +18,4 @@ export const BYPASS_PERMISSION = 'BYPASS_PERMISSION';
 export const ONLY_ADMIN = 'ONLY_ADMIN';
 
 export const DEFAULT_TIMESTAMP_FORMAT = 'YYYY-MM-DD HH:mm:ss';
+export const HUMAN_TIMESTAMP_FORMAT = 'HH:mm:ss DD/MM/YYYY';

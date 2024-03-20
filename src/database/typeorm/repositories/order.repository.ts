@@ -61,4 +61,35 @@ export class OrderRepository extends Repository<OrderEntity> {
 
         return !!Number(res[0].count);
     }
+
+    addRepairRequests(orderId: number, repairRequestIds: number[]): Promise<any> {
+        if (!repairRequestIds?.length) {
+            return Promise.resolve();
+        }
+
+        return this.query(`
+            INSERT INTO orders_repair_requests (order_id, repair_request_id)
+            SELECT ${orderId}, id FROM repair_requests WHERE id IN (${repairRequestIds.join(',')})
+                AND id NOT IN (SELECT repair_request_id FROM orders_repair_requests WHERE order_id = ${orderId})
+        `);
+    }
+
+    removeRepairRequests(orderId: number, repairRequestIds: number[]): Promise<any> {
+        if (!repairRequestIds?.length) {
+            return Promise.resolve();
+        }
+
+        return this.query(`
+            DELETE FROM orders_repair_requests WHERE order_id = ${orderId} AND repair_request_id IN (${repairRequestIds.join(',')})
+        `);
+    }
+
+    async isRepairRequestAdded(repairRequestId: number, orderId: number): Promise<boolean> {
+        const where = orderId ? `AND order_id <> ${orderId}` : '';
+        const res = await this.query(`
+            SELECT COUNT(*) as count FROM orders_repair_requests WHERE repair_request_id = ${repairRequestId} ${where}
+        `);
+
+        return !!Number(res[0].count);
+    }
 }

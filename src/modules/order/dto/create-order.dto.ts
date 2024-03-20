@@ -1,18 +1,19 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { ArrayNotEmpty, IsEnum, IsNotEmpty, IsOptional, IsString, Matches } from 'class-validator';
+import { ArrayNotEmpty, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, Matches } from 'class-validator';
 import { ORDER_TYPE } from '~/common/enums/enum';
+import { IsIdExist } from '~/common/validators/is-id-exist.validator';
 
 export class CreateOrderDto {
-    // @ApiProperty({ type: 'number', description: 'Proposal Id' })
-    // @IsNotEmpty({ message: 'Mã phiếu yêu cầu không được để trống' })
-    // @IsNumber({}, { message: 'Mã phiếu yêu cầu phải là số' })
-    // @IsIdExist({ entity: 'proposal' }, { message: 'Mã phiếu yêu cầu không tồn tại' })
-    // proposalId: number;
-
-    @ApiProperty({ description: 'Proposal Ids', example: [1, 2, 3] })
+    @ApiProperty({ description: 'Requests', example: [1, 2, 3] })
     @ArrayNotEmpty({ message: 'Mã phiếu yêu cầu không được để trống' })
-    proposalIds: number[];
+    requests: { type: 'proposal' | 'repairRequest'; id: number }[];
+
+    @ApiProperty({ type: 'number', description: 'Warehouse Id' })
+    @IsNotEmpty({ message: 'Mã kho không được để trống' })
+    @IsNumber({}, { message: 'Mã kho phải là số' })
+    @IsIdExist({ entity: 'warehouse' }, { message: 'Mã kho không tồn tại' })
+    warehouseId: number;
 
     @ApiProperty({ type: 'string', description: 'type' })
     @IsNotEmpty({ message: 'Loại không được để trống' })

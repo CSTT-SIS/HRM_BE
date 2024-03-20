@@ -146,6 +146,19 @@ export class DropdownService {
         });
     }
 
+    inventory(queries: FilterDto & { warehouseId: number }) {
+        return this.getDropdown({
+            entity: 'inventory',
+            queries,
+            label: 'name',
+            value: 'id',
+            fulltext: true,
+            andWhere: this.utilService.getConditionsFromQuery(queries, ['warehouseId']),
+            relation: 'product',
+            alias: 'product',
+        });
+    }
+
     private async getDropdown(data: {
         entity: string;
         queries: FilterDto;
@@ -153,19 +166,25 @@ export class DropdownService {
         value: string;
         fulltext: boolean;
         andWhere?: string | string[] | object;
+        relation?: string;
+        alias?: string;
     }) {
+        const alias = data.alias || 'entity';
         const { builder, take, pagination } = this.utilService.getQueryBuilderAndPagination(this.database[data.entity], data.queries);
-        builder.select([`entity.${data.value} as value`, `entity.${data.label} as label`]);
+        builder.select([`${alias}.${data.value} as value`, `${alias}.${data.label} as label`]);
         builder.addSelect(`COUNT(entity.id) OVER() AS total`);
 
         if (data.queries.search && data.fulltext) {
-            builder.andWhere(this.utilService.fullTextSearch({ fields: [data.label], keyword: data.queries.search }));
+            builder.andWhere(this.utilService.fullTextSearch({ fields: [data.label], keyword: data.queries.search, entityAlias: alias }));
         }
         if (data.queries.search && !data.fulltext) {
-            builder.andWhere(`entity.${data.label} ILIKE :search`, { search: `%${data.queries.search}%` });
+            builder.andWhere(`${alias}.${data.label} ILIKE :search`, { search: `%${data.queries.search}%` });
         }
         if (data.andWhere) {
             builder.andWhere(data.andWhere);
+        }
+        if (data.relation) {
+            builder.leftJoinAndSelect(`entity.${data.relation}`, data.relation);
         }
 
         const result = await builder.getRawMany();
