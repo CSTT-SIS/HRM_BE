@@ -48,10 +48,10 @@ export class RepairRequestService {
         return entity;
     }
 
-    async findAll(queries: FilterDto & { repairById: number }) {
+    async findAll(queries: FilterDto & { repairById: number; status: string }) {
         const { builder, take, pagination } = this.utilService.getQueryBuilderAndPagination(this.database.repairRequest, queries);
 
-        builder.andWhere(this.utilService.getConditionsFromQuery(queries, ['repairById']));
+        builder.andWhere(this.utilService.getConditionsFromQuery(queries, ['repairById', 'status']));
         builder.andWhere(this.utilService.rawQuerySearch({ fields: ['name', 'vehicle.registrationNumber'], keyword: queries.search }));
 
         builder.leftJoinAndSelect('entity.vehicle', 'vehicle');
