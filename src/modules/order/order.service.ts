@@ -39,6 +39,7 @@ export class OrderService {
         builder.leftJoinAndSelect('entity.createdBy', 'createdBy');
         builder.leftJoinAndSelect('createdBy.department', 'department');
         builder.leftJoinAndSelect('entity.proposals', 'proposals');
+        builder.leftJoinAndSelect('entity.repairRequests', 'repairRequests');
         builder.leftJoinAndSelect('entity.warehouse', 'warehouse');
         builder.select([
             'entity',
@@ -48,6 +49,8 @@ export class OrderService {
             'department.name',
             'proposals.id',
             'proposals.name',
+            'repairRequests.id',
+            'repairRequests.name',
             'warehouse.id',
             'warehouse.name',
         ]);
@@ -69,6 +72,7 @@ export class OrderService {
         builder.where({ id });
 
         builder.leftJoinAndSelect('order.proposals', 'proposals');
+        builder.leftJoinAndSelect('order.repairRequests', 'repairRequests');
         builder.leftJoinAndSelect('order.createdBy', 'createdBy');
         builder.leftJoinAndSelect('createdBy.department', 'cbDepartment');
         builder.leftJoinAndSelect('order.updatedBy', 'updatedBy');
@@ -80,6 +84,8 @@ export class OrderService {
             'order',
             'proposals.id',
             'proposals.name',
+            'repairRequests.id',
+            'repairRequests.name',
             'createdBy.id',
             'createdBy.fullName',
             'cbDepartment.id',
