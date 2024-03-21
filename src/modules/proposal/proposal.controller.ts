@@ -26,7 +26,7 @@ export class ProposalController {
     @Get()
     @ApiQuery({ type: FilterDto })
     @ApiQuery({ name: 'type', enum: PROPOSAL_TYPE, required: false })
-    @ApiQuery({ name: 'status', enum: PROPOSAL_STATUS, required: false })
+    @ApiQuery({ name: 'status', enum: PROPOSAL_STATUS, required: false, isArray: true })
     @ApiQuery({ name: 'warehouseId', required: false })
     findAll(@Query() queries, @Query('type') type: string, @Query('status') status: string, @Query('warehouseId') warehouseId: string) {
         return this.proposalService.findAll({ ...queries, type, status, warehouseId });

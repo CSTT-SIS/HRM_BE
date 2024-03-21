@@ -3,7 +3,7 @@ import { createCipheriv, createDecipheriv } from 'crypto';
 import fs from 'fs';
 import moment from 'moment';
 import path from 'path';
-import { Repository, SelectQueryBuilder } from 'typeorm';
+import { In, Repository, SelectQueryBuilder } from 'typeorm';
 import { DEFAULT_PAGE, DEFAULT_PER_PAGE } from '~/common/constants/constant';
 import { MEDIA_TYPE } from '~/common/enums/enum';
 import { DatabaseService } from '~/database/typeorm/database.service';
@@ -364,8 +364,15 @@ export class UtilService {
     getConditionsFromQuery(queries: { [key: string]: any }, keys: string[] = []) {
         const result = {};
         for (const key of keys) {
-            if (!this.isEmpty(queries[key])) result[key] = queries[key];
+            if (!this.isEmpty(queries[key])) {
+                if (queries[key] instanceof Array) {
+                    result[key] = In(queries[key]);
+                } else {
+                    result[key] = queries[key];
+                }
+            }
         }
+
         return result;
     }
 

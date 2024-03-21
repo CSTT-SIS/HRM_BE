@@ -44,7 +44,7 @@ export class DropdownController {
     @Get('proposal')
     @ApiQuery({ type: FilterDto })
     @ApiQuery({ name: 'type', enum: PROPOSAL_TYPE, required: false })
-    @ApiQuery({ name: 'status', enum: PROPOSAL_STATUS, required: false })
+    @ApiQuery({ name: 'status', enum: PROPOSAL_STATUS, required: false, isArray: true })
     proposal(@Query() queries, @Query('type') type: string, @Query('status') status: string) {
         return this.dropdownService.proposal({ ...queries, type, status });
     }
@@ -67,7 +67,7 @@ export class DropdownController {
     @Get('order')
     @ApiQuery({ type: FilterDto })
     @ApiQuery({ name: 'proposalId', required: false, type: Number })
-    @ApiQuery({ name: 'status', enum: ORDER_STATUS, required: false })
+    @ApiQuery({ name: 'status', enum: ORDER_STATUS, required: false, isArray: true })
     order(@Query() queries, @Query('proposalId', new ParseIntPipe({ optional: true })) proposalId: string, @Query('status') status: string) {
         return this.dropdownService.order({ ...queries, proposalId, status });
     }

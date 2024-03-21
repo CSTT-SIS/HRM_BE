@@ -25,7 +25,7 @@ export class OrderController {
     @Permission('order:findAll')
     @Get()
     @ApiQuery({ name: 'warehouseId', required: false, type: Number })
-    @ApiQuery({ name: 'status', required: false, enum: ORDER_STATUS })
+    @ApiQuery({ name: 'status', required: false, enum: ORDER_STATUS, isArray: true })
     findAll(
         @Query() queries: FilterDto,
         @Query('warehouseId', new ParseIntPipe({ optional: true })) warehouseId: string,
