@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
-import { PROPOSAL_TYPE } from '~/common/enums/enum';
 import { DatabaseService } from '~/database/typeorm/database.service';
 import { NotificationService } from '~/modules/notification/notification.service';
 import { ProposalEvent } from '~/modules/proposal/events/proposal.event';
@@ -121,12 +120,13 @@ export class ProposalListener {
         if (!entity) return;
 
         let receiverIds: number[] = [];
-        if (entity.type === PROPOSAL_TYPE.PURCHASE) {
-            // notify to manager
-            receiverIds = await this.database.getUserIdsByPermission('proposal:managerApprove');
-        } else {
-            receiverIds = await this.database.getUserIdsByPermission('warehousingBill:create');
-        }
+        receiverIds = await this.database.getUserIdsByPermission('warehousingBill:create');
+        // if (entity.type === PROPOSAL_TYPE.PURCHASE) {
+        //     // notify to manager
+        //     receiverIds = await this.database.getUserIdsByPermission('proposal:managerApprove');
+        // } else {
+        //     receiverIds = await this.database.getUserIdsByPermission('warehousingBill:create');
+        // }
 
         this.nofiticationService.createNotification({
             entity: 'proposal',

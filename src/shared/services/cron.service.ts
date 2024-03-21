@@ -38,12 +38,12 @@ export class CronService {
     }
 
     addCronJob(name: string, cronRule, callback) {
-        const job = new CronJob(cronRule, callback); // every minute
+        const job = new CronJob(cronRule, callback);
 
         this.schedulerRegistry.addCronJob(name, job);
         job.start();
 
-        console.warn(`CronService: Job ${name} is running every minutes!`);
+        console.warn(`CronService: Job ${name} is running with rule ${cronRule}`);
     }
 
     deleteCron(name: string) {

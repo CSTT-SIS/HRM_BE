@@ -15,8 +15,15 @@ export class DropdownController {
     @Get('product')
     @ApiQuery({ type: FilterDto })
     @ApiQuery({ name: 'categoryId', required: false, type: Number })
-    product(@Query() queries, @Query('categoryId', new ParseIntPipe({ optional: true })) categoryId: string) {
-        return this.dropdownService.product({ ...queries, categoryId });
+    @ApiQuery({ name: 'code', required: false, type: String })
+    @ApiQuery({ name: 'barcode', required: false, type: String })
+    product(
+        @Query() queries,
+        @Query('categoryId', new ParseIntPipe({ optional: true })) categoryId: string,
+        @Query('code') code: string,
+        @Query('barcode') barcode: string,
+    ) {
+        return this.dropdownService.product({ ...queries, categoryId, code, barcode });
     }
 
     @Permission('productCategory:findAll')
@@ -111,5 +118,13 @@ export class DropdownController {
     @ApiQuery({ type: FilterDto })
     department(@Query() queries) {
         return this.dropdownService.department({ ...queries });
+    }
+
+    @Permission('product:findAll')
+    @Get('inventory')
+    @ApiQuery({ type: FilterDto })
+    @ApiQuery({ name: 'warehouseId', required: false, type: Number })
+    inventory(@Query() queries, @Query('warehouseId', new ParseIntPipe({ optional: true })) warehouseId: string) {
+        return this.dropdownService.inventory({ ...queries, warehouseId });
     }
 }

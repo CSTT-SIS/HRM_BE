@@ -237,25 +237,25 @@ export class RepairRequestService {
     }
 
     async addDetail(id: number, data: CreateRepairDetailDto) {
-        await this.isStatusValid({ id, statuses: [REPAIR_REQUEST_STATUS.IN_PROGRESS] });
+        await this.isStatusValid({ id, statuses: [REPAIR_REQUEST_STATUS.IN_PROGRESS, REPAIR_REQUEST_STATUS.HEAD_REJECTED] });
         await this.verifyDetail(id, data);
         return this.database.repairDetail.save(this.database.repairDetail.create({ ...data, repairRequestId: id }));
     }
 
     async addDetails(id: number, data: CreateRepairDetailsDto) {
-        await this.isStatusValid({ id, statuses: [REPAIR_REQUEST_STATUS.IN_PROGRESS] });
+        await this.isStatusValid({ id, statuses: [REPAIR_REQUEST_STATUS.IN_PROGRESS, REPAIR_REQUEST_STATUS.HEAD_REJECTED] });
         await this.verifyDetails(id, data.details);
         return this.database.repairDetail.save(data.details.map((item) => ({ ...item, repairRequestId: id })));
     }
 
     async updateDetail(id: number, detailId: number, data: UpdateRepairDetailDto) {
-        await this.isStatusValid({ id, statuses: [REPAIR_REQUEST_STATUS.IN_PROGRESS] });
+        await this.isStatusValid({ id, statuses: [REPAIR_REQUEST_STATUS.IN_PROGRESS, REPAIR_REQUEST_STATUS.HEAD_REJECTED] });
         await this.verifyDetail(id, data, detailId);
         return this.database.repairDetail.update({ id: detailId, repairRequestId: id }, data);
     }
 
     async removeDetail(id: number, detailId: number) {
-        await this.isStatusValid({ id, statuses: [REPAIR_REQUEST_STATUS.IN_PROGRESS] });
+        await this.isStatusValid({ id, statuses: [REPAIR_REQUEST_STATUS.IN_PROGRESS, REPAIR_REQUEST_STATUS.HEAD_REJECTED] });
         return this.database.repairDetail.delete({ id: detailId, repairRequestId: id });
     }
 

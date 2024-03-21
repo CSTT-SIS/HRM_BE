@@ -127,6 +127,7 @@ export class WarehousingBillService {
             'details.actualQuantity',
             'product.id',
             'product.name',
+            'product.quantity',
             'unit.id',
             'unit.name',
             'warehouse.id',
@@ -166,7 +167,7 @@ export class WarehousingBillService {
         builder.leftJoinAndSelect('product.unit', 'unit');
         builder.andWhere('entity.warehousingBillId = :id', { id: queries.warehousingBillId });
         builder.andWhere(this.utilService.getConditionsFromQuery(queries, ['productId']));
-        builder.select(['entity', 'product.id', 'product.name', 'product.code', 'unit.id', 'unit.name']);
+        builder.select(['entity', 'product.id', 'product.name', 'product.code', 'product.quantity', 'unit.id', 'unit.name']);
 
         const [result, total] = await builder.getManyAndCount();
         const totalPages = Math.ceil(total / take);
@@ -731,8 +732,8 @@ export class WarehousingBillService {
 
         const { type, status } = proposal;
         switch (type) {
-            case PROPOSAL_TYPE.PURCHASE:
-                throw new HttpException('Không thể tạo phiếu nhập kho từ đơn yêu cầu mua hàng, chỉ có thể tạo từ đơn đặt hàng', 400);
+            // case PROPOSAL_TYPE.PURCHASE:
+            //     throw new HttpException('Không thể tạo phiếu nhập kho từ đơn yêu cầu mua hàng, chỉ có thể tạo từ đơn đặt hàng', 400);
             case PROPOSAL_TYPE.SUPPLY:
                 if (status !== PROPOSAL_STATUS.HEAD_APPROVED) {
                     throw new HttpException(`Đơn yêu cầu cung cấp vật tư chưa được duyệt`, 400);

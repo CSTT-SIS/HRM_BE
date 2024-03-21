@@ -1,4 +1,4 @@
-import { Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
+import { Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, Relation, VirtualColumn } from 'typeorm';
 import { InventoryEntity } from '~/database/typeorm/entities/inventory.entity';
 import { MediaEntity } from '~/database/typeorm/entities/media.entity';
 import { ProductCategoryEntity } from '~/database/typeorm/entities/productCategory.entity';
@@ -34,6 +34,13 @@ export class ProductEntity extends AbstractEntity {
 
     @Column({ name: 'description', type: 'text', nullable: true })
     description: string;
+
+    // get quantity in inventory from all warehouses of this product
+    // need to find a way to get quantity from specific warehouse
+    @VirtualColumn({
+        query: (alias) => `IFNULL((SELECT SUM(inventory.quantity) FROM inventory WHERE inventory.product_id = ${alias}.id), 0)`,
+    })
+    quantity: number;
 
     // 9,999,999,999,999.999
     // @Column({ name: 'price', type: 'decimal', precision: 16, scale: 3, nullable: true, transformer: new ColumnNumericTransformer() })

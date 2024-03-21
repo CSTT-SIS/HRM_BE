@@ -60,7 +60,7 @@ export enum PROPOSAL_STATUS {
 }
 
 export enum PROPOSAL_TYPE {
-    PURCHASE = 'PURCHASE',
+    // PURCHASE = 'PURCHASE',
     SUPPLY = 'SUPPLY',
     // REPAIR = 'REPAIR',
     // ADJUSTMENT = 'ADJUSTMENT',

@@ -15,7 +15,9 @@ import { ORDER_STATUS } from '~/common/enums/enum';
 import { OrderItemEntity } from '~/database/typeorm/entities/orderItem.entity';
 import { OrderProgressTrackingEntity } from '~/database/typeorm/entities/orderProgressTracking.entity';
 import { ProposalEntity } from '~/database/typeorm/entities/proposal.entity';
+import { RepairRequestEntity } from '~/database/typeorm/entities/repairRequest.entity';
 import { UserEntity } from '~/database/typeorm/entities/user.entity';
+import { WarehouseEntity } from '~/database/typeorm/entities/warehouse.entity';
 import { AbstractEntity } from './abstract.entity';
 
 @Entity({ name: 'orders' })
@@ -25,6 +27,12 @@ export class OrderEntity extends AbstractEntity {
 
     @RelationId((order: OrderEntity) => order.proposals)
     proposalIds: number[];
+
+    @RelationId((order: OrderEntity) => order.repairRequests)
+    repairRequestIds: number[];
+
+    @Column({ name: 'warehouse_id', type: 'int', unsigned: true, nullable: true })
+    warehouseId: number;
 
     @Index('IDX_ORDER_NAME', { fulltext: true })
     @Column({ name: 'name', type: 'varchar', length: 255, nullable: true })
@@ -67,6 +75,14 @@ export class OrderEntity extends AbstractEntity {
     })
     proposals: Relation<ProposalEntity>[];
 
+    @ManyToMany(() => RepairRequestEntity, { createForeignKeyConstraints: false })
+    @JoinTable({
+        name: 'orders_repair_requests',
+        joinColumn: { name: 'order_id', referencedColumnName: 'id' },
+        inverseJoinColumn: { name: 'repair_request_id', referencedColumnName: 'id' },
+    })
+    repairRequests: Relation<RepairRequestEntity>[];
+
     @ManyToOne(() => UserEntity, { createForeignKeyConstraints: false })
     @JoinColumn({ name: 'created_by_id', referencedColumnName: 'id' })
     createdBy: Relation<UserEntity>;
@@ -80,4 +96,8 @@ export class OrderEntity extends AbstractEntity {
 
     @OneToMany(() => OrderProgressTrackingEntity, (entity) => entity.order, { createForeignKeyConstraints: false })
     progresses: Relation<OrderProgressTrackingEntity>[];
+
+    @ManyToOne(() => WarehouseEntity, { createForeignKeyConstraints: false })
+    @JoinColumn({ name: 'warehouse_id', referencedColumnName: 'id' })
+    warehouse: Relation<WarehouseEntity>;
 }
