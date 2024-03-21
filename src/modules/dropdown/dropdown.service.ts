@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { In, Not } from 'typeorm';
 import { FilterDto } from '~/common/dtos/filter.dto';
 import {
     DAMAGE_LEVEL,
@@ -9,6 +10,7 @@ import {
     PROPOSAL_STATUS,
     PROPOSAL_TYPE,
     PROPOSAL_TYPE_NAME,
+    REPAIR_REQUEST_STATUS,
     WAREHOUSING_BILL_TYPE,
     WAREHOUSING_BILL_TYPE_NAME,
 } from '~/common/enums/enum';
@@ -77,14 +79,21 @@ export class DropdownService {
         });
     }
 
-    order(queries: FilterDto & { proposalId: string; status: ORDER_STATUS }) {
+    async order(queries: FilterDto & { proposalId: string; status: ORDER_STATUS; isCreatedBill: boolean }) {
+        // get order has not created warehousing bill
+        const ids = queries.isCreatedBill
+            ? (await this.database.warehousingBill.createQueryBuilder().select('order_id').getRawMany())
+                  .map((item) => item.order_id)
+                  .filter((item) => item)
+            : [];
+
         return this.getDropdown({
             entity: 'order',
             queries,
             label: 'name',
             value: 'id',
             fulltext: true,
-            andWhere: this.utilService.getConditionsFromQuery(queries, ['proposalId', 'status']),
+            andWhere: { ...this.utilService.getConditionsFromQuery(queries, ['proposalId', 'status']), id: Not(In(ids)) },
         });
     }
 
@@ -112,14 +121,21 @@ export class DropdownService {
         });
     }
 
-    repairRequest(queries: FilterDto & { repairById: number }) {
+    async repairRequest(queries: FilterDto & { repairById: number; status: REPAIR_REQUEST_STATUS; isCreatedBill: boolean }) {
+        // get order has not created warehousing bill
+        const ids = queries.isCreatedBill
+            ? (await this.database.warehousingBill.createQueryBuilder().select('repair_request_id').getRawMany())
+                  .map((item) => item.repair_request_id)
+                  .filter((item) => item)
+            : [];
+
         return this.getDropdown({
             entity: 'repairRequest',
             queries,
             label: 'name',
             value: 'id',
             fulltext: false,
-            andWhere: this.utilService.getConditionsFromQuery(queries, ['repairById']),
+            andWhere: { ...this.utilService.getConditionsFromQuery(queries, ['repairById', 'status']), id: Not(In(ids)) },
         });
     }
 

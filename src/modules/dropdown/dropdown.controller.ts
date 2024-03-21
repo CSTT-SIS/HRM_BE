@@ -2,7 +2,7 @@ import { Controller, Get, ParseIntPipe, Query } from '@nestjs/common';
 import { ApiBasicAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Permission } from '~/common/decorators/permission.decorator';
 import { FilterDto } from '~/common/dtos/filter.dto';
-import { ORDER_STATUS, PROPOSAL_STATUS, PROPOSAL_TYPE } from '~/common/enums/enum';
+import { ORDER_STATUS, PROPOSAL_STATUS, PROPOSAL_TYPE, REPAIR_REQUEST_STATUS } from '~/common/enums/enum';
 import { DropdownService } from './dropdown.service';
 
 @ApiTags('Dropdown')
@@ -68,8 +68,14 @@ export class DropdownController {
     @ApiQuery({ type: FilterDto })
     @ApiQuery({ name: 'proposalId', required: false, type: Number })
     @ApiQuery({ name: 'status', enum: ORDER_STATUS, required: false, isArray: true })
-    order(@Query() queries, @Query('proposalId', new ParseIntPipe({ optional: true })) proposalId: string, @Query('status') status: string) {
-        return this.dropdownService.order({ ...queries, proposalId, status });
+    @ApiQuery({ name: 'isCreatedBill', required: false, type: Boolean })
+    order(
+        @Query() queries,
+        @Query('proposalId', new ParseIntPipe({ optional: true })) proposalId: string,
+        @Query('status') status: string,
+        @Query('isCreatedBill') isCreatedBill: boolean,
+    ) {
+        return this.dropdownService.order({ ...queries, proposalId, status, isCreatedBill });
     }
 
     @Permission('order:findAll')
@@ -96,8 +102,15 @@ export class DropdownController {
     @Get('repair-request')
     @ApiQuery({ type: FilterDto })
     @ApiQuery({ name: 'repairById', required: false, type: Number })
-    repairRequest(@Query() queries, @Query('repairById', new ParseIntPipe({ optional: true })) repairById: string) {
-        return this.dropdownService.repairRequest({ ...queries, repairById });
+    @ApiQuery({ name: 'status', enum: REPAIR_REQUEST_STATUS, required: false, isArray: true })
+    @ApiQuery({ name: 'isCreatedBill', required: false, type: Boolean })
+    repairRequest(
+        @Query() queries,
+        @Query('repairById', new ParseIntPipe({ optional: true })) repairById: string,
+        @Query('status') status: string,
+        @Query('isCreatedBill') isCreatedBill: boolean,
+    ) {
+        return this.dropdownService.repairRequest({ ...queries, repairById, status, isCreatedBill });
     }
 
     @Permission('repairRequest:findAll')
