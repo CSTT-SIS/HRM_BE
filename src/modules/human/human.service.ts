@@ -8,7 +8,7 @@ import { HUMAN_DASHBOARD_TYPE } from '~/common/enums/enum';
 
 @Injectable()
 export class HumanService {
-    constructor(private readonly utilService: UtilService, private readonly database: DatabaseService) { }
+    constructor(private readonly utilService: UtilService, private readonly database: DatabaseService) {}
 
     create(createHumanDto: CreateHumanDto, avatar: Express.Multer.File, userId: number) {
         return this.database.user.save(this.database.user.create({ ...createHumanDto, avatar: avatar.filename, createdBy: userId }));
