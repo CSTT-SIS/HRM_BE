@@ -96,6 +96,8 @@ import { WarehousingBillRepository } from '~/database/typeorm/repositories/wareh
 import { WarehousingBillDetailRepository } from '~/database/typeorm/repositories/warehousingBillDetail.repository';
 import { PositionRepository } from '~/database/typeorm/repositories/position.repository';
 import { ContractRepository } from '~/database/typeorm/repositories/contract.repository';
+import { CalendarUserEntity } from '~/database/typeorm/entities/calendarUser.entity';
+import { CalendarUserRepository } from '~/database/typeorm/repositories/calendarUser.repository';
 
 const entities = [
     RoleEntity,
@@ -151,6 +153,7 @@ const entities = [
     TextEmbryoEntity,
     UserShiftEntity,
     FreeTimekeepingEntity,
+    CalendarUserEntity,
 ];
 
 const repositories = [
@@ -195,6 +198,7 @@ const repositories = [
     FreeTimekeepingRepository,
     PositionRepository,
     ContractRepository,
+    CalendarUserRepository,
 ];
 
 @Global()

@@ -22,6 +22,7 @@ import { RewardEntity } from './reward.entity';
 import { UserShiftEntity } from './userShift.entity';
 import { CalendarEntity } from './calendar.entity';
 import { FreeTimekeepingEntity } from './freeTimekeeping.entity';
+import { CalendarUserEntity } from './calendarUser.entity';
 
 @Entity({ name: 'users' })
 export class UserEntity extends AbstractEntity {
@@ -237,15 +238,15 @@ export class UserEntity extends AbstractEntity {
     })
     rewards: Relation<RewardEntity>[];
 
-    @OneToMany(() => CalendarEntity, (entity: CalendarEntity) => entity.user, {
-        nullable: true,
-        createForeignKeyConstraints: false,
-    })
-    calendars: Relation<CalendarEntity>[];
-
     @OneToMany(() => FreeTimekeepingEntity, (entity: FreeTimekeepingEntity) => entity.user, {
         nullable: true,
         createForeignKeyConstraints: false,
     })
     freeTimekeepings: Relation<FreeTimekeepingEntity>[];
+
+    @OneToMany(() => CalendarUserEntity, (entity: CalendarUserEntity) => entity.user, {
+        nullable: true,
+        createForeignKeyConstraints: false,
+    })
+    calendarUsers: Relation<CalendarUserEntity>[];
 }

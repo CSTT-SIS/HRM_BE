@@ -151,7 +151,9 @@ export enum HUMAN_DASHBOARD_TYPE {
 }
 
 export enum CALENDAR_TYPE {
-    GENERAL = 1,
+    BY_MONTH = 'BY_MONTH',
+    BY_WEEK = 'BY_WEEK',
+    BY_DAY = 'BY_DAY',
     // ----
 }
 
@@ -222,5 +224,13 @@ export enum ASSET_STATUS {
 export enum LETTER_TYPE {
     LATE = 'LATE',
     SOON = 'SOON',
+    // ----
+}
+
+export enum LEVEL_CALENDAR {
+    LESS_IMPORTANT = 1,
+    NORMAL = 2,
+    IMPORTANT = 3,
+    HIGH_PRIORITY = 4,
     // ----
 }

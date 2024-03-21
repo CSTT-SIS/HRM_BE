@@ -43,6 +43,7 @@ import { WarehousingBillDetailRepository } from '~/database/typeorm/repositories
 import { CacheService } from '~/shared/services/cache.service';
 import { PositionRepository } from '~/database/typeorm/repositories/position.repository';
 import { ContractRepository } from '~/database/typeorm/repositories/contract.repository';
+import { CalendarUserRepository } from '~/database/typeorm/repositories/calendarUser.repository';
 
 @Injectable()
 export class DatabaseService {
@@ -90,6 +91,7 @@ export class DatabaseService {
         public readonly freeTimekeeping: FreeTimekeepingRepository,
         public readonly position: PositionRepository,
         public readonly contract: ContractRepository,
+        public readonly calendarUser: CalendarUserRepository,
     ) {
         // load all departments to cache
         // this.loadDepartmentsToCache();
