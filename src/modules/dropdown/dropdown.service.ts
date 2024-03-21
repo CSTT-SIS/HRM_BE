@@ -53,13 +53,14 @@ export class DropdownService {
         });
     }
 
-    async proposal(queries: FilterDto & { type: PROPOSAL_TYPE; status: PROPOSAL_STATUS; isCreatedBill: boolean }) {
+    async proposal(queries: FilterDto & { type: PROPOSAL_TYPE; status: PROPOSAL_STATUS; isCreatedBill: boolean; isCreatedOrder: boolean }) {
         // get order has not created warehousing bill
-        const ids = queries.isCreatedBill
+        let ids = queries.isCreatedBill
             ? (await this.database.warehousingBill.createQueryBuilder().select('proposal_id').getRawMany())
                   .map((item) => item.proposal_id)
                   .filter((item) => item)
             : [];
+        ids = queries.isCreatedOrder ? [...ids, ...(await this.database.order.getProposalIds())] : ids;
 
         return this.getDropdown({
             entity: 'proposal',
@@ -128,13 +129,14 @@ export class DropdownService {
         });
     }
 
-    async repairRequest(queries: FilterDto & { repairById: number; status: REPAIR_REQUEST_STATUS; isCreatedBill: boolean }) {
+    async repairRequest(queries: FilterDto & { repairById: number; status: REPAIR_REQUEST_STATUS; isCreatedBill: boolean; isCreatedOrder: boolean }) {
         // get order has not created warehousing bill
-        const ids = queries.isCreatedBill
+        let ids = queries.isCreatedBill
             ? (await this.database.warehousingBill.createQueryBuilder().select('repair_request_id').getRawMany())
                   .map((item) => item.repair_request_id)
                   .filter((item) => item)
             : [];
+        ids = queries.isCreatedOrder ? [...ids, ...(await this.database.order.getRepairRequestIds())] : ids;
 
         return this.getDropdown({
             entity: 'repairRequest',

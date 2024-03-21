@@ -46,8 +46,15 @@ export class DropdownController {
     @ApiQuery({ name: 'type', enum: PROPOSAL_TYPE, required: false })
     @ApiQuery({ name: 'status', enum: PROPOSAL_STATUS, required: false, isArray: true })
     @ApiQuery({ name: 'isCreatedBill', required: false, type: Boolean })
-    proposal(@Query() queries, @Query('type') type: string, @Query('status') status: string, @Query('isCreatedBill') isCreatedBill: boolean) {
-        return this.dropdownService.proposal({ ...queries, type, status, isCreatedBill });
+    @ApiQuery({ name: 'isCreatedOrder', required: false, type: Boolean })
+    proposal(
+        @Query() queries,
+        @Query('type') type: string,
+        @Query('status') status: string,
+        @Query('isCreatedBill') isCreatedBill: boolean,
+        @Query('isCreatedOrder') isCreatedOrder: boolean,
+    ) {
+        return this.dropdownService.proposal({ ...queries, type, status, isCreatedBill, isCreatedOrder });
     }
 
     @Permission('proposal:findAll')
@@ -105,13 +112,15 @@ export class DropdownController {
     @ApiQuery({ name: 'repairById', required: false, type: Number })
     @ApiQuery({ name: 'status', enum: REPAIR_REQUEST_STATUS, required: false, isArray: true })
     @ApiQuery({ name: 'isCreatedBill', required: false, type: Boolean })
+    @ApiQuery({ name: 'isCreatedOrder', required: false, type: Boolean })
     repairRequest(
         @Query() queries,
         @Query('repairById', new ParseIntPipe({ optional: true })) repairById: string,
         @Query('status') status: string,
         @Query('isCreatedBill') isCreatedBill: boolean,
+        @Query('isCreatedOrder') isCreatedOrder: boolean,
     ) {
-        return this.dropdownService.repairRequest({ ...queries, repairById, status, isCreatedBill });
+        return this.dropdownService.repairRequest({ ...queries, repairById, status, isCreatedBill, isCreatedOrder });
     }
 
     @Permission('repairRequest:findAll')
