@@ -65,4 +65,11 @@ export class ProductController {
     createBarcode(@Param('id', ParseIntPipe) id: string, @Body() data: { barcode: string }) {
         return this.productService.createBarcode(+id, data.barcode);
     }
+
+    @Permission('product:findOne')
+    @Get(':id/quantity')
+    @ApiQuery({ name: 'warehouseId', required: false, type: Number })
+    quantity(@Param('id', ParseIntPipe) id: string, @Query('warehouseId', new ParseIntPipe({ optional: true })) warehouseId: string) {
+        return this.productService.getQuantity(+id, +warehouseId);
+    }
 }

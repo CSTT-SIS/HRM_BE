@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { CronJobListener } from '~/modules/notification/listeners/cronjob.listener';
 import { OrderListener } from '~/modules/notification/listeners/order.listener';
 import { ProposalListener } from '~/modules/notification/listeners/proposal.listener';
 import { WarehousingBillListener } from '~/modules/notification/listeners/warehousing-bill.listener';
@@ -7,6 +8,6 @@ import { NotificationService } from './notification.service';
 
 @Module({
     controllers: [NotificationController],
-    providers: [NotificationService, ProposalListener, WarehousingBillListener, OrderListener],
+    providers: [NotificationService, ProposalListener, WarehousingBillListener, OrderListener, CronJobListener],
 })
 export class NotificationModule {}

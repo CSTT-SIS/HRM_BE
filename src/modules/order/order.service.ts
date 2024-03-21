@@ -1,7 +1,7 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { FilterDto } from '~/common/dtos/filter.dto';
-import { ORDER_STATUS, ORDER_TYPE, PROPOSAL_STATUS, PROPOSAL_TYPE } from '~/common/enums/enum';
+import { ORDER_STATUS, ORDER_TYPE, PROPOSAL_STATUS, REPAIR_REQUEST_STATUS } from '~/common/enums/enum';
 import { UserStorage } from '~/common/storages/user.storage';
 import { DatabaseService } from '~/database/typeorm/database.service';
 import { OrderEntity } from '~/database/typeorm/entities/order.entity';
@@ -20,29 +20,37 @@ export class OrderService {
 
     async create(createOrderDto: CreateOrderDto) {
         // 2-level approval
+        const { requests, ...rest } = createOrderDto;
+        await this.validateRequests(requests, createOrderDto.type);
 
-        const { proposalIds, ...rest } = createOrderDto;
-        for (const proposalId of proposalIds) {
-            await this.isProposalValid(proposalId, createOrderDto.type);
-        }
         const entity = await this.database.order.save(this.database.order.create({ ...rest, createdById: UserStorage.getId() }));
-        this.database.order.addProposals(entity.id, proposalIds);
-        // this.createOrderDetails(entity.id, proposalIds);
+        this.addRequests(entity.id, requests);
         this.emitEvent('order.created', { id: entity.id });
 
         return entity;
     }
 
-    async findAll(queries: FilterDto & { proposalId: string; status: string }) {
+    async findAll(queries: FilterDto & { warehouseId: string; status: string }) {
         const { builder, take, pagination } = this.utilService.getQueryBuilderAndPagination(this.database.order, queries);
 
-        builder.andWhere(this.utilService.getConditionsFromQuery(queries, ['proposalId', 'status']));
+        builder.andWhere(this.utilService.getConditionsFromQuery(queries, ['warehouseId', 'status']));
         builder.andWhere(this.utilService.fullTextSearch({ fields: ['name'], keyword: queries.search }));
 
         builder.leftJoinAndSelect('entity.createdBy', 'createdBy');
         builder.leftJoinAndSelect('createdBy.department', 'department');
         builder.leftJoinAndSelect('entity.proposals', 'proposals');
-        builder.select(['entity', 'createdBy.id', 'createdBy.fullName', 'department.id', 'department.name', 'proposals.id', 'proposals.name']);
+        builder.leftJoinAndSelect('entity.warehouse', 'warehouse');
+        builder.select([
+            'entity',
+            'createdBy.id',
+            'createdBy.fullName',
+            'department.id',
+            'department.name',
+            'proposals.id',
+            'proposals.name',
+            'warehouse.id',
+            'warehouse.name',
+        ]);
 
         const [result, total] = await builder.getManyAndCount();
         const totalPages = Math.ceil(total / take);
@@ -67,6 +75,7 @@ export class OrderService {
         builder.leftJoinAndSelect('updatedBy.department', 'ubDepartment');
         builder.leftJoinAndSelect('order.items', 'items');
         builder.leftJoinAndSelect('items.product', 'product');
+        builder.leftJoinAndSelect('order.warehouse', 'warehouse');
         builder.select([
             'order',
             'proposals.id',
@@ -84,26 +93,32 @@ export class OrderService {
             'items.price',
             'product.id',
             'product.name',
+            'product.quantity',
+            'warehouse.id',
+            'warehouse.name',
         ]);
 
         return builder.getOne();
     }
 
     async update(id: number, updateOrderDto: UpdateOrderDto) {
-        const { proposalIds, ...rest } = updateOrderDto;
+        const { requests, ...rest } = updateOrderDto;
 
         await this.isStatusValid({ id, statuses: [ORDER_STATUS.PENDING, ORDER_STATUS.HEAD_REJECTED, ORDER_STATUS.MANAGER_REJECTED] });
-        for (const proposalId of proposalIds) {
-            const proposal = await this.isProposalValid(proposalId, updateOrderDto.type, id);
-        }
+        await this.validateRequests(requests, updateOrderDto.type, id);
 
         const result = await this.database.order.update(id, { ...rest, status: ORDER_STATUS.PENDING });
-        if (result.affected && proposalIds?.length > 0) {
+        if (result.affected && requests?.length > 0) {
+            const proposalIds = requests.filter((request) => request.type === 'proposal').map((request) => request.id);
             await this.database.order.removeProposals(id, proposalIds);
             await this.database.order.addProposals(id, proposalIds);
 
+            const repairRequestIds = requests.filter((request) => request.type === 'repairRequest').map((request) => request.id);
+            await this.database.order.removeRepairRequests(id, repairRequestIds);
+            await this.database.order.addRepairRequests(id, repairRequestIds);
+
             await this.database.orderItem.delete({ orderId: id });
-            this.createOrderDetails(id, proposalIds);
+            this.createOrderDetails(id, proposalIds, repairRequestIds);
         }
 
         return result;
@@ -123,7 +138,7 @@ export class OrderService {
         builder.leftJoinAndSelect('product.unit', 'unit');
         builder.andWhere('entity.orderId = :id', { id: queries.orderId });
         builder.andWhere(this.utilService.getConditionsFromQuery(queries, ['productId']));
-        builder.select(['entity', 'product.id', 'product.name', 'product.code', 'unit.id', 'unit.name']);
+        builder.select(['entity', 'product.id', 'product.name', 'product.quantity', 'product.code', 'unit.id', 'unit.name']);
 
         const [result, total] = await builder.getManyAndCount();
         const totalPages = Math.ceil(total / take);
@@ -138,14 +153,14 @@ export class OrderService {
     }
 
     async addItem(id: number, item: CreateOrderItemDto) {
-        await this.isStatusValid({ id, statuses: [ORDER_STATUS.PENDING] });
+        await this.isStatusValid({ id, statuses: [ORDER_STATUS.PENDING, ORDER_STATUS.HEAD_REJECTED, ORDER_STATUS.MANAGER_REJECTED] });
         // check if the product have been added to the proposal
         // await this.isProductAddedToProposal(id, item.productId);
         return this.database.orderItem.upsert(this.database.orderItem.create({ ...item, orderId: id }), ['orderId', 'productId']);
     }
 
     async addItems(id: number, items: CreateOrderItemsDto) {
-        await this.isStatusValid({ id, statuses: [ORDER_STATUS.PENDING] });
+        await this.isStatusValid({ id, statuses: [ORDER_STATUS.PENDING, ORDER_STATUS.HEAD_REJECTED, ORDER_STATUS.MANAGER_REJECTED] });
         await this.validateOrderItems(items);
         // check if the product have been added to the proposal
         // await this.isProductAddedToProposal(id, item.productId);
@@ -168,14 +183,14 @@ export class OrderService {
     }
 
     async updateItem(id: number, itemId: number, item: UpdateOrderItemDto) {
-        await this.isStatusValid({ id, statuses: [ORDER_STATUS.PENDING] });
+        await this.isStatusValid({ id, statuses: [ORDER_STATUS.PENDING, ORDER_STATUS.HEAD_REJECTED, ORDER_STATUS.MANAGER_REJECTED] });
         // check if the product have been added to the proposal
         // await this.isProductAddedToProposal(id, item.productId);
         return this.database.orderItem.update({ id: itemId, orderId: id }, item);
     }
 
     async removeItem(id: number, itemId: number) {
-        await this.isStatusValid({ id, statuses: [ORDER_STATUS.PENDING] });
+        await this.isStatusValid({ id, statuses: [ORDER_STATUS.PENDING, ORDER_STATUS.HEAD_REJECTED, ORDER_STATUS.MANAGER_REJECTED] });
         return this.database.orderItem.delete({ id: itemId, orderId: id });
     }
 
@@ -243,6 +258,12 @@ export class OrderService {
     //     return this.updateStatus({ id, from: [ORDER_STATUS.PENDING], to: ORDER_STATUS.CANCELLED });
     // }
 
+    private async addRequests(orderId: number, requests: { type: string; id: number }[]) {
+        const proposalIds = requests.filter((request) => request.type === 'proposal').map((request) => request.id);
+        const repairRequestIds = requests.filter((request) => request.type === 'repairRequest').map((request) => request.id);
+        this.database.order.addProposals(orderId, proposalIds);
+        this.database.order.addRepairRequests(orderId, repairRequestIds);
+    }
     /**
      * The function `isProposalValid` retrieves a proposal from the database based on the provided proposal
      * ID, and order type, and performs various checks and validations before returning
@@ -256,15 +277,26 @@ export class OrderService {
         // proposal with PURCHASE type, only create order when status is MANAGER_APPROVED
         const proposal = await this.database.proposal.findOne({ where: { id: proposalId } });
         if (!proposal) throw new HttpException('Phiếu yêu cầu không tồn tại', 400);
-        if (proposal.type !== PROPOSAL_TYPE.PURCHASE) throw new HttpException('Phiếu yêu cầu không phải là phiếu mua hàng', 400);
+        // if (proposal.type !== PROPOSAL_TYPE.PURCHASE) throw new HttpException('Phiếu yêu cầu không phải là phiếu mua hàng', 400);
         if (proposal.status !== PROPOSAL_STATUS.HEAD_APPROVED) throw new HttpException('Phiếu yêu cầu chưa được duyệt', 400);
-        if (orderType !== ORDER_TYPE.PURCHASE && proposal.type !== PROPOSAL_TYPE.PURCHASE)
-            throw new HttpException('Loại đơn hàng không phải là đơn hàng mua hàng', 400);
+        // if (orderType !== ORDER_TYPE.PURCHASE && proposal.type !== PROPOSAL_TYPE.PURCHASE)
+        //     throw new HttpException('Loại đơn hàng không phải là đơn hàng mua hàng', 400);
 
         const check = await this.database.order.isProposalAdded(proposalId, orderId);
         if (check) throw new HttpException('Phiếu yêu cầu đã được thêm vào một đơn hàng khác', 400);
 
         return proposal;
+    }
+
+    private async isRepairRequestValid(repairRequestId: number, orderId?: number): Promise<void> {
+        const repairRequest = await this.database.repairRequest.findOne({ where: { id: repairRequestId } });
+        if (!repairRequest) throw new HttpException('Yêu cầu sửa chữa không tồn tại', 400);
+        if (repairRequest.status !== REPAIR_REQUEST_STATUS.HEAD_APPROVED) throw new HttpException('Yêu cầu sửa chữa chưa được duyệt', 400);
+
+        const check = await this.database.order.isRepairRequestAdded(repairRequestId, orderId);
+        if (check) throw new HttpException('Yêu cầu sửa chữa đã được thêm vào một đơn hàng khác', 400);
+
+        return;
     }
 
     /**
@@ -279,15 +311,6 @@ export class OrderService {
     private async createOrderDetailsByProposalId(orderId: number, proposalId: number): Promise<OrderItemEntity[]> {
         const proposalDetails = await this.database.proposalDetail.find({ where: { proposalId: proposalId }, relations: ['product'] });
         if (!proposalDetails || proposalDetails.length === 0) return [];
-
-        // const orderItemEntities = proposalDetails.map((proposalDetail) => {
-        //     return this.database.orderItem.create({
-        //         orderId,
-        //         productId: proposalDetail.productId,
-        //         quantity: proposalDetail.quantity,
-        //         price: proposalDetail.price,
-        //     });
-        // });
 
         const orderItemEntities: OrderItemEntity[] = [];
         for (const proposalDetail of proposalDetails) {
@@ -310,9 +333,37 @@ export class OrderService {
         return this.database.orderItem.save(orderItemEntities);
     }
 
-    private async createOrderDetails(orderId: number, proposalIds: number[]): Promise<void> {
+    private async createOrderDetailsByRepairRequestId(orderId: number, repairRequestId: number): Promise<OrderItemEntity[]> {
+        const repairRequestDetails = await this.database.repairDetail.find({ where: { repairRequestId }, relations: ['replacementPart'] });
+        if (!repairRequestDetails || repairRequestDetails.length === 0) return [];
+
+        const orderItemEntities: OrderItemEntity[] = [];
+        for (const repairRequestDetail of repairRequestDetails) {
+            const isItemExist = await this.database.orderItem.findOne({ where: { orderId, productId: repairRequestDetail.replacementPartId } });
+            if (isItemExist) {
+                isItemExist.quantity += repairRequestDetail.quantity;
+                orderItemEntities.push(isItemExist);
+            } else {
+                orderItemEntities.push(
+                    this.database.orderItem.create({
+                        orderId,
+                        productId: repairRequestDetail.replacementPartId,
+                        quantity: repairRequestDetail.quantity,
+                    }),
+                );
+            }
+        }
+
+        return this.database.orderItem.save(orderItemEntities);
+    }
+
+    private async createOrderDetails(orderId: number, proposalIds: number[], repairdRequestIds: number[]): Promise<void> {
         for (const proposalId of proposalIds) {
             await this.createOrderDetailsByProposalId(orderId, proposalId);
+        }
+
+        for (const repairRequestId of repairdRequestIds) {
+            await this.createOrderDetailsByRepairRequestId(orderId, repairRequestId);
         }
     }
 
@@ -388,6 +439,18 @@ export class OrderService {
 
             const isProductExist = await this.database.product.findOne({ where: { id: item.productId } });
             if (!isProductExist) throw new HttpException('Sản phẩm không tồn tại', 400);
+        }
+    }
+
+    private async validateRequests(requests: { type: string; id: number }[], orderType: ORDER_TYPE, orderId?: number) {
+        for (const request of requests) {
+            if (request.type === 'proposal') {
+                await this.isProposalValid(request.id, orderType, orderId);
+            } else if (request.type === 'repairRequest') {
+                await this.isRepairRequestValid(request.id, orderId);
+            } else {
+                throw new HttpException('Loại yêu cầu không hợp lệ', 400);
+            }
         }
     }
 }

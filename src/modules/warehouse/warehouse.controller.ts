@@ -3,6 +3,7 @@ import { ApiBasicAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Permission } from '~/common/decorators/permission.decorator';
 import { FilterDto } from '~/common/dtos/filter.dto';
 import { ImportGoodDto } from '~/modules/warehouse/dto/import-good.dto';
+import { UpdateGoodDto } from '~/modules/warehouse/dto/update-good.dto';
 import { CreateWarehouseDto } from './dto/create-warehouse.dto';
 import { UpdateWarehouseDto } from './dto/update-warehouse.dto';
 import { WarehouseService } from './warehouse.service';
@@ -55,5 +56,11 @@ export class WarehouseController {
     @Post(':id/import')
     import(@Param('id', ParseIntPipe) id: string, @Body() importGoodDto: ImportGoodDto) {
         return this.warehouseService.importGoods(+id, importGoodDto);
+    }
+
+    @Permission('warehouse:import')
+    @Patch(':id/products/:inventoryId')
+    updateGood(@Param('id', ParseIntPipe) id: string, @Param('inventoryId', ParseIntPipe) inventoryId: string, @Body() updateGoodDto: UpdateGoodDto) {
+        return this.warehouseService.updateGood(+id, +inventoryId, updateGoodDto);
     }
 }

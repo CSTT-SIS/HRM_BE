@@ -24,8 +24,13 @@ export class ImportGoodDto {
     @IsString({ message: 'Ghi chú phải là chuỗi' })
     note?: string;
 
-    @ApiProperty()
+    @ApiProperty({ type: 'string', format: 'timestamp', example: '2021-01-01 00:00:00' })
     @IsOptional()
     @Matches(/^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})$/, { message: 'Ngày hết hạn dự kiến không đúng định dạng YYYY-MM-DD HH:mm:ss' })
-    expiredDate: Date;
+    expiredDate: string;
+
+    @ApiProperty({ example: 1 })
+    @IsOptional()
+    @IsNumber({}, { message: 'Số ngày cảnh báo phải là số' })
+    notifyBefore: number;
 }

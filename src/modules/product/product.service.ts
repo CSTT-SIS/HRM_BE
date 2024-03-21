@@ -62,6 +62,8 @@ export class ProductService {
         builder.leftJoinAndSelect('product.unit', 'unit');
         builder.leftJoinAndSelect('product.media', 'media');
         builder.leftJoinAndSelect('product.quantityLimit', 'limit');
+        builder.leftJoinAndSelect('product.inventories', 'inventories');
+        builder.leftJoinAndSelect('inventories.warehouse', 'warehouse');
         builder.select([
             'product',
             'category.id',
@@ -72,6 +74,11 @@ export class ProductService {
             'unit.name',
             'limit.minQuantity',
             'limit.maxQuantity',
+            'inventories.quantity',
+            'inventories.errorQuantity',
+            'inventories.expiredAt',
+            'warehouse.id',
+            'warehouse.name',
         ]);
         return builder.getOne();
     }
@@ -111,6 +118,16 @@ export class ProductService {
         }
 
         return this.database.product.update(id, { barcode });
+    }
+
+    async getQuantity(id: number, warehouseId: number) {
+        const inventory = await this.database.inventory.find({ where: { productId: id } });
+        if (warehouseId) {
+            const warehouseInventory = inventory.find((i) => i.warehouseId === warehouseId);
+            return warehouseInventory?.quantity || 0;
+        }
+
+        return inventory.reduce((acc, cur) => acc + cur.quantity, 0);
     }
 
     private async updateLimit(id: number, data: UpdateProductLimitDto) {

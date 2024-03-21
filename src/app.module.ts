@@ -59,6 +59,8 @@ import { ShiftModule } from '~/modules/shift/shift.module';
 import { UserShiftModule } from '~/modules/user-shift/user-shift.module';
 import { AssetModule } from '~/modules/asset/asset.module';
 import { ApprovalManagementModule } from '~/modules/approval-management/approval-management.module';
+import { VehicleModule } from '~/modules/vehicle/vehicle.module';
+import { CronjobModule } from '~/modules/cronjob/cronjob.module';
 
 @Module({
     imports: [
@@ -121,6 +123,8 @@ import { ApprovalManagementModule } from '~/modules/approval-management/approval
         UserShiftModule,
         AssetModule,
         ApprovalManagementModule,
+        VehicleModule,
+        CronjobModule,
     ],
     controllers: [AppController],
     providers: [
