@@ -45,8 +45,9 @@ export class DropdownController {
     @ApiQuery({ type: FilterDto })
     @ApiQuery({ name: 'type', enum: PROPOSAL_TYPE, required: false })
     @ApiQuery({ name: 'status', enum: PROPOSAL_STATUS, required: false, isArray: true })
-    proposal(@Query() queries, @Query('type') type: string, @Query('status') status: string) {
-        return this.dropdownService.proposal({ ...queries, type, status });
+    @ApiQuery({ name: 'isCreatedBill', required: false, type: Boolean })
+    proposal(@Query() queries, @Query('type') type: string, @Query('status') status: string, @Query('isCreatedBill') isCreatedBill: boolean) {
+        return this.dropdownService.proposal({ ...queries, type, status, isCreatedBill });
     }
 
     @Permission('proposal:findAll')

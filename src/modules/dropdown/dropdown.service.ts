@@ -53,14 +53,21 @@ export class DropdownService {
         });
     }
 
-    proposal(queries: FilterDto & { type: PROPOSAL_TYPE; status: PROPOSAL_STATUS }) {
+    async proposal(queries: FilterDto & { type: PROPOSAL_TYPE; status: PROPOSAL_STATUS; isCreatedBill: boolean }) {
+        // get order has not created warehousing bill
+        const ids = queries.isCreatedBill
+            ? (await this.database.warehousingBill.createQueryBuilder().select('proposal_id').getRawMany())
+                  .map((item) => item.proposal_id)
+                  .filter((item) => item)
+            : [];
+
         return this.getDropdown({
             entity: 'proposal',
             queries,
             label: 'name',
             value: 'id',
             fulltext: true,
-            andWhere: this.utilService.getConditionsFromQuery(queries, ['type', 'status']),
+            andWhere: { ...this.utilService.getConditionsFromQuery(queries, ['type', 'status']), id: Not(In(ids)) },
         });
     }
 
