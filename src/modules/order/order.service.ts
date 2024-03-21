@@ -153,14 +153,14 @@ export class OrderService {
     }
 
     async addItem(id: number, item: CreateOrderItemDto) {
-        await this.isStatusValid({ id, statuses: [ORDER_STATUS.PENDING] });
+        await this.isStatusValid({ id, statuses: [ORDER_STATUS.PENDING, ORDER_STATUS.HEAD_REJECTED, ORDER_STATUS.MANAGER_REJECTED] });
         // check if the product have been added to the proposal
         // await this.isProductAddedToProposal(id, item.productId);
         return this.database.orderItem.upsert(this.database.orderItem.create({ ...item, orderId: id }), ['orderId', 'productId']);
     }
 
     async addItems(id: number, items: CreateOrderItemsDto) {
-        await this.isStatusValid({ id, statuses: [ORDER_STATUS.PENDING] });
+        await this.isStatusValid({ id, statuses: [ORDER_STATUS.PENDING, ORDER_STATUS.HEAD_REJECTED, ORDER_STATUS.MANAGER_REJECTED] });
         await this.validateOrderItems(items);
         // check if the product have been added to the proposal
         // await this.isProductAddedToProposal(id, item.productId);
@@ -183,14 +183,14 @@ export class OrderService {
     }
 
     async updateItem(id: number, itemId: number, item: UpdateOrderItemDto) {
-        await this.isStatusValid({ id, statuses: [ORDER_STATUS.PENDING] });
+        await this.isStatusValid({ id, statuses: [ORDER_STATUS.PENDING, ORDER_STATUS.HEAD_REJECTED, ORDER_STATUS.MANAGER_REJECTED] });
         // check if the product have been added to the proposal
         // await this.isProductAddedToProposal(id, item.productId);
         return this.database.orderItem.update({ id: itemId, orderId: id }, item);
     }
 
     async removeItem(id: number, itemId: number) {
-        await this.isStatusValid({ id, statuses: [ORDER_STATUS.PENDING] });
+        await this.isStatusValid({ id, statuses: [ORDER_STATUS.PENDING, ORDER_STATUS.HEAD_REJECTED, ORDER_STATUS.MANAGER_REJECTED] });
         return this.database.orderItem.delete({ id: itemId, orderId: id });
     }
 

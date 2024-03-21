@@ -272,7 +272,10 @@ export class ProposalService {
     }
 
     async addDetail(id: number, detail: CreateProposalDetailDto) {
-        const proposal = await this.isProposalStatusValid({ id, statuses: [PROPOSAL_STATUS.DRAFT] });
+        const proposal = await this.isProposalStatusValid({
+            id,
+            statuses: [PROPOSAL_STATUS.DRAFT, PROPOSAL_STATUS.PENDING, PROPOSAL_STATUS.HEAD_REJECTED],
+        });
         // if (proposal.type === PROPOSAL_TYPE.PURCHASE && (detail.price === null || detail.price === undefined)) {
         //     throw new HttpException('Giá sản phẩm không được để trống', 400);
         // }
@@ -281,7 +284,10 @@ export class ProposalService {
     }
 
     async addDetails(id: number, dto: CreateProposalDetailsDto) {
-        const proposal = await this.isProposalStatusValid({ id, statuses: [PROPOSAL_STATUS.DRAFT] });
+        const proposal = await this.isProposalStatusValid({
+            id,
+            statuses: [PROPOSAL_STATUS.DRAFT, PROPOSAL_STATUS.PENDING, PROPOSAL_STATUS.HEAD_REJECTED],
+        });
         // if (proposal.type === PROPOSAL_TYPE.PURCHASE) {
         //     for (const detail of dto.details) {
         //         if (detail.price === null || detail.price === undefined) {
@@ -294,7 +300,10 @@ export class ProposalService {
     }
 
     async updateDetail(id: number, detailId: number, detail: UpdateProposalDetailDto) {
-        const proposal = await this.isProposalStatusValid({ id, statuses: [PROPOSAL_STATUS.DRAFT] });
+        const proposal = await this.isProposalStatusValid({
+            id,
+            statuses: [PROPOSAL_STATUS.DRAFT, PROPOSAL_STATUS.PENDING, PROPOSAL_STATUS.HEAD_REJECTED],
+        });
         // if (proposal.type === PROPOSAL_TYPE.PURCHASE && (detail.price === null || detail.price === undefined)) {
         //     throw new HttpException('Giá sản phẩm không được để trống', 400);
         // }
@@ -303,7 +312,7 @@ export class ProposalService {
     }
 
     async removeDetail(id: number, detailId: number) {
-        await this.isProposalStatusValid({ id, statuses: [PROPOSAL_STATUS.DRAFT] });
+        await this.isProposalStatusValid({ id, statuses: [PROPOSAL_STATUS.DRAFT, PROPOSAL_STATUS.PENDING, PROPOSAL_STATUS.HEAD_REJECTED] });
         await this.database.proposalDetail.delete({ id: detailId, proposalId: id });
         return { message: 'Đã xóa chi tiết', data: { id } };
     }
