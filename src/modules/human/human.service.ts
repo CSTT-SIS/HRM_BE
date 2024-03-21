@@ -8,10 +8,10 @@ import { HUMAN_DASHBOARD_TYPE } from '~/common/enums/enum';
 
 @Injectable()
 export class HumanService {
-    constructor(private readonly utilService: UtilService, private readonly database: DatabaseService) {}
+    constructor(private readonly utilService: UtilService, private readonly database: DatabaseService) { }
 
-    create(createHumanDto: CreateHumanDto, userId: number) {
-        return this.database.user.save(this.database.user.create({ ...createHumanDto, createdBy: userId }));
+    create(createHumanDto: CreateHumanDto, avatar: Express.Multer.File, userId: number) {
+        return this.database.user.save(this.database.user.create({ ...createHumanDto, avatar: avatar.filename, createdBy: userId }));
     }
 
     async findAll(queries: FilterDto) {
@@ -40,8 +40,9 @@ export class HumanService {
         return builder.getOne();
     }
 
-    update(id: number, updateHumanDto: UpdateHumanDto, userId: number) {
-        return this.database.user.update(id, { ...updateHumanDto, updatedBy: userId });
+    async update(id: number, updateHumanDto: UpdateHumanDto, avatar: Express.Multer.File, userId: number) {
+        const human = await this.database.user.findOneBy({ id });
+        return await this.database.user.update(id, { ...updateHumanDto, avatar: avatar ? avatar.filename : human.avatar, updatedBy: userId });
     }
 
     remove(id: number) {
