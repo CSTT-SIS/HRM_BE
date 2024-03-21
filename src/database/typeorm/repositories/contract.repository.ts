@@ -9,4 +9,11 @@ export class ContractRepository extends Repository<ContractEntity> {
     constructor(private dataSource: DataSource) {
         super(ContractEntity, dataSource.createEntityManager());
     }
+
+    findOneContractWithAllRelationsById = (id: number) => {
+        return this.findOne({
+            where: { id: id },
+            relations: ['user', 'position'],
+        });
+    };
 }

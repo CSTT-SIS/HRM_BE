@@ -50,10 +50,10 @@ export enum INVENTORY_HISTORY_TYPE {
 export enum PROPOSAL_STATUS {
     DRAFT = 'DRAFT',
     PENDING = 'PENDING',
-    HEAD_APPROVED = 'HEAD_APPROVED', // only for purchase proposal
-    HEAD_REJECTED = 'HEAD_REJECTED', // only for purchase proposal
-    MANAGER_APPROVED = 'MANAGER_APPROVED', // only for purchase proposal
-    MANAGER_REJECTED = 'MANAGER_REJECTED', // only for purchase proposal
+    HEAD_APPROVED = 'HEAD_APPROVED',
+    HEAD_REJECTED = 'HEAD_REJECTED',
+    // MANAGER_APPROVED = 'MANAGER_APPROVED',
+    // MANAGER_REJECTED = 'MANAGER_REJECTED',
     // APPROVED = 'APPROVED',
     // REJECTED = 'REJECTED',
     COMPLETED = 'COMPLETED',
@@ -117,10 +117,14 @@ export enum ORDER_TYPE_NAME {
 
 export enum ORDER_STATUS {
     PENDING = 'PENDING',
-    PLACED = 'PLACED',
-    SHIPPING = 'SHIPPING',
-    RECEIVED = 'RECEIVED',
-    CANCELLED = 'CANCELLED',
+    // PLACED = 'PLACED',
+    // SHIPPING = 'SHIPPING',
+    HEAD_APPROVED = 'HEAD_APPROVED',
+    HEAD_REJECTED = 'HEAD_REJECTED',
+    MANAGER_APPROVED = 'MANAGER_APPROVED',
+    MANAGER_REJECTED = 'MANAGER_REJECTED',
+    // RECEIVED = 'RECEIVED',
+    // CANCELLED = 'CANCELLED',
     COMPLETED = 'COMPLETED',
 }
 
@@ -142,6 +146,7 @@ export enum REPAIR_REQUEST_STATUS {
     HEAD_APPROVED = 'HEAD_APPROVED',
     HEAD_REJECTED = 'HEAD_REJECTED',
     EXPORTED = 'EXPORTED',
+    COMPLETED = 'COMPLETED',
 }
 
 export enum HUMAN_DASHBOARD_TYPE {
@@ -167,6 +172,11 @@ export enum CONTRACT_TYPE {
     // ----
 }
 
+export enum HOLIDAY_TYPE {
+    TET = 'TET',
+    // ----
+}
+
 export enum CONTRACT_RESULT {
     GENERAL = 1,
     // ----
@@ -178,8 +188,8 @@ export enum LEAVE_STATUS {
 }
 
 export enum SHIFT_TYPE {
-    MORNING = 1,
-    // ----
+    TIME_RANGE = 1,
+    HOUR_BASED = 0,
 }
 
 export enum RESIGNATION_STATUS {
@@ -218,7 +228,7 @@ export enum TASK_PRIORITY {
 
 export enum ASSET_STATUS {
     ACTIVE = 1,
-    // ----
+    INACTIVE = 0,
 }
 
 export enum LETTER_TYPE {

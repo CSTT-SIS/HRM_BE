@@ -19,6 +19,8 @@ export class OrderService {
     constructor(private readonly utilService: UtilService, private readonly database: DatabaseService, private eventEmitter: EventEmitter2) {}
 
     async create(createOrderDto: CreateOrderDto) {
+        // 2-level approval
+
         const { proposalIds, ...rest } = createOrderDto;
         for (const proposalId of proposalIds) {
             await this.isProposalValid(proposalId, createOrderDto.type);
@@ -38,8 +40,9 @@ export class OrderService {
         builder.andWhere(this.utilService.fullTextSearch({ fields: ['name'], keyword: queries.search }));
 
         builder.leftJoinAndSelect('entity.createdBy', 'createdBy');
+        builder.leftJoinAndSelect('createdBy.department', 'department');
         builder.leftJoinAndSelect('entity.proposals', 'proposals');
-        builder.select(['entity', 'createdBy.id', 'createdBy.fullName', 'proposals.id', 'proposals.name']);
+        builder.select(['entity', 'createdBy.id', 'createdBy.fullName', 'department.id', 'department.name', 'proposals.id', 'proposals.name']);
 
         const [result, total] = await builder.getManyAndCount();
         const totalPages = Math.ceil(total / take);
@@ -59,7 +62,9 @@ export class OrderService {
 
         builder.leftJoinAndSelect('order.proposals', 'proposals');
         builder.leftJoinAndSelect('order.createdBy', 'createdBy');
+        builder.leftJoinAndSelect('createdBy.department', 'cbDepartment');
         builder.leftJoinAndSelect('order.updatedBy', 'updatedBy');
+        builder.leftJoinAndSelect('updatedBy.department', 'ubDepartment');
         builder.leftJoinAndSelect('order.items', 'items');
         builder.leftJoinAndSelect('items.product', 'product');
         builder.select([
@@ -68,8 +73,12 @@ export class OrderService {
             'proposals.name',
             'createdBy.id',
             'createdBy.fullName',
+            'cbDepartment.id',
+            'cbDepartment.name',
             'updatedBy.id',
             'updatedBy.fullName',
+            'ubDepartment.id',
+            'ubDepartment.name',
             'items.id',
             'items.quantity',
             'items.price',
@@ -83,13 +92,13 @@ export class OrderService {
     async update(id: number, updateOrderDto: UpdateOrderDto) {
         const { proposalIds, ...rest } = updateOrderDto;
 
-        await this.isStatusValid({ id, statuses: [ORDER_STATUS.PENDING] });
+        await this.isStatusValid({ id, statuses: [ORDER_STATUS.PENDING, ORDER_STATUS.HEAD_REJECTED, ORDER_STATUS.MANAGER_REJECTED] });
         for (const proposalId of proposalIds) {
-            const proposal = await this.isProposalValid(proposalId, updateOrderDto.type);
+            const proposal = await this.isProposalValid(proposalId, updateOrderDto.type, id);
         }
 
-        const result = await this.database.order.update(id, rest);
-        if (result.affected && proposalIds.length > 0) {
+        const result = await this.database.order.update(id, { ...rest, status: ORDER_STATUS.PENDING });
+        if (result.affected && proposalIds?.length > 0) {
             await this.database.order.removeProposals(id, proposalIds);
             await this.database.order.addProposals(id, proposalIds);
 
@@ -101,7 +110,7 @@ export class OrderService {
     }
 
     async remove(id: number) {
-        await this.isStatusValid({ id, statuses: [ORDER_STATUS.PENDING, ORDER_STATUS.CANCELLED] });
+        await this.isStatusValid({ id, statuses: [ORDER_STATUS.PENDING, ORDER_STATUS.HEAD_REJECTED, ORDER_STATUS.MANAGER_REJECTED] });
         this.database.orderItem.delete({ orderId: id });
         return this.database.order.delete(id);
     }
@@ -137,10 +146,25 @@ export class OrderService {
 
     async addItems(id: number, items: CreateOrderItemsDto) {
         await this.isStatusValid({ id, statuses: [ORDER_STATUS.PENDING] });
+        await this.validateOrderItems(items);
         // check if the product have been added to the proposal
         // await this.isProductAddedToProposal(id, item.productId);
-        const entities = items.details.map((item) => this.database.orderItem.create({ ...item, orderId: id }));
-        return this.database.orderItem.upsert(entities, ['orderId', 'productId']);
+
+        // update or insert
+        const result = [];
+        for (const item of items.details) {
+            const isItemExist = await this.database.orderItem.findOne({ where: { orderId: id, productId: item.productId } });
+            if (isItemExist) {
+                isItemExist.quantity += item.quantity;
+                isItemExist.price = item.price;
+                await this.database.orderItem.update({ id: isItemExist.id }, isItemExist);
+                result.push(isItemExist);
+            } else {
+                result.push(await this.database.orderItem.save(this.database.orderItem.create({ ...item, orderId: id })));
+            }
+        }
+
+        return { result: true, message: 'Thêm sản phẩm vào đơn hàng thành công', data: result };
     }
 
     async updateItem(id: number, itemId: number, item: UpdateOrderItemDto) {
@@ -155,21 +179,69 @@ export class OrderService {
         return this.database.orderItem.delete({ id: itemId, orderId: id });
     }
 
-    async placeOrder(id: number) {
-        return this.updateStatus({ id, from: [ORDER_STATUS.PENDING], to: ORDER_STATUS.PLACED });
+    async headApprove(id: number) {
+        await this.utilService.checkApprovalPermission({
+            entity: 'order',
+            approverId: UserStorage.getId(),
+            toStatus: ORDER_STATUS.HEAD_APPROVED,
+        });
+        await this.updateStatus({ id, from: [ORDER_STATUS.PENDING], to: ORDER_STATUS.HEAD_APPROVED });
+
+        this.emitEvent('order.headApproved', { id });
+        return { message: 'Đã duyệt đơn hàng', data: { id } };
     }
 
-    async shipping(id: number) {
-        return this.updateStatus({ id, from: [ORDER_STATUS.PLACED], to: ORDER_STATUS.SHIPPING });
+    async headReject(id: number, comment: string) {
+        await this.utilService.checkApprovalPermission({
+            entity: 'order',
+            approverId: UserStorage.getId(),
+            toStatus: ORDER_STATUS.HEAD_REJECTED,
+        });
+        await this.updateStatus({ id, from: [ORDER_STATUS.PENDING], to: ORDER_STATUS.HEAD_REJECTED, comment });
+
+        this.emitEvent('order.headRejected', { id });
+        return { message: 'Đã từ chối đơn hàng', data: { id } };
     }
 
-    async receive(id: number) {
-        return this.updateStatus({ id, from: [ORDER_STATUS.SHIPPING], to: ORDER_STATUS.RECEIVED });
+    async managerApprove(id: number) {
+        await this.utilService.checkApprovalPermission({
+            entity: 'order',
+            approverId: UserStorage.getId(),
+            toStatus: ORDER_STATUS.MANAGER_APPROVED,
+        });
+        await this.updateStatus({ id, from: [ORDER_STATUS.HEAD_APPROVED], to: ORDER_STATUS.MANAGER_APPROVED });
+
+        this.emitEvent('proposal.managerApproved', { id });
+        return { message: 'Đã duyệt đơn hàng', data: { id } };
     }
 
-    async cancel(id: number) {
-        return this.updateStatus({ id, from: [ORDER_STATUS.PENDING, ORDER_STATUS.PLACED], to: ORDER_STATUS.CANCELLED });
+    async managerReject(id: number, comment: string) {
+        await this.utilService.checkApprovalPermission({
+            entity: 'order',
+            approverId: UserStorage.getId(),
+            toStatus: ORDER_STATUS.MANAGER_REJECTED,
+        });
+        await this.updateStatus({ id, from: [ORDER_STATUS.HEAD_APPROVED], to: ORDER_STATUS.MANAGER_REJECTED, comment });
+
+        this.emitEvent('proposal.managerRejected', { id });
+        return { message: 'Đã từ chối đơn hàng', data: { id } };
     }
+
+    // async placeOrder(id: number) {
+    //     return this.updateStatus({ id, from: [ORDER_STATUS.PENDING], to: ORDER_STATUS.PLACED });
+    // }
+
+    // async shipping(id: number) {
+    //     return this.updateStatus({ id, from: [ORDER_STATUS.PLACED], to: ORDER_STATUS.SHIPPING });
+    // }
+
+    // async receive(id: number) {
+    //     return this.updateStatus({ id, from: [ORDER_STATUS.MANAGER_APPROVED], to: ORDER_STATUS.RECEIVED });
+    // }
+
+    // async cancel(id: number) {
+    //     return this.updateStatus({ id, from: [ORDER_STATUS.PENDING], to: ORDER_STATUS.CANCELLED });
+    // }
 
     /**
      * The function `isProposalValid` retrieves a proposal from the database based on the provided proposal
@@ -180,16 +252,16 @@ export class OrderService {
      * representing different types of orders.
      * @returns a Promise that resolves to a ProposalEntity.
      */
-    private async isProposalValid(proposalId: number, orderType: ORDER_TYPE): Promise<ProposalEntity> {
+    private async isProposalValid(proposalId: number, orderType: ORDER_TYPE, orderId?: number): Promise<ProposalEntity> {
         // proposal with PURCHASE type, only create order when status is MANAGER_APPROVED
         const proposal = await this.database.proposal.findOne({ where: { id: proposalId } });
         if (!proposal) throw new HttpException('Phiếu yêu cầu không tồn tại', 400);
         if (proposal.type !== PROPOSAL_TYPE.PURCHASE) throw new HttpException('Phiếu yêu cầu không phải là phiếu mua hàng', 400);
-        if (proposal.status !== PROPOSAL_STATUS.MANAGER_APPROVED) throw new HttpException('Phiếu yêu cầu chưa được ban lãnh đạo duyệt', 400);
+        if (proposal.status !== PROPOSAL_STATUS.HEAD_APPROVED) throw new HttpException('Phiếu yêu cầu chưa được duyệt', 400);
         if (orderType !== ORDER_TYPE.PURCHASE && proposal.type !== PROPOSAL_TYPE.PURCHASE)
             throw new HttpException('Loại đơn hàng không phải là đơn hàng mua hàng', 400);
 
-        const check = await this.database.order.isProposalAdded(proposalId);
+        const check = await this.database.order.isProposalAdded(proposalId, orderId);
         if (check) throw new HttpException('Phiếu yêu cầu đã được thêm vào một đơn hàng khác', 400);
 
         return proposal;
@@ -262,11 +334,11 @@ export class OrderService {
      * @param data - The `data` parameter is an object that contains the following properties:
      * @returns the result of the update operation.
      */
-    private async updateStatus(data: { id: number; from: ORDER_STATUS[]; to: ORDER_STATUS }) {
+    private async updateStatus(data: { id: number; from: ORDER_STATUS[]; to: ORDER_STATUS; comment?: string }) {
         await this.isStatusValid({ id: data.id, statuses: data.from });
         this.database.orderProgressTracking.save({ orderId: data.id, status: data.to, trackingDate: new Date() });
         this.emitEventByStatus(data.to, { id: data.id });
-        return this.database.order.update(data.id, { status: data.to });
+        return this.database.order.update(data.id, { status: data.to, comment: data.comment });
     }
 
     /**
@@ -282,18 +354,18 @@ export class OrderService {
 
     private emitEventByStatus(status: ORDER_STATUS, data: { id: number }) {
         switch (status) {
-            case ORDER_STATUS.PLACED:
-                this.emitEvent('order.placed', data);
-                break;
-            case ORDER_STATUS.SHIPPING:
-                this.emitEvent('order.shipping', data);
-                break;
-            case ORDER_STATUS.RECEIVED:
-                this.emitEvent('order.received', data);
-                break;
-            case ORDER_STATUS.CANCELLED:
-                this.emitEvent('order.cancelled', data);
-                break;
+            // case ORDER_STATUS.PLACED:
+            //     this.emitEvent('order.placed', data);
+            //     break;
+            // case ORDER_STATUS.SHIPPING:
+            //     this.emitEvent('order.shipping', data);
+            //     break;
+            // case ORDER_STATUS.RECEIVED:
+            //     this.emitEvent('order.received', data);
+            //     break;
+            // case ORDER_STATUS.CANCELLED:
+            //     this.emitEvent('order.cancelled', data);
+            //     break;
             default:
                 break;
         }
@@ -304,5 +376,18 @@ export class OrderService {
         eventObj.id = data.id;
         eventObj.senderId = UserStorage.getId();
         this.eventEmitter.emit(event, eventObj);
+    }
+
+    private async validateOrderItems(items: CreateOrderItemsDto) {
+        for (const item of items.details) {
+            if (!item.productId) throw new HttpException('Sản phẩm không tồn tại', 400);
+            if (!item.quantity) throw new HttpException('Số lượng phải lớn hơn 0', 400);
+            if (isNaN(Number(item.quantity))) throw new HttpException('Số lượng phải là số', 400);
+            if (isNaN(Number(item.price))) throw new HttpException('Giá phải là số', 400);
+            // if (item.price <= 0) throw new HttpException('Giá phải lớn hơn 0', 400);
+
+            const isProductExist = await this.database.product.findOne({ where: { id: item.productId } });
+            if (!isProductExist) throw new HttpException('Sản phẩm không tồn tại', 400);
+        }
     }
 }

@@ -5,7 +5,7 @@ import { FilterDto } from '~/common/dtos/filter.dto';
 import { INVENTORY_HISTORY_TYPE, STOCKTAKE_STATUS } from '~/common/enums/enum';
 import { UserStorage } from '~/common/storages/user.storage';
 import { DatabaseService } from '~/database/typeorm/database.service';
-import { CreateStocktakeDetailDto } from '~/modules/stocktake/dto/create-stocktake-detail.dto';
+import { CreateStocktakeDetailDto, CreateStocktakeDetailsDto } from '~/modules/stocktake/dto/create-stocktake-detail.dto';
 import { TallyStocktakeDetailDto } from '~/modules/stocktake/dto/tally-stocktake-detail.dto';
 import { UpdateStocktakeDetailDto } from '~/modules/stocktake/dto/update-stocktake-detail.dto';
 import { StocktakeEvent } from '~/modules/stocktake/events/stocktake.event';
@@ -18,6 +18,7 @@ export class StocktakeService {
     constructor(private readonly utilService: UtilService, private readonly database: DatabaseService, private eventEmitter: EventEmitter2) {}
 
     async create(createStocktakeDto: CreateStocktakeDto) {
+        // has possible to add multiple warehouses
         const { participants, ...rest } = createStocktakeDto;
         await this.utilService.checkRelationIdExist({ user: { id: In(participants), errorMessage: 'Người tham gia không tồn tại' } });
         const entity = await this.database.stocktake.save(
@@ -38,17 +39,26 @@ export class StocktakeService {
             builder.andWhere(this.utilService.rawQuerySearch({ fields: ['name'], keyword: queries.search }));
 
         builder.leftJoinAndSelect('entity.createdBy', 'createdBy');
+        builder.leftJoinAndSelect('createdBy.department', 'cbDepartment');
         builder.leftJoinAndSelect('entity.updatedBy', 'updatedBy');
+        builder.leftJoinAndSelect('updatedBy.department', 'ubDepartment');
         builder.leftJoinAndSelect('entity.participants', 'participants');
+        builder.leftJoinAndSelect('participants.department', 'pDepartment');
         builder.leftJoinAndSelect('entity.warehouse', 'warehouse');
         builder.select([
             'entity',
             'createdBy.id',
             'createdBy.fullName',
+            'cbDepartment.id',
+            'cbDepartment.name',
             'updatedBy.id',
             'updatedBy.fullName',
+            'ubDepartment.id',
+            'ubDepartment.name',
             'participants.id',
             'participants.fullName',
+            'pDepartment.id',
+            'pDepartment.name',
             'warehouse.id',
             'warehouse.name',
         ]);
@@ -69,8 +79,11 @@ export class StocktakeService {
         const builder = this.database.stocktake.createQueryBuilder('entity');
         builder.where('entity.id = :id', { id });
         builder.leftJoinAndSelect('entity.createdBy', 'createdBy');
+        builder.leftJoinAndSelect('createdBy.department', 'cbDepartment');
         builder.leftJoinAndSelect('entity.updatedBy', 'updatedBy');
+        builder.leftJoinAndSelect('updatedBy.department', 'ubDepartment');
         builder.leftJoinAndSelect('entity.participants', 'participants');
+        builder.leftJoinAndSelect('participants.department', 'pDepartment');
         builder.leftJoinAndSelect('entity.warehouse', 'warehouse');
         builder.leftJoinAndSelect('entity.details', 'details');
         builder.leftJoinAndSelect('details.product', 'product');
@@ -79,9 +92,15 @@ export class StocktakeService {
             'entity',
             'createdBy.id',
             'createdBy.fullName',
+            'cbDepartment.id',
+            'cbDepartment.name',
             'updatedBy.id',
             'updatedBy.fullName',
+            'ubDepartment.id',
+            'ubDepartment.name',
             'participants',
+            'pDepartment.id',
+            'pDepartment.name',
             'warehouse.id',
             'warehouse.name',
             'details.id',
@@ -168,23 +187,50 @@ export class StocktakeService {
         if (!entity) throw new HttpException('Phiếu kiểm kê không tồn tại hoặc không ở trạng thái nháp', 400);
         const count = await this.database.stocktakeDetail.countBy({ stocktakeId: id, productId: createStocktakeDetailDto.productId });
         if (count) throw new HttpException('Sản phẩm đã tồn tại trong phiếu kiểm kê', 400);
-
         const product = await this.database.inventory.getOpeningQuantity(
             entity.warehouseId,
             createStocktakeDetailDto.productId,
             entity.startDate,
             entity.endDate,
         );
-        if (!product) throw new HttpException('Sản phẩm không tồn tại trong kho', 400);
 
         return this.database.stocktakeDetail.save(
             this.database.stocktakeDetail.create({
                 ...createStocktakeDetailDto,
                 stocktakeId: id,
-                openingQuantity: product.opening || product.current,
+                openingQuantity: createStocktakeDetailDto.openingQuantity || product.opening || product.current,
                 createdById: UserStorage.getId(),
             }),
         );
+    }
+
+    async addDetails(id: number, createStocktakeDetailsDto: CreateStocktakeDetailsDto) {
+        const entity = await this.database.stocktake.findOne({ where: { id, status: STOCKTAKE_STATUS.DRAFT } });
+        if (!entity) throw new HttpException('Phiếu kiểm kê không tồn tại hoặc không ở trạng thái nháp', 400);
+
+        const results = [];
+        for (const detail of createStocktakeDetailsDto.details) {
+            if (!detail.productId) throw new HttpException('Mã sản phẩm không được để trống', 400);
+            const isProductExist = await this.database.product.findOne({ where: { id: detail.productId } });
+            if (!isProductExist) throw new HttpException('Mã sản phẩm không tồn tại', 400);
+
+            const count = await this.database.stocktakeDetail.countBy({ stocktakeId: id, productId: detail.productId });
+            if (count) throw new HttpException('Sản phẩm đã tồn tại trong phiếu kiểm kê', 400);
+
+            const product = await this.database.inventory.getOpeningQuantity(entity.warehouseId, detail.productId, entity.startDate, entity.endDate);
+            results.push(
+                await this.database.stocktakeDetail.save(
+                    this.database.stocktakeDetail.create({
+                        ...detail,
+                        stocktakeId: id,
+                        openingQuantity: detail.openingQuantity || product.opening || product.current,
+                        createdById: UserStorage.getId(),
+                    }),
+                ),
+            );
+        }
+
+        return results;
     }
 
     async updateDetail(id: number, detailId: number, updateStocktakeDetailDto: UpdateStocktakeDetailDto) {
@@ -196,11 +242,10 @@ export class StocktakeService {
             entity.startDate,
             entity.endDate,
         );
-        if (!product) throw new HttpException('Sản phẩm không tồn tại trong kho', 400);
 
         return this.database.stocktakeDetail.update(detailId, {
             ...updateStocktakeDetailDto,
-            openingQuantity: product.opening || product.current,
+            openingQuantity: updateStocktakeDetailDto.openingQuantity || product.opening || product.current,
             updatedById: UserStorage.getId(),
         });
     }

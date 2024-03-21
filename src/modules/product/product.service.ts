@@ -12,19 +12,36 @@ export class ProductService {
     constructor(private readonly database: DatabaseService, private readonly utilService: UtilService) {}
 
     async create(createProductDto: CreateProductDto) {
-        return this.database.product.save(this.database.product.create(createProductDto));
+        const { minQuantity, maxQuantity, ...rest } = createProductDto;
+        const product = await this.database.product.save(this.database.product.create(rest));
+        if ((minQuantity >= 0 || maxQuantity >= 0) && product.id) {
+            await this.updateLimit(product.id, { minQuantity, maxQuantity });
+        }
+
+        return product;
     }
 
     async findAll(queries: FilterDto & { categoryId: number }) {
         const { builder, take, pagination } = this.utilService.getQueryBuilderAndPagination(this.database.product, queries);
 
         builder.andWhere(this.utilService.relationQuerySearch({ categoryId: queries.categoryId }));
-        builder.andWhere(this.utilService.fullTextSearch({ fields: ['name', 'code'], keyword: queries.search }));
+        builder.andWhere(this.utilService.fullTextSearch({ fields: ['name', 'code', 'barcode'], keyword: queries.search }));
 
         builder.leftJoinAndSelect('entity.category', 'category');
         builder.leftJoinAndSelect('entity.unit', 'unit');
         builder.leftJoinAndSelect('entity.media', 'media');
-        builder.select(['entity', 'category.id', 'category.name', 'media.id', 'media.path', 'unit.id', 'unit.name']);
+        builder.leftJoinAndSelect('entity.quantityLimit', 'limit');
+        builder.select([
+            'entity',
+            'category.id',
+            'category.name',
+            'media.id',
+            'media.path',
+            'unit.id',
+            'unit.name',
+            'limit.minQuantity',
+            'limit.maxQuantity',
+        ]);
 
         const [result, total] = await builder.getManyAndCount();
         const totalPages = Math.ceil(total / take);
@@ -44,12 +61,27 @@ export class ProductService {
         builder.leftJoinAndSelect('product.category', 'category');
         builder.leftJoinAndSelect('product.unit', 'unit');
         builder.leftJoinAndSelect('product.media', 'media');
-        builder.select(['product', 'category.id', 'category.name', 'media.id', 'media.path', 'unit.id', 'unit.name']);
+        builder.leftJoinAndSelect('product.quantityLimit', 'limit');
+        builder.select([
+            'product',
+            'category.id',
+            'category.name',
+            'media.id',
+            'media.path',
+            'unit.id',
+            'unit.name',
+            'limit.minQuantity',
+            'limit.maxQuantity',
+        ]);
         return builder.getOne();
     }
 
     async update(id: number, updateProductDto: UpdateProductDto) {
-        return this.database.product.update(id, updateProductDto);
+        const { minQuantity, maxQuantity, ...rest } = updateProductDto;
+        if ((minQuantity >= 0 || maxQuantity >= 0) && id) {
+            await this.updateLimit(id, { minQuantity, maxQuantity });
+        }
+        return this.database.product.update(id, rest);
     }
 
     async remove(id: number) {
@@ -72,7 +104,16 @@ export class ProductService {
         return this.database.product.delete(id);
     }
 
-    async updateLimit(id: number, data: UpdateProductLimitDto) {
+    async createBarcode(id: number, barcode: string) {
+        const product = await this.database.product.findOneBy({ id });
+        if (!product) {
+            throw new HttpException('Sản phẩm không tồn tại', 404);
+        }
+
+        return this.database.product.update(id, { barcode });
+    }
+
+    private async updateLimit(id: number, data: UpdateProductLimitDto) {
         const limit = await this.database.quantityLimit.findOne({ where: { productId: id } });
         if (limit) {
             return this.database.quantityLimit.update(limit.id, { updatedById: UserStorage.getId(), ...data });

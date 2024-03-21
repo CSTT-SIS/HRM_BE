@@ -20,7 +20,7 @@ export class RepairRequestService {
     async create(createRepairRequestDto: CreateRepairRequestDto) {
         // with this request, need 1-level approval
         // can only create warehousing bill if status is HEAD_APPROVED
-        const { vehicleRegistrationNumber, ...rest } = createRepairRequestDto;
+        const { vehicleRegistrationNumber, imageIds, ...rest } = createRepairRequestDto;
         const registrationNumber = vehicleRegistrationNumber.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
         const vehicle = await this.database.vehicle.findOrCreate(registrationNumber);
         const entity = await this.database.repairRequest.save(
@@ -40,6 +40,7 @@ export class RepairRequestService {
                 trackingDate: entity.createdAt,
             }),
         );
+        this.database.repairRequest.addImages(entity.id, imageIds);
 
         // notify to garage or head of department
         this.emitEvent('repairRequest.created', { id: entity.id });
@@ -54,8 +55,29 @@ export class RepairRequestService {
         builder.andWhere(this.utilService.rawQuerySearch({ fields: ['name', 'vehicle.registrationNumber'], keyword: queries.search }));
 
         builder.leftJoinAndSelect('entity.vehicle', 'vehicle');
+        builder.leftJoinAndSelect('vehicle.user', 'vehicleUser');
+        builder.leftJoinAndSelect('vehicleUser.department', 'vuDepartment');
         builder.leftJoinAndSelect('entity.repairBy', 'repairBy');
-        builder.select(['entity', 'vehicle.id', 'vehicle.registrationNumber', 'repairBy.id', 'repairBy.fullName']);
+        builder.leftJoinAndSelect('repairBy.department', 'rbDepartment');
+        builder.leftJoinAndSelect('entity.createdBy', 'createdBy');
+        builder.leftJoinAndSelect('createdBy.department', 'cbDepartment');
+        builder.select([
+            'entity',
+            'vehicle.id',
+            'vehicle.registrationNumber',
+            'vehicleUser.id',
+            'vehicleUser.fullName',
+            'vuDepartment.id',
+            'vuDepartment.name',
+            'repairBy.id',
+            'repairBy.fullName',
+            'rbDepartment.id',
+            'rbDepartment.name',
+            'createdBy.id',
+            'createdBy.fullName',
+            'cbDepartment.id',
+            'cbDepartment.name',
+        ]);
 
         const [result, total] = await builder.getManyAndCount();
         const totalPages = Math.ceil(total / take);
@@ -72,24 +94,39 @@ export class RepairRequestService {
     findOne(id: number) {
         const builder = this.database.repairRequest.createQueryBuilder('entity');
         builder.leftJoinAndSelect('entity.vehicle', 'vehicle');
-        builder.leftJoinAndSelect('entity.repairBy', 'repairBy');
+        builder.leftJoinAndSelect('vehicle.user', 'vehicleUser');
+        builder.leftJoinAndSelect('vehicleUser.department', 'vuDepartment');
         builder.leftJoinAndSelect('entity.details', 'details');
         builder.leftJoinAndSelect('details.replacementPart', 'replacementPart');
         builder.leftJoinAndSelect('entity.progresses', 'progresses');
         builder.leftJoinAndSelect('progresses.repairBy', 'progressRepairBy');
+        builder.leftJoinAndSelect('entity.repairBy', 'repairBy');
+        builder.leftJoinAndSelect('repairBy.department', 'rbDepartment');
+        builder.leftJoinAndSelect('entity.createdBy', 'createdBy');
+        builder.leftJoinAndSelect('createdBy.department', 'cbDepartment');
 
         builder.select([
             'entity',
             'vehicle.id',
             'vehicle.registrationNumber',
-            'repairBy.id',
-            'repairBy.fullName',
+            'vehicleUser.id',
+            'vehicleUser.fullName',
+            'vuDepartment.id',
+            'vuDepartment.name',
             'details',
             'replacementPart.id',
             'replacementPart.name',
             'progresses',
             'progressRepairBy.id',
             'progressRepairBy.fullName',
+            'repairBy.id',
+            'repairBy.fullName',
+            'rbDepartment.id',
+            'rbDepartment.name',
+            'createdBy.id',
+            'createdBy.fullName',
+            'cbDepartment.id',
+            'cbDepartment.name',
         ]);
 
         builder.where({ id });
@@ -97,28 +134,44 @@ export class RepairRequestService {
     }
 
     async update(id: number, updateRepairRequestDto: UpdateRepairRequestDto) {
-        await this.isStatusValid({ id, statuses: [REPAIR_REQUEST_STATUS.IN_PROGRESS] });
+        await this.isStatusValid({
+            id,
+            statuses: [REPAIR_REQUEST_STATUS.IN_PROGRESS, REPAIR_REQUEST_STATUS.GARAGE_RECEIVED, REPAIR_REQUEST_STATUS.HEAD_REJECTED],
+        });
         // TODO: check if warehousing bill was created by this repair request; if yes, throw error
 
-        const { vehicleRegistrationNumber, ...rest } = updateRepairRequestDto;
+        const { vehicleRegistrationNumber, imageIds, ...rest } = updateRepairRequestDto;
         const addUpdate = {};
         if (vehicleRegistrationNumber) {
             const registrationNumber = vehicleRegistrationNumber.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
             const vehicle = await this.database.vehicle.findOrCreate(registrationNumber);
             addUpdate['vehicleId'] = vehicle.id;
         }
-        return this.database.repairRequest.update(id, { ...rest, ...addUpdate });
+
+        if (!this.utilService.isEmpty(imageIds)) {
+            await this.database.repairRequest.removeAllImages(id);
+            this.database.repairRequest.addImages(id, imageIds);
+        }
+
+        return this.database.repairRequest.update(id, { ...rest, ...addUpdate, status: REPAIR_REQUEST_STATUS.IN_PROGRESS });
     }
 
     async remove(id: number) {
         await this.isStatusValid({ id, statuses: [REPAIR_REQUEST_STATUS.IN_PROGRESS, REPAIR_REQUEST_STATUS.HEAD_REJECTED] });
         this.database.repairDetail.delete({ repairRequestId: id });
+        this.database.repairRequest.removeAllImages(id);
         this.database.repairProgress.delete({ repairRequestId: id });
         return this.database.repairRequest.delete(id);
     }
 
     async headApprove(id: number) {
         await this.isStatusValid({ id, statuses: [REPAIR_REQUEST_STATUS.IN_PROGRESS, REPAIR_REQUEST_STATUS.GARAGE_RECEIVED] });
+        await this.utilService.checkApprovalPermission({
+            entity: 'repairRequest',
+            approverId: UserStorage.getId(),
+            toStatus: REPAIR_REQUEST_STATUS.HEAD_APPROVED,
+        });
+
         const entity = await this.database.repairRequest.findOneBy({ id });
         if (!entity) throw new HttpException('Không tìm thấy phiếu sửa chữa', 404);
 
@@ -138,6 +191,12 @@ export class RepairRequestService {
 
     async headReject(id: number, comment: string) {
         await this.isStatusValid({ id, statuses: [REPAIR_REQUEST_STATUS.IN_PROGRESS, REPAIR_REQUEST_STATUS.GARAGE_RECEIVED] });
+        await this.utilService.checkApprovalPermission({
+            entity: 'repairRequest',
+            approverId: UserStorage.getId(),
+            toStatus: REPAIR_REQUEST_STATUS.HEAD_REJECTED,
+        });
+
         const entity = await this.database.repairRequest.findOneBy({ id });
         if (!entity) throw new HttpException('Không tìm thấy phiếu sửa chữa', 404);
 

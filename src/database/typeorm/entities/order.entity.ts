@@ -52,6 +52,12 @@ export class OrderEntity extends AbstractEntity {
     @Column({ name: 'updated_by_id', type: 'int', unsigned: true, nullable: true })
     updatedById: number;
 
+    @Column({ name: 'note', type: 'text', nullable: true, default: null })
+    note: string;
+
+    @Column({ name: 'comment', type: 'text', nullable: true, default: null })
+    comment: string;
+
     /* RELATIONS */
     @ManyToMany(() => ProposalEntity, { createForeignKeyConstraints: false })
     @JoinTable({

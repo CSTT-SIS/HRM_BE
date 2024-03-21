@@ -54,6 +54,11 @@ import { TaskModule } from '~/modules/task/task.module';
 import { FreeTimekeepingModule } from '~/modules/free-timekeeping/free-timekeeping.module';
 import { PositionModule } from '~/modules/position/position.module';
 import { ContractModule } from '~/modules/contract/contract.module';
+import { HolidayModule } from '~/modules/holiday/holiday.module';
+import { ShiftModule } from '~/modules/shift/shift.module';
+import { UserShiftModule } from '~/modules/user-shift/user-shift.module';
+import { AssetModule } from '~/modules/asset/asset.module';
+import { ApprovalManagementModule } from '~/modules/approval-management/approval-management.module';
 
 @Module({
     imports: [
@@ -111,6 +116,11 @@ import { ContractModule } from '~/modules/contract/contract.module';
         FreeTimekeepingModule,
         PositionModule,
         ContractModule,
+        HolidayModule,
+        ShiftModule,
+        UserShiftModule,
+        AssetModule,
+        ApprovalManagementModule,
     ],
     controllers: [AppController],
     providers: [

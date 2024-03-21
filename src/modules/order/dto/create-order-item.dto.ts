@@ -18,7 +18,6 @@ export class CreateOrderItemDto {
     @ApiProperty({ type: 'number' })
     @IsOptional()
     @IsNumber({}, { message: 'Giá sản phẩm phải là số' })
-    @Min(0, { message: 'Đơn giá phải lớn hơn hoặc bằng 0' })
     @Max(9999999999, { message: 'Giá sản phẩm không được lớn hơn 9,999,999,999' })
     price: number;
 }

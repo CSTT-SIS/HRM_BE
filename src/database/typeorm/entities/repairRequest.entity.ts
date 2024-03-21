@@ -1,5 +1,6 @@
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, Relation } from 'typeorm';
+import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn, Relation } from 'typeorm';
 import { REPAIR_REQUEST_STATUS } from '~/common/enums/enum';
+import { MediaEntity } from '~/database/typeorm/entities/media.entity';
 import { RepairDetailEntity } from '~/database/typeorm/entities/repairDetail.entity';
 import { RepairProgressEntity } from '~/database/typeorm/entities/repairProgress.entity';
 import { UserEntity } from '~/database/typeorm/entities/user.entity';
@@ -38,6 +39,9 @@ export class RepairRequestEntity extends AbstractEntity {
     @Column({ name: 'created_by_id', type: 'int', unsigned: true, nullable: true })
     createdById: number;
 
+    @Column({ name: 'customer_name', type: 'varchar', length: 255, nullable: true })
+    customerName: string;
+
     /* RELATIONS */
     @ManyToOne(() => VehicleEntity, { createForeignKeyConstraints: false })
     @JoinColumn({ name: 'vehicle_id', referencedColumnName: 'id' })
@@ -56,4 +60,12 @@ export class RepairRequestEntity extends AbstractEntity {
     @ManyToOne(() => UserEntity, { createForeignKeyConstraints: false })
     @JoinColumn({ name: 'created_by_id', referencedColumnName: 'id' })
     createdBy: Relation<UserEntity>;
+
+    @ManyToMany(() => MediaEntity, { createForeignKeyConstraints: false })
+    @JoinTable({
+        name: 'repair_requests_images',
+        joinColumn: { name: 'repair_request_id', referencedColumnName: 'id' },
+        inverseJoinColumn: { name: 'image_id', referencedColumnName: 'id' },
+    })
+    images: Relation<MediaEntity>[];
 }

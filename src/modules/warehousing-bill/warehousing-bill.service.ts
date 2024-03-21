@@ -30,6 +30,7 @@ export class WarehousingBillService {
         const entity = await this.database.warehousingBill.save(
             this.database.warehousingBill.create({
                 ...createWarehousingBillDto,
+                name: createWarehousingBillDto.name || `${createWarehousingBillDto.type}-${moment().format('YYYYMMDD:HHmmss')}`,
                 createdById: UserStorage.getId(),
                 code: `${createWarehousingBillDto.type}-${moment().unix()}`,
             }),
@@ -61,7 +62,9 @@ export class WarehousingBillService {
         builder.leftJoinAndSelect('entity.order', 'order');
         builder.leftJoinAndSelect('entity.warehouse', 'warehouse');
         builder.leftJoinAndSelect('entity.createdBy', 'createdBy');
+        builder.leftJoinAndSelect('createdBy.department', 'cbDepartment');
         builder.leftJoinAndSelect('entity.updatedBy', 'updatedBy');
+        builder.leftJoinAndSelect('updatedBy.department', 'ubDepartment');
         builder.select([
             'entity',
             'proposal.id',
@@ -74,8 +77,12 @@ export class WarehousingBillService {
             'warehouse.name',
             'createdBy.id',
             'createdBy.fullName',
+            'cbDepartment.id',
+            'cbDepartment.name',
             'updatedBy.id',
             'updatedBy.fullName',
+            'ubDepartment.id',
+            'ubDepartment.name',
         ]);
 
         const [result, total] = await builder.getManyAndCount();
@@ -100,8 +107,12 @@ export class WarehousingBillService {
         builder.leftJoinAndSelect('details.product', 'product');
         builder.leftJoinAndSelect('product.unit', 'unit');
         builder.leftJoinAndSelect('entity.warehouse', 'warehouse');
+        builder.leftJoinAndSelect('warehouse.manager', 'whManager');
+        builder.leftJoinAndSelect('whManager.department', 'whManagerDepartment');
         builder.leftJoinAndSelect('entity.createdBy', 'createdBy');
+        builder.leftJoinAndSelect('createdBy.department', 'cbDepartment');
         builder.leftJoinAndSelect('entity.updatedBy', 'updatedBy');
+        builder.leftJoinAndSelect('updatedBy.department', 'ubDepartment');
         builder.select([
             'entity',
             'proposal.id',
@@ -120,10 +131,18 @@ export class WarehousingBillService {
             'unit.name',
             'warehouse.id',
             'warehouse.name',
+            'whManager.id',
+            'whManager.fullName',
+            'whManagerDepartment.id',
+            'whManagerDepartment.name',
             'createdBy.id',
             'createdBy.fullName',
+            'cbDepartment.id',
+            'cbDepartment.name',
             'updatedBy.id',
             'updatedBy.fullName',
+            'ubDepartment.id',
+            'ubDepartment.name',
         ]);
         return builder.getOne();
     }
@@ -159,6 +178,41 @@ export class WarehousingBillService {
                 totalPages: totalPages,
             },
         };
+    }
+
+    async addDetail(warehousingBillId: number, detail: { productId: number; proposalQuantity: number }) {
+        await this.isStatusValid({ id: warehousingBillId, statuses: [WAREHOUSING_BILL_STATUS.PENDING] });
+        await this.validateDetails([{ productId: detail.productId, proposalQuantity: detail.proposalQuantity }]);
+        const newDetail = {
+            warehousingBillId,
+            productId: detail.productId,
+            proposalQuantity: detail.proposalQuantity,
+        };
+
+        return this.database.warehousingBillDetail.save(this.database.warehousingBillDetail.create(newDetail));
+    }
+
+    async addDetails(warehousingBillId: number, details: { productId: number; proposalQuantity: number }[]) {
+        await this.isStatusValid({ id: warehousingBillId, statuses: [WAREHOUSING_BILL_STATUS.PENDING] });
+        await this.validateDetails(details);
+        const newDetails = details.map((detail) => ({
+            warehousingBillId,
+            productId: detail.productId,
+            proposalQuantity: detail.proposalQuantity,
+        }));
+
+        return this.database.warehousingBillDetail.save(this.database.warehousingBillDetail.create(newDetails));
+    }
+
+    async updateDetail(warehousingBillId: number, detailId: number, update: { proposalQuantity?: number }) {
+        await this.isStatusValid({ id: warehousingBillId, statuses: [WAREHOUSING_BILL_STATUS.PENDING] });
+        if (update.proposalQuantity <= 0) throw new HttpException('Số lượng yêu cầu không hợp lệ', 400);
+        return this.database.warehousingBillDetail.update(detailId, update);
+    }
+
+    async removeDetail(warehousingBillId: number, detailId: number) {
+        await this.isStatusValid({ id: warehousingBillId, statuses: [WAREHOUSING_BILL_STATUS.PENDING] });
+        return this.database.warehousingBillDetail.delete(detailId);
     }
 
     // async approve(id: number) {
@@ -270,8 +324,9 @@ export class WarehousingBillService {
     }
 
     private async validateCreate(createWarehousingBillDto: CreateWarehousingBillDto): Promise<void> {
-        if (!createWarehousingBillDto.proposalId && !createWarehousingBillDto.orderId && !createWarehousingBillDto.repairRequestId)
-            throw new HttpException('Mã yêu cầu hoặc mã đơn hàng không được để trống', 400);
+        // can create warehousing bill from proposal, order, repair request or directly
+        // if (!createWarehousingBillDto.proposalId && !createWarehousingBillDto.orderId && !createWarehousingBillDto.repairRequestId)
+        //     throw new HttpException('Mã yêu cầu hoặc mã đơn hàng không được để trống', 400);
 
         if (
             (createWarehousingBillDto.proposalId && createWarehousingBillDto.orderId) ||
@@ -290,8 +345,8 @@ export class WarehousingBillService {
                 await this.utilService.checkRelationIdExist({
                     order: {
                         id: createWarehousingBillDto.orderId,
-                        status: ORDER_STATUS.RECEIVED,
-                        errorMessage: 'Không tìm thấy phiếu đặt hàng hoặc hàng chưa được nhận',
+                        status: ORDER_STATUS.MANAGER_APPROVED,
+                        errorMessage: 'Không tìm thấy phiếu đặt hàng hoặc phiếu chưa được duyệt',
                     },
                 });
             }
@@ -678,13 +733,6 @@ export class WarehousingBillService {
         switch (type) {
             case PROPOSAL_TYPE.PURCHASE:
                 throw new HttpException('Không thể tạo phiếu nhập kho từ đơn yêu cầu mua hàng, chỉ có thể tạo từ đơn đặt hàng', 400);
-            // if (status !== PROPOSAL_STATUS.MANAGER_APPROVED) {
-            //     throw new HttpException(`Đơn yêu cầu mua hàng chưa được duyệt`, 400);
-            // }
-            // if (wbType !== WAREHOUSING_BILL_TYPE.IMPORT) {
-            //     throw new HttpException(`Loại phiếu kho không hợp lệ, chỉ có thể tạo phiếu nhập kho từ đơn yêu cầu mua hàng`, 400);
-            // }
-            // break;
             case PROPOSAL_TYPE.SUPPLY:
                 if (status !== PROPOSAL_STATUS.HEAD_APPROVED) {
                     throw new HttpException(`Đơn yêu cầu cung cấp vật tư chưa được duyệt`, 400);
@@ -705,30 +753,6 @@ export class WarehousingBillService {
         this.eventEmitter.emit(event, eventObj);
     }
 
-    // private async repairFlow(createProposalDto: CreateProposalDto) {
-    //     if (!createProposalDto.repairRequestId) throw new HttpException('Yêu cầu sửa chữa không được để trống', 400);
-
-    //     const countProposal = await this.database.proposal.countBy({ repairRequestId: createProposalDto.repairRequestId });
-    //     if (countProposal) throw new HttpException(`Yêu cầu sửa chữa ${createProposalDto.repairRequestId} đã được tạo yêu cầu`, 400);
-
-    //     const repairDetails = await this.database.repairDetail.find({
-    //         where: { repairRequestId: createProposalDto.repairRequestId },
-    //     });
-    //     const details = repairDetails.map((detail) => ({
-    //         productId: detail.replacementPartId,
-    //         quantity: detail.quantity,
-    //     }));
-
-    //     await this.verifyDetails(null, details);
-    //     const proposal = await this.database.proposal.save(this.database.proposal.create({ ...createProposalDto, createdById: UserStorage.getId() }));
-    //     await this.database.proposalDetail.save(details.map((detail) => ({ ...detail, proposalId: proposal.id })));
-
-    //     // notify who created repair request
-    //     this.emitEvent('proposal.created', { id: proposal.id });
-
-    //     return proposal;
-    // }
-
     private async getProposalRequests(id: number, search: string) {
         const proposals = await this.database.proposal.find({
             where: { id: id || undefined, type: PROPOSAL_TYPE.SUPPLY, status: PROPOSAL_STATUS.HEAD_APPROVED, name: Like(`%${search}%`) },
@@ -747,7 +771,7 @@ export class WarehousingBillService {
 
     private async getOrderRequests(id: number, search: string) {
         const orders = await this.database.order.find({
-            where: { id: id || undefined, status: ORDER_STATUS.RECEIVED, name: Like(`%${search}%`) },
+            where: { id: id || undefined, status: ORDER_STATUS.MANAGER_APPROVED, name: Like(`%${search}%`) },
             order: { id: 'DESC' },
         });
 
@@ -800,7 +824,7 @@ export class WarehousingBillService {
                 status,
                 'IMPORT' as wbType
             FROM orders
-            WHERE status = 'RECEIVED' ${whereId} ${whereSearch}
+            WHERE status = 'MANAGER_APPROVED' ${whereId} ${whereSearch}
             UNION
             SELECT
                 id,
@@ -814,5 +838,19 @@ export class WarehousingBillService {
             `,
         );
         return results;
+    }
+
+    private async validateDetails(details: { productId: number; proposalQuantity: number }[]) {
+        if (details.length === 0) throw new HttpException('Chi tiết phiếu không được để trống', 400);
+        if (details.some((detail) => isNaN(detail.proposalQuantity))) throw new HttpException('Số lượng yêu cầu không hợp lệ', 400);
+        if (details.some((detail) => detail.proposalQuantity <= 0)) throw new HttpException('Số lượng yêu cầu không được nhỏ hoặc bằng 0', 400);
+
+        const productIds = details.map((detail) => detail.productId);
+        const products = await this.database.product.find({ where: { id: In(productIds) } });
+        const productsNotFound = details.filter((detail) => !products.some((product) => product.id === detail.productId));
+        if (productsNotFound.length > 0) {
+            const productNames = productsNotFound.map((detail) => detail.productId).join(', ');
+            throw new HttpException(`Không tìm thấy sản phẩm ${productNames}`, 400);
+        }
     }
 }

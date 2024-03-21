@@ -2,6 +2,7 @@ import { Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, OneToOne, Prim
 import { ASSET_STATUS } from '~/common/enums/enum';
 import { AbstractEntity } from './abstract.entity';
 import { DepartmentEntity } from './department.entity';
+import { ColumnNumericTransformer } from './transformer.entity';
 
 @Entity({ name: 'assets' })
 export class AssetEntity extends AbstractEntity {
@@ -14,8 +15,8 @@ export class AssetEntity extends AbstractEntity {
     @Column({ name: 'description', type: 'varchar', length: 255, nullable: true })
     description: string;
 
-    @Column({ name: 'price', type: 'varchar', length: 255, nullable: true })
-    price: string;
+    @Column({ name: 'price', type: 'decimal', precision: 16, scale: 3, nullable: true, transformer: new ColumnNumericTransformer() })
+    price: number;
 
     @Column({ name: 'department_id', type: 'int', unsigned: true, nullable: true })
     departmentId: number;

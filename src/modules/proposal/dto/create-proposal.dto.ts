@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsNotEmpty, IsNumber, IsString, Length } from 'class-validator';
+import { ArrayNotEmpty, IsEnum, IsNotEmpty, IsNumber, IsString, Length, ValidateIf } from 'class-validator';
 import { PROPOSAL_TYPE } from '~/common/enums/enum';
 import { IsIdExist } from '~/common/validators/is-id-exist.validator';
 
@@ -25,4 +25,11 @@ export class CreateProposalDto {
     @IsNumber({}, { message: 'Mã phòng ban phải là dạng số' })
     @IsIdExist({ entity: 'department' }, { message: 'Mã phòng ban không tồn tại' })
     departmentId: number;
+
+    @ApiProperty({ type: [Number] })
+    // @IsOptional()
+    // @IsArray({ message: 'Danh sách kho không hợp lệ' })
+    @ValidateIf((o) => o.type === PROPOSAL_TYPE.PURCHASE)
+    @ArrayNotEmpty({ message: 'Danh sách kho không được để trống' })
+    warehouseIds: number[];
 }

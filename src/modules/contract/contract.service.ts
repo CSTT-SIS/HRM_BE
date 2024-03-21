@@ -19,7 +19,10 @@ export class ContractService {
         // change to `rawQuerySearch` if entity don't have fulltext indices
         builder.andWhere(this.utilService.fullTextSearch({ fields: ['name'], keyword: queries.search }));
 
-        builder.select(['entity']);
+        builder.leftJoinAndSelect('entity.position', 'position');
+        builder.leftJoinAndSelect('entity.user', 'user');
+
+        builder.select(['entity', 'position', 'user']);
 
         const [result, total] = await builder.getManyAndCount();
         const totalPages = Math.ceil(total / take);
@@ -34,9 +37,7 @@ export class ContractService {
     }
 
     findOne(id: number) {
-        const builder = this.database.contract.createQueryBuilder('entity');
-        builder.where({ id });
-        return builder.getOne();
+        return this.database.contract.findOneContractWithAllRelationsById(id);
     }
 
     update(id: number, updateContractDto: UpdateContractDto) {

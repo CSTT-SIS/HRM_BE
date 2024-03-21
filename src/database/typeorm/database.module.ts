@@ -96,6 +96,13 @@ import { WarehousingBillRepository } from '~/database/typeorm/repositories/wareh
 import { WarehousingBillDetailRepository } from '~/database/typeorm/repositories/warehousingBillDetail.repository';
 import { PositionRepository } from '~/database/typeorm/repositories/position.repository';
 import { ContractRepository } from '~/database/typeorm/repositories/contract.repository';
+import { HolidayEntity } from '~/database/typeorm/entities/holiday.entity';
+import { HolidayRepository } from '~/database/typeorm/repositories/holiday.repository';
+import { ShiftRepository } from '~/database/typeorm/repositories/shift.repository';
+import { UserShiftRepository } from '~/database/typeorm/repositories/userShift.repository';
+import { AssetRepository } from '~/database/typeorm/repositories/asset.repository';
+import { ApprovalConfigEntity } from '~/database/typeorm/entities/approvalConfig.entity';
+import { ApprovalConfigRepository } from '~/database/typeorm/repositories/approvalConfig.repository';
 import { CalendarUserEntity } from '~/database/typeorm/entities/calendarUser.entity';
 import { CalendarUserRepository } from '~/database/typeorm/repositories/calendarUser.repository';
 
@@ -153,6 +160,8 @@ const entities = [
     TextEmbryoEntity,
     UserShiftEntity,
     FreeTimekeepingEntity,
+    HolidayEntity,
+    ApprovalConfigEntity,
     CalendarUserEntity,
 ];
 
@@ -198,6 +207,11 @@ const repositories = [
     FreeTimekeepingRepository,
     PositionRepository,
     ContractRepository,
+    HolidayRepository,
+    ShiftRepository,
+    UserShiftRepository,
+    AssetRepository,
+    ApprovalConfigRepository,
     CalendarUserRepository,
 ];
 

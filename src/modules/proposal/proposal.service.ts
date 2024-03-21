@@ -18,9 +18,13 @@ export class ProposalService {
     constructor(private readonly utilService: UtilService, private readonly database: DatabaseService, private eventEmitter: EventEmitter2) {}
 
     async create(createProposalDto: CreateProposalDto) {
-        // with PURCHASE type, need 2-level approval
-        // with SUPPLY type, need 1-level approval
-        const proposal = await this.database.proposal.save(this.database.proposal.create({ ...createProposalDto, createdById: UserStorage.getId() }));
+        // 1-level approval for ALL type
+        const { warehouseIds, ...rest } = createProposalDto;
+        const proposal = await this.database.proposal.save(this.database.proposal.create({ ...rest, createdById: UserStorage.getId() }));
+        if (!this.utilService.isEmpty(warehouseIds)) {
+            await this.database.proposal.addWarehouses(proposal.id, warehouseIds);
+        }
+
         this.emitEvent('proposal.created', { id: proposal.id });
         return proposal;
     }
@@ -33,8 +37,25 @@ export class ProposalService {
 
         builder.leftJoinAndSelect('entity.department', 'department');
         builder.leftJoinAndSelect('entity.createdBy', 'createdBy');
+        builder.leftJoinAndSelect('createdBy.department', 'cbDepartment');
         builder.leftJoinAndSelect('entity.updatedBy', 'updatedBy');
-        builder.select(['entity', 'department.id', 'department.name', 'createdBy.id', 'createdBy.fullName', 'updatedBy.id', 'updatedBy.fullName']);
+        builder.leftJoinAndSelect('updatedBy.department', 'ubDepartment');
+        builder.leftJoinAndSelect('entity.warehouses', 'warehouses');
+        builder.select([
+            'entity',
+            'department.id',
+            'department.name',
+            'createdBy.id',
+            'createdBy.fullName',
+            'cbDepartment.id',
+            'cbDepartment.name',
+            'updatedBy.id',
+            'updatedBy.fullName',
+            'ubDepartment.id',
+            'ubDepartment.name',
+            'warehouses.id',
+            'warehouses.name',
+        ]);
 
         const [result, total] = await builder.getManyAndCount();
         const totalPages = Math.ceil(total / take);
@@ -52,10 +73,13 @@ export class ProposalService {
         const builder = this.database.proposal.createQueryBuilder('entity');
         builder.leftJoinAndSelect('entity.department', 'department');
         builder.leftJoinAndSelect('entity.createdBy', 'createdBy');
+        builder.leftJoinAndSelect('createdBy.department', 'cbDepartment');
         builder.leftJoinAndSelect('entity.updatedBy', 'updatedBy');
+        builder.leftJoinAndSelect('updatedBy.department', 'ubDepartment');
         builder.leftJoinAndSelect('entity.details', 'details');
         builder.leftJoinAndSelect('details.product', 'product');
         builder.leftJoinAndSelect('product.unit', 'unit');
+        builder.leftJoinAndSelect('entity.warehouses', 'warehouses');
 
         builder.where('entity.id = :id', { id });
         builder.select([
@@ -64,8 +88,12 @@ export class ProposalService {
             'department.name',
             'createdBy.id',
             'createdBy.fullName',
+            'cbDepartment.id',
+            'cbDepartment.name',
             'updatedBy.id',
             'updatedBy.fullName',
+            'ubDepartment.id',
+            'ubDepartment.name',
             'details.id',
             'details.productId',
             'details.quantity',
@@ -74,25 +102,38 @@ export class ProposalService {
             'product.name',
             'unit.id',
             'unit.name',
+            'warehouses.id',
+            'warehouses.name',
         ]);
 
         return builder.getOne();
     }
 
     async update(id: number, updateProposalDto: UpdateProposalDto) {
-        await this.isProposalStatusValid({ id, statuses: [PROPOSAL_STATUS.DRAFT], userId: UserStorage.getId() });
+        await this.isProposalStatusValid({
+            id,
+            statuses: [PROPOSAL_STATUS.DRAFT, PROPOSAL_STATUS.PENDING, PROPOSAL_STATUS.HEAD_REJECTED],
+            userId: UserStorage.getId(),
+        });
         if (!Object.keys(PROPOSAL_TYPE).includes(updateProposalDto.type)) throw new HttpException('Loại yêu cầu không hợp lệ', 400);
+
+        const { warehouseIds, ...rest } = updateProposalDto;
+        if (!this.utilService.isEmpty(warehouseIds)) {
+            await this.database.proposal.removeWarehouses(id);
+            this.database.proposal.addWarehouses(id, warehouseIds);
+        }
+
         return this.database.proposal.update(id, {
-            ...updateProposalDto,
+            ...rest,
             updatedById: UserStorage.getId(),
-            status: PROPOSAL_STATUS.DRAFT,
+            status: PROPOSAL_STATUS.PENDING,
         });
     }
 
     async remove(id: number) {
         await this.isProposalStatusValid({
             id,
-            statuses: [PROPOSAL_STATUS.DRAFT, PROPOSAL_STATUS.HEAD_REJECTED, PROPOSAL_STATUS.MANAGER_REJECTED],
+            statuses: [PROPOSAL_STATUS.DRAFT, PROPOSAL_STATUS.HEAD_REJECTED],
             userId: UserStorage.getId(),
         });
         await this.database.proposalDetail.delete({ proposalId: id });
@@ -163,6 +204,11 @@ export class ProposalService {
     // }
 
     async headApprove(id: number) {
+        await this.utilService.checkApprovalPermission({
+            entity: 'proposal',
+            approverId: UserStorage.getId(),
+            toStatus: PROPOSAL_STATUS.HEAD_APPROVED,
+        });
         await this.updateStatus({
             id,
             from: PROPOSAL_STATUS.PENDING,
@@ -174,6 +220,11 @@ export class ProposalService {
     }
 
     async headReject(id: number, comment: string) {
+        await this.utilService.checkApprovalPermission({
+            entity: 'proposal',
+            approverId: UserStorage.getId(),
+            toStatus: PROPOSAL_STATUS.HEAD_REJECTED,
+        });
         await this.updateStatus({
             id,
             from: PROPOSAL_STATUS.PENDING,
@@ -185,28 +236,28 @@ export class ProposalService {
         return { message: 'Đã từ chối yêu cầu', data: { id } };
     }
 
-    async managerApprove(id: number) {
-        await this.updateStatus({
-            id,
-            from: PROPOSAL_STATUS.HEAD_APPROVED,
-            to: PROPOSAL_STATUS.MANAGER_APPROVED,
-        });
+    // async managerApprove(id: number) {
+    //     await this.updateStatus({
+    //         id,
+    //         from: PROPOSAL_STATUS.HEAD_APPROVED,
+    //         to: PROPOSAL_STATUS.MANAGER_APPROVED,
+    //     });
 
-        this.emitEvent('proposal.managerApproved', { id });
-        return { message: 'Đã duyệt yêu cầu', data: { id } };
-    }
+    //     this.emitEvent('proposal.managerApproved', { id });
+    //     return { message: 'Đã duyệt yêu cầu', data: { id } };
+    // }
 
-    async managerReject(id: number, comment: string) {
-        await this.updateStatus({
-            id,
-            from: PROPOSAL_STATUS.HEAD_APPROVED,
-            to: PROPOSAL_STATUS.MANAGER_REJECTED,
-            comment,
-        });
+    // async managerReject(id: number, comment: string) {
+    //     await this.updateStatus({
+    //         id,
+    //         from: PROPOSAL_STATUS.HEAD_APPROVED,
+    //         to: PROPOSAL_STATUS.MANAGER_REJECTED,
+    //         comment,
+    //     });
 
-        this.emitEvent('proposal.managerRejected', { id });
-        return { message: 'Đã từ chối yêu cầu', data: { id } };
-    }
+    //     this.emitEvent('proposal.managerRejected', { id });
+    //     return { message: 'Đã từ chối yêu cầu', data: { id } };
+    // }
 
     async getDetails(queries: FilterDto & { proposalId: number; productId: number }) {
         const { builder, take, pagination } = this.utilService.getQueryBuilderAndPagination(this.database.proposalDetail, queries);
@@ -287,12 +338,16 @@ export class ProposalService {
         if (!data.statuses.includes(entity.status)) throw new HttpException('Không thể chỉnh sửa yêu cầu do trạng thái không hợp lệ', 400);
         if (data.userId && entity.createdById !== data.userId) throw new HttpException('Bạn không có quyền chỉnh sửa yêu cầu này', 403);
         if (data.checkIfBillCreated) {
-            const order = await this.database.order.isProposalAdded(data.id);
+            const order = await this.database.order.isProposalAdded(data.id, null);
             if (order) throw new HttpException('Không thể chỉnh sửa yêu cầu do đơn hàng đã được tạo', 400);
 
             const bill = await this.database.warehousingBill.countBy({ proposalId: data.id });
             if (bill) throw new HttpException('Không thể chỉnh sửa yêu cầu do phiếu kho đã được tạo', 400);
         }
+
+        // TODO:
+        // 1-level approval for ALL type
+
         return entity;
     }
 
