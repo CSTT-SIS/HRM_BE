@@ -5,7 +5,7 @@ import { ORDER_TYPE } from '~/common/enums/enum';
 import { IsIdExist } from '~/common/validators/is-id-exist.validator';
 
 export class CreateOrderDto {
-    @ApiProperty({ description: 'Requests', example: [1, 2, 3] })
+    @ApiProperty({ description: 'Requests', example: [{ type: 'proposal', id: 1 }] })
     @ArrayNotEmpty({ message: 'Mã phiếu yêu cầu không được để trống' })
     requests: { type: 'proposal' | 'repairRequest'; id: number }[];
 
@@ -15,7 +15,7 @@ export class CreateOrderDto {
     @IsIdExist({ entity: 'warehouse' }, { message: 'Mã kho không tồn tại' })
     warehouseId: number;
 
-    @ApiProperty({ type: 'string', description: 'type' })
+    @ApiProperty({ enum: ORDER_TYPE, description: 'type' })
     @IsNotEmpty({ message: 'Loại không được để trống' })
     @Transform(({ value }) => ('' + value).toUpperCase())
     @IsEnum(ORDER_TYPE, { message: 'Loại đơn hàng không hợp lệ' })
