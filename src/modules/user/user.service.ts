@@ -104,9 +104,9 @@ export class UserService {
         // remove account
         await this.database.account.delete({ id: user.accountId });
         // remove media
-        if (user.avatarId) {
-            await this.mediaService.remove(user.avatarId);
-        }
+        // if (user.avatarId) {
+        //     await this.mediaService.remove(user.avatarId);
+        // }
 
         return true;
     }
