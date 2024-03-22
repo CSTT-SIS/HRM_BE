@@ -92,4 +92,22 @@ export class OrderRepository extends Repository<OrderEntity> {
 
         return !!Number(res[0].count);
     }
+
+    async getProposalIds(orderId?: number): Promise<number[]> {
+        const where = orderId ? `WHERE order_id = ${orderId}` : '';
+        const result = await this.query(`
+            SELECT proposal_id FROM orders_proposals ${where}
+        `);
+
+        return result.map((item) => item.proposal_id);
+    }
+
+    async getRepairRequestIds(orderId?: number): Promise<number[]> {
+        const where = orderId ? `WHERE order_id = ${orderId}` : '';
+        const result = await this.query(`
+            SELECT repair_request_id FROM orders_repair_requests ${where}
+        `);
+
+        return result.map((item) => item.repair_request_id);
+    }
 }

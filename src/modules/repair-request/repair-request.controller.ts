@@ -3,6 +3,7 @@ import { ApiBasicAuth, ApiBody, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { BYPASS_PERMISSION } from '~/common/constants/constant';
 import { Permission } from '~/common/decorators/permission.decorator';
 import { FilterDto } from '~/common/dtos/filter.dto';
+import { REPAIR_REQUEST_STATUS } from '~/common/enums/enum';
 import { CreateRepairDetailDto, CreateRepairDetailsDto } from '~/modules/repair-request/dto/create-repair-detail.dto';
 import { UpdateRepairDetailDto } from '~/modules/repair-request/dto/update-repair-detail.dto';
 import { CreateRepairRequestDto } from './dto/create-repair-request.dto';
@@ -24,8 +25,9 @@ export class RepairRequestController {
     @Permission('repairRequest:findAll')
     @Get()
     @ApiQuery({ type: FilterDto })
-    findAll(@Query() queries) {
-        return this.repairRequestService.findAll({ ...queries });
+    @ApiQuery({ name: 'status', required: false, enum: REPAIR_REQUEST_STATUS, isArray: true })
+    findAll(@Query() queries, @Query('status') status: string) {
+        return this.repairRequestService.findAll({ ...queries, status });
     }
 
     @Permission('repairRequest:findOne')

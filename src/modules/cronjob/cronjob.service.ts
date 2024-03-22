@@ -23,6 +23,7 @@ export class CronjobService {
         });
 
         // other cron jobs
+        // TODO: warning product limit
     }
 
     private async checkExpiredProduct() {
