@@ -18,6 +18,12 @@ export class DepartmentEntity extends AbstractEntity {
     @Column({ name: 'name', type: 'varchar', length: 255, nullable: true })
     name: string;
 
+    @Column({ name: 'code', type: 'varchar', length: 50, nullable: true })
+    code: string;
+
+    @Column({ name: 'abbreviation', type: 'varchar', length: 50, nullable: true })
+    abbreviation: string;
+
     @Column({ name: 'description', type: 'varchar', length: 500, nullable: true })
     description: string;
 
