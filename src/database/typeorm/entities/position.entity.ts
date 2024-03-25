@@ -1,6 +1,7 @@
 import { Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
 import { AbstractEntity } from './abstract.entity';
 import { ContractEntity } from './contract.entity';
+import { UserEntity } from './user.entity';
 
 @Entity({ name: 'positions' })
 export class PositionEntity extends AbstractEntity {
@@ -28,4 +29,10 @@ export class PositionEntity extends AbstractEntity {
         createForeignKeyConstraints: false,
     })
     contracts: Relation<ContractEntity>[];
+
+    @OneToMany(() => UserEntity, (entity: UserEntity) => entity.position, {
+        nullable: true,
+        createForeignKeyConstraints: false,
+    })
+    users: Relation<UserEntity>[];
 }
