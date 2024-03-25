@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsNumber, IsOptional, IsString, Matches, Min } from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsString, Matches, Min } from 'class-validator';
 import { IsIdExist } from '~/common/validators/is-id-exist.validator';
 
 export class ImportGoodDto {
@@ -33,4 +33,9 @@ export class ImportGoodDto {
     @IsOptional()
     @IsNumber({}, { message: 'Số ngày cảnh báo phải là số' })
     notifyBefore: number;
+
+    @ApiProperty({ example: true })
+    @IsOptional()
+    @IsBoolean({ message: 'Cảnh báo hết hạn phải là boolean' })
+    notifyExpired: boolean;
 }
