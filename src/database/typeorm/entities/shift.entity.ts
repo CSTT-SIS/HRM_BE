@@ -8,10 +8,10 @@ export class ShiftEntity extends AbstractEntity {
     @PrimaryGeneratedColumn('increment', { name: 'id', type: 'int', unsigned: true })
     id: number;
 
-    @Column({ name: 'name', type: 'varchar', length: 255 })
+    @Column({ name: 'name', type: 'varchar', length: 255, nullable: true })
     name: string;
 
-    @Column({ name: 'code', type: 'varchar', length: 50 })
+    @Column({ name: 'code', type: 'varchar', length: 50, nullable: true })
     code: string;
 
     @Column({ type: 'enum', enum: SHIFT_TYPE, default: SHIFT_TYPE.TIME_RANGE })
@@ -32,7 +32,7 @@ export class ShiftEntity extends AbstractEntity {
     @Column({ name: 'wage_rate', type: 'int', nullable: true })
     wageRate: number;
 
-    @Column({ name: 'total_hours', type: 'int' })
+    @Column({ name: 'total_hours', type: 'int', nullable: true })
     totalHours: number;
 
     @Column({ name: 'note', type: 'varchar', length: 255, nullable: true })
