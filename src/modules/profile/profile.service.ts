@@ -17,7 +17,6 @@ export class ProfileService {
         const builder = this.userRepository.createQueryBuilder('user');
         builder.leftJoinAndSelect('user.role', 'role');
         builder.leftJoinAndSelect('role.permissions', 'permission');
-        builder.leftJoinAndSelect('user.avatar', 'avatar');
         builder.leftJoinAndSelect('user.department', 'department');
         builder.where('user.id = :id', { id });
         return builder.getOne();

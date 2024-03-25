@@ -11,7 +11,7 @@ export class UserRepository extends Repository<UserEntity> {
     findOneUserWithAllRelationsById = (id: number) => {
         return this.findOne({
             where: { id: id },
-            relations: ['role', 'avatar', 'account', 'department'],
+            relations: ['role', 'account', 'department'],
         });
     };
 

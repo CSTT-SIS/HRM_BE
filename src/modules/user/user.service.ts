@@ -58,9 +58,8 @@ export class UserService {
         }
 
         builder.leftJoinAndSelect('entity.role', 'role');
-        builder.leftJoinAndSelect('entity.avatar', 'avatar');
         builder.leftJoinAndSelect('entity.department', 'department');
-        builder.select(['entity', 'role.id', 'role.name', 'avatar.id', 'avatar.path', 'department.id', 'department.name']);
+        builder.select(['entity', 'role.id', 'role.name', 'department.id', 'department.name']);
 
         const [result, total] = await builder.getManyAndCount();
         const totalPages = Math.ceil(total / take);
@@ -104,9 +103,9 @@ export class UserService {
         // remove account
         await this.database.account.delete({ id: user.accountId });
         // remove media
-        // if (user.avatarId) {
-        //     await this.mediaService.remove(user.avatarId);
-        // }
+        if (user.avatar) {
+            this.utilService.removeFile(`.${user.avatar}`);
+        }
 
         return true;
     }

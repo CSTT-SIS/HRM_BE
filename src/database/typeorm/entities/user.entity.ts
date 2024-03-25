@@ -8,20 +8,19 @@ import { InventoryHistoryEntity } from '~/database/typeorm/entities/inventoryHis
 import { ProposalEntity } from '~/database/typeorm/entities/proposal.entity';
 import { RoleEntity } from '~/database/typeorm/entities/role.entity';
 import { WarehousingBillEntity } from '~/database/typeorm/entities/warehousingBill.entity';
+import { CalendarUserEntity } from './calendarUser.entity';
 import { ContractEntity } from './contract.entity';
-import { LeaveApplicationEntity } from './leaveApplication.entity';
 import { DisciplineEntity } from './discipline.entity';
-import { ResignationFormEntity } from './resignationForm.entity';
 import { EmployeeLeaveRequestEntity } from './employeeLeaveRequest.entity';
 import { ForgottenTimekeepingRequestEntity } from './forgottenTimekeepingRequest.entity';
-import { OvertimeRequestEntity } from './overtimeRequest.entity';
-import { TimeAttendanceEntity } from './timeAttendance.entity';
-import { TaskEntity } from './task.entity';
-import { RewardEntity } from './reward.entity';
-import { UserShiftEntity } from './userShift.entity';
-import { CalendarEntity } from './calendar.entity';
 import { FreeTimekeepingEntity } from './freeTimekeeping.entity';
-import { CalendarUserEntity } from './calendarUser.entity';
+import { LeaveApplicationEntity } from './leaveApplication.entity';
+import { OvertimeRequestEntity } from './overtimeRequest.entity';
+import { ResignationFormEntity } from './resignationForm.entity';
+import { RewardEntity } from './reward.entity';
+import { TaskEntity } from './task.entity';
+import { TimeAttendanceEntity } from './timeAttendance.entity';
+import { UserShiftEntity } from './userShift.entity';
 
 @Entity({ name: 'users' })
 export class UserEntity extends AbstractEntity {
