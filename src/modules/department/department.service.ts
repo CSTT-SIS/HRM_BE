@@ -34,7 +34,6 @@ export class DepartmentService {
         builder.leftJoinAndSelect('entity.headOfDepartment', 'headOfDepartment');
         builder.leftJoinAndSelect('entity.parent', 'parent');
         builder.leftJoinAndSelect('entity.children', 'children');
-        builder.leftJoinAndSelect('entity.calendars', 'calendars');
         builder.leftJoinAndSelect('entity.departmentTasks', 'departmentTasks');
         builder.leftJoinAndSelect('entity.assets', 'assets');
         builder.leftJoinAndSelect('entity.documents', 'documents');
@@ -48,7 +47,6 @@ export class DepartmentService {
             'headOfDepartment',
             'parent',
             'children',
-            'calendars',
             'departmentTasks',
             'assets',
             'documents',
