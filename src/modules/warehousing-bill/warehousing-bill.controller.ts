@@ -28,7 +28,7 @@ export class WarehousingBillController {
     @ApiQuery({ name: 'warehouseId', required: false, type: Number })
     @ApiQuery({ name: 'orderId', required: false, type: Number })
     @ApiQuery({ name: 'type', enum: WAREHOUSING_BILL_TYPE, required: false })
-    @ApiQuery({ name: 'status', enum: WAREHOUSING_BILL_STATUS, required: false })
+    @ApiQuery({ name: 'status', enum: WAREHOUSING_BILL_STATUS, required: false, isArray: true })
     findAll(
         @Query() queries,
         @Query('proposalId', new ParseIntPipe({ optional: true })) proposalId: string,

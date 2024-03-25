@@ -143,9 +143,6 @@ export class ProposalService {
     }
 
     // async approve(id: number) {
-    //     // TODO: check if user have permission to approve
-    //     // maybe use a table to store who can approve which proposal is created by who
-
     //     await this.updateStatus({
     //         id,
     //         from: PROPOSAL_STATUS.PENDING,
@@ -161,8 +158,6 @@ export class ProposalService {
     // }
 
     // async reject(id: number, comment: string) {
-    //     // TODO: check if user have permission to reject
-
     //     await this.updateStatus({
     //         id,
     //         from: PROPOSAL_STATUS.PENDING,
@@ -177,8 +172,6 @@ export class ProposalService {
     // }
 
     // async return(id: number, comment: string) {
-    //     // TODO: check if user have permission to return
-
     //     await this.updateStatus({
     //         id,
     //         from: PROPOSAL_STATUS.APPROVED,
@@ -343,9 +336,6 @@ export class ProposalService {
             const bill = await this.database.warehousingBill.countBy({ proposalId: data.id });
             if (bill) throw new HttpException('Không thể chỉnh sửa yêu cầu do phiếu kho đã được tạo', 400);
         }
-
-        // TODO:
-        // 1-level approval for ALL type
 
         return entity;
     }

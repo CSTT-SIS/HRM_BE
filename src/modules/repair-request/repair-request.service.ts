@@ -48,10 +48,10 @@ export class RepairRequestService {
         return entity;
     }
 
-    async findAll(queries: FilterDto & { repairById: number }) {
+    async findAll(queries: FilterDto & { repairById: number; status: string }) {
         const { builder, take, pagination } = this.utilService.getQueryBuilderAndPagination(this.database.repairRequest, queries);
 
-        builder.andWhere(this.utilService.getConditionsFromQuery(queries, ['repairById']));
+        builder.andWhere(this.utilService.getConditionsFromQuery(queries, ['repairById', 'status']));
         builder.andWhere(this.utilService.rawQuerySearch({ fields: ['name', 'vehicle.registrationNumber'], keyword: queries.search }));
 
         builder.leftJoinAndSelect('entity.vehicle', 'vehicle');
@@ -138,7 +138,6 @@ export class RepairRequestService {
             id,
             statuses: [REPAIR_REQUEST_STATUS.IN_PROGRESS, REPAIR_REQUEST_STATUS.GARAGE_RECEIVED, REPAIR_REQUEST_STATUS.HEAD_REJECTED],
         });
-        // TODO: check if warehousing bill was created by this repair request; if yes, throw error
 
         const { vehicleRegistrationNumber, imageIds, ...rest } = updateRepairRequestDto;
         const addUpdate = {};

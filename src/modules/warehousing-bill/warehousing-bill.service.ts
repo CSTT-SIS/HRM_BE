@@ -217,8 +217,6 @@ export class WarehousingBillService {
     }
 
     // async approve(id: number) {
-    //     // TODO: check if user have permission to approve
-    //     // maybe use a table to store who can approve which proposal is created by who
     //     await this.isStatusValid({ id, statuses: [WAREHOUSING_BILL_STATUS.PENDING] });
     //     await this.database.warehousingBill.update(id, { status: WAREHOUSING_BILL_STATUS.APPROVED });
     //     await this.database.approvalProcess.save(
@@ -237,7 +235,6 @@ export class WarehousingBillService {
     // }
 
     // async reject(id: number) {
-    //     // TODO: check if user have permission to reject
     //     await this.isStatusValid({ id, statuses: [WAREHOUSING_BILL_STATUS.PENDING] });
     //     await this.database.warehousingBill.update(id, { status: WAREHOUSING_BILL_STATUS.REJECTED });
     //     await this.database.approvalProcess.save(
@@ -256,7 +253,6 @@ export class WarehousingBillService {
     // }
 
     // async return(id: number) {
-    //     // TODO: check if user have permission to return
     //     await this.isStatusValid({ id, statuses: [WAREHOUSING_BILL_STATUS.APPROVED], isTallied: true });
     //     await this.database.warehousingBill.update(id, { status: WAREHOUSING_BILL_STATUS.PENDING });
     //     await this.database.approvalProcess.save(
@@ -562,7 +558,6 @@ export class WarehousingBillService {
             }),
         );
 
-        // TODO: update the status of the warehousing bill and the proposal / order / repair request to completed
         if (proposalId) {
             const proposal = await this.database.proposal.findOneBy({ id: proposalId });
             if (!proposal) throw new HttpException('Không tìm thấy đơn yêu cầu ' + proposalId, 400);
@@ -597,21 +592,6 @@ export class WarehousingBillService {
                 }),
             );
         }
-
-        // await this.database.proposal.update(proposalId, { status: PROPOSAL_STATUS.COMPLETED });
-        // this.database.approvalProcess.save(
-        //     this.database.approvalProcess.create({
-        //         proposalId: proposalId,
-        //         userId: UserStorage.getId(),
-        //         from: PROPOSAL_STATUS.APPROVED,
-        //         to: PROPOSAL_STATUS.COMPLETED,
-        //     }),
-        // );
-
-        // if (orderId) {
-        //     await this.database.order.update(orderId, { status: ORDER_STATUS.COMPLETED });
-        //     this.database.orderProgressTracking.save({ orderId, status: ORDER_STATUS.CANCELLED, trackingDate: new Date() });
-        // }
 
         this.updateInventory(bill.id);
     }
