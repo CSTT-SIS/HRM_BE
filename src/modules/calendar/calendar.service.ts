@@ -65,8 +65,8 @@ export class CalendarService {
         }
 
         builder.leftJoinAndSelect('entity.calendarUsers', 'calendarUser');
-
-        builder.select(['entity', 'calendarUser']);
+        builder.leftJoinAndSelect('calendarUser.user', 'user');
+        builder.select(['entity', 'calendarUser', 'user.fullName']);
 
         const [result, total] = await builder.getManyAndCount();
         const totalPages = Math.ceil(total / take);
@@ -83,7 +83,9 @@ export class CalendarService {
     findOne(id: number) {
         const builder = this.database.calendar.createQueryBuilder('entity');
         builder.leftJoinAndSelect('entity.calendarUsers', 'calendarUser');
+        builder.leftJoinAndSelect('calendarUser.user', 'user');
         builder.where({ id });
+        builder.select(['entity', 'calendarUser', 'user.fullName']);
         return builder.getOne();
     }
 
