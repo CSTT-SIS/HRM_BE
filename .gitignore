@@ -41,3 +41,4 @@ package-lock.json
 swagger-spec.json
 yarn.lock
 /notes
+public/upload
