@@ -103,6 +103,8 @@ import { UserShiftRepository } from '~/database/typeorm/repositories/userShift.r
 import { AssetRepository } from '~/database/typeorm/repositories/asset.repository';
 import { ApprovalConfigEntity } from '~/database/typeorm/entities/approvalConfig.entity';
 import { ApprovalConfigRepository } from '~/database/typeorm/repositories/approvalConfig.repository';
+import { CalendarUserEntity } from '~/database/typeorm/entities/calendarUser.entity';
+import { CalendarUserRepository } from '~/database/typeorm/repositories/calendarUser.repository';
 
 const entities = [
     RoleEntity,
@@ -160,7 +162,9 @@ const entities = [
     FreeTimekeepingEntity,
     HolidayEntity,
     ApprovalConfigEntity,
-];
+    CalendarUserEntity,
+];
+
 const repositories = [
     DepartmentRepository,
     UserRepository,
@@ -208,6 +212,7 @@ const repositories = [
     UserShiftRepository,
     AssetRepository,
     ApprovalConfigRepository,
+    CalendarUserRepository,
 ];
 
 @Global()

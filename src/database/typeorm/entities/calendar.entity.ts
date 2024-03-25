@@ -1,31 +1,27 @@
 import { Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
 import { AbstractEntity } from './abstract.entity';
-import { CALENDAR_TYPE } from '~/common/enums/enum';
-import { DepartmentEntity } from '~/database/typeorm/entities/department.entity';
-import { UserEntity } from './user.entity';
+import { CalendarUserEntity } from './calendarUser.entity';
+import { LEVEL_CALENDAR } from '~/common/enums/enum';
 
 @Entity({ name: 'calendars' })
 export class CalendarEntity extends AbstractEntity {
     @PrimaryGeneratedColumn('increment', { name: 'id', type: 'int', unsigned: true })
     id: number;
 
-    @Column({ name: 'content', type: 'varchar', length: 255, nullable: true })
-    content: string;
+    @Column({ name: 'title', type: 'varchar', length: 255, nullable: true })
+    title: string;
 
-    @Column({ name: 'description', type: 'varchar', length: 255, nullable: true })
+    @Column({ name: 'description', type: 'varchar', length: 1000, nullable: true })
     description: string;
 
-    @Column({ name: 'time', type: 'datetime', nullable: true })
-    time: Date;
+    @Column({ name: 'start_date', type: 'datetime', nullable: true })
+    startDate: Date;
 
-    @Column({ type: 'enum', enum: CALENDAR_TYPE, default: CALENDAR_TYPE.GENERAL })
-    type: CALENDAR_TYPE;
+    @Column({ name: 'end_date', type: 'datetime', nullable: true })
+    endDate: Date;
 
-    @Column({ name: 'user_id', type: 'int', unsigned: true, nullable: true })
-    userId: number;
-
-    @Column({ name: 'department_id', type: 'int', unsigned: true, nullable: true })
-    departmentId: number;
+    @Column({ type: 'enum', enum: LEVEL_CALENDAR, default: LEVEL_CALENDAR.LESS_IMPORTANT })
+    level: LEVEL_CALENDAR;
 
     @Column({ name: 'created_by', type: 'int', unsigned: true, nullable: true })
     createdBy: number;
@@ -34,17 +30,9 @@ export class CalendarEntity extends AbstractEntity {
     updatedBy: number;
 
     /* RELATION */
-    @ManyToOne(() => DepartmentEntity, (entity: DepartmentEntity) => entity.calendars, {
+    @OneToMany(() => CalendarUserEntity, (entity: CalendarUserEntity) => entity.calendar, {
         nullable: true,
         createForeignKeyConstraints: false,
     })
-    @JoinColumn({ name: 'department_id', referencedColumnName: 'id' })
-    department: Relation<DepartmentEntity>;
-
-    @ManyToOne(() => UserEntity, (entity: UserEntity) => entity.calendars, {
-        nullable: true,
-        createForeignKeyConstraints: false,
-    })
-    @JoinColumn({ name: 'userId', referencedColumnName: 'id' })
-    user: Relation<UserEntity>;
+    calendarUsers: Relation<CalendarUserEntity>;
 }

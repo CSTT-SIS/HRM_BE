@@ -10,8 +10,8 @@ import { HUMAN_DASHBOARD_TYPE } from '~/common/enums/enum';
 export class HumanService {
     constructor(private readonly utilService: UtilService, private readonly database: DatabaseService) {}
 
-    create(createHumanDto: CreateHumanDto, userId: number) {
-        return this.database.user.save(this.database.user.create({ ...createHumanDto, createdBy: userId }));
+    create(createHumanDto: CreateHumanDto, avatar: Express.Multer.File, userId: number) {
+        return this.database.user.save(this.database.user.create({ ...createHumanDto, avatar: avatar.filename, createdBy: userId }));
     }
 
     async findAll(queries: FilterDto) {
@@ -40,8 +40,9 @@ export class HumanService {
         return builder.getOne();
     }
 
-    update(id: number, updateHumanDto: UpdateHumanDto, userId: number) {
-        return this.database.user.update(id, { ...updateHumanDto, updatedBy: userId });
+    async update(id: number, updateHumanDto: UpdateHumanDto, avatar: Express.Multer.File, userId: number) {
+        const human = await this.database.user.findOneBy({ id });
+        return await this.database.user.update(id, { ...updateHumanDto, avatar: avatar ? avatar.filename : human.avatar, updatedBy: userId });
     }
 
     remove(id: number) {
@@ -49,6 +50,7 @@ export class HumanService {
     }
 
     async dashboard(queries: FilterDto, type: string) {
+        const { page, perPage, sortBy } = queries;
         if (type === HUMAN_DASHBOARD_TYPE.SEX) {
             return this.database.user.getStatisBySex();
         }
@@ -58,7 +60,7 @@ export class HumanService {
         }
 
         if (type === HUMAN_DASHBOARD_TYPE.BY_MONTH) {
-            return this.database.user.getStatisByMonth();
+            return this.database.user.getStatisByMonth(page, perPage, sortBy);
         }
 
         throw new BadRequestException('Loại thống kê không hợp lệ!');

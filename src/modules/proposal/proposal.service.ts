@@ -350,7 +350,7 @@ export class ProposalService {
         const products = await this.database.product.find({ select: ['id'], where: { id: In(productIds) } });
         const productIdsInDb = products.map((product) => product.id);
         const productIdsNotInDb = productIds.filter((productId) => !productIdsInDb.includes(productId));
-        if (productIdsNotInDb.length > 0) throw new HttpException(`Sản phẩm ${productIdsNotInDb.join(', ')} không tồn tại`, 400);
+        if (productIdsNotInDb.length > 0) throw new HttpException(`Sản phẩm ${productIdsNotInDb.join(',')} không tồn tại`, 400);
 
         if (proposalId) {
             const isDuplicate = await this.database.proposalDetail.findOneBy({ proposalId, productId: In(productIds) });

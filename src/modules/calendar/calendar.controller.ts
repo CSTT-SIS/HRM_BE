@@ -6,6 +6,7 @@ import { CreateCalendarDto } from './dto/create-calendar.dto';
 import { UpdateCalendarDto } from './dto/update-calendar.dto';
 import { CalendarService } from './calendar.service';
 import { AuthGuard } from '../auth/guards/auth.guard';
+import { CALENDAR_TYPE } from '~/common/enums/enum';
 
 @ApiTags('Calendar')
 @ApiBasicAuth('authorization')
@@ -22,10 +23,15 @@ export class CalendarController {
 
     @Permission('calendar:findAll')
     @Get()
-    @ApiQuery({ name: 'departmentId', required: false, type: Number })
+    @ApiQuery({
+        name: 'type',
+        enum: CALENDAR_TYPE,
+        description: 'BY_MONTH: Theo tháng, BY_WEEK: Theo tuần, BY_DAY: Theo ngày',
+        required: true,
+    })
     @ApiQuery({ type: FilterDto })
-    findAll(@Query() queries, @Query('departmentId', new ParseIntPipe({ optional: true })) departmentId: string) {
-        return this.calendarService.findAll({ ...queries, departmentId });
+    findAll(@Query() queries, @Query('type') type: string) {
+        return this.calendarService.findAll({ ...queries, type });
     }
 
     @Permission('calendar:findOne')

@@ -1,5 +1,19 @@
 import { CalendarService } from './../calendar/calendar.service';
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, Req, UseGuards, UseInterceptors } from '@nestjs/common';
+import {
+    Body,
+    Controller,
+    Delete,
+    Get,
+    Param,
+    ParseIntPipe,
+    Patch,
+    Post,
+    Query,
+    Req,
+    UploadedFile,
+    UseGuards,
+    UseInterceptors,
+} from '@nestjs/common';
 import { ApiBasicAuth, ApiConsumes, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Permission } from '~/common/decorators/permission.decorator';
 import { FilterDto } from '~/common/dtos/filter.dto';
@@ -24,8 +38,8 @@ export class HumanController {
     @Permission('human:create')
     @Post()
     @UseInterceptors(FileInterceptor('avatar', multerOptions()))
-    create(@Req() req, @Body() createHumanDto: CreateHumanDto) {
-        return this.humanService.create(createHumanDto, req.user.id);
+    create(@Req() req, @Body() createHumanDto: CreateHumanDto, @UploadedFile() avatar: Express.Multer.File) {
+        return this.humanService.create(createHumanDto, avatar, req.user.id);
     }
 
     @Permission('human:findAll')
@@ -66,8 +80,8 @@ export class HumanController {
     @Permission('human:update')
     @Patch(':id')
     @UseInterceptors(FileInterceptor('avatar', multerOptions()))
-    update(@Req() req, @Param('id', ParseIntPipe) id: string, @Body() updateHumanDto: UpdateHumanDto) {
-        return this.humanService.update(+id, updateHumanDto, req.user.id);
+    update(@Req() req, @Param('id', ParseIntPipe) id: string, @Body() updateHumanDto: UpdateHumanDto, @UploadedFile() avatar: Express.Multer.File) {
+        return this.humanService.update(+id, updateHumanDto, avatar, req.user.id);
     }
 
     @Permission('human:remove')

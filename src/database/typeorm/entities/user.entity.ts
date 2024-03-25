@@ -5,7 +5,6 @@ import { AccountEntity } from '~/database/typeorm/entities/account.entity';
 import { DepartmentEntity } from '~/database/typeorm/entities/department.entity';
 import { InventoryEntity } from '~/database/typeorm/entities/inventory.entity';
 import { InventoryHistoryEntity } from '~/database/typeorm/entities/inventoryHistory.entity';
-import { MediaEntity } from '~/database/typeorm/entities/media.entity';
 import { ProposalEntity } from '~/database/typeorm/entities/proposal.entity';
 import { RoleEntity } from '~/database/typeorm/entities/role.entity';
 import { WarehousingBillEntity } from '~/database/typeorm/entities/warehousingBill.entity';
@@ -22,20 +21,18 @@ import { RewardEntity } from './reward.entity';
 import { UserShiftEntity } from './userShift.entity';
 import { CalendarEntity } from './calendar.entity';
 import { FreeTimekeepingEntity } from './freeTimekeeping.entity';
+import { CalendarUserEntity } from './calendarUser.entity';
 
 @Entity({ name: 'users' })
 export class UserEntity extends AbstractEntity {
     @PrimaryGeneratedColumn('increment', { name: 'id', type: 'int', unsigned: true })
     id: number;
 
-    @Column({ name: 'account_id', type: 'int', unsigned: true })
-    accountId: number;
+    @Column({ name: 'avatar', type: 'varchar', length: 1000, nullable: true })
+    avatar: string;
 
-    @Column({ name: 'role_id', type: 'int', unsigned: true, nullable: true })
-    roleId: number;
-
-    @Column({ name: 'media_id', type: 'int', unsigned: true, nullable: true })
-    avatarId: number;
+    @Column({ name: 'code', type: 'varchar', length: 255, nullable: true })
+    code: string;
 
     @Index('IDX_FULL_NAME', { fulltext: true })
     @Column({ name: 'full_name', type: 'varchar', length: 255, nullable: true })
@@ -45,48 +42,96 @@ export class UserEntity extends AbstractEntity {
     @Column({ name: 'email', type: 'varchar', length: 255, nullable: true, unique: true })
     email: string;
 
+    @Column({ name: 'phone_number', type: 'varchar', length: 15, nullable: true })
+    phoneNumber: string;
+
+    @Column({ name: 'another_name', type: 'varchar', length: 255, nullable: true })
+    anotherName: string;
+
+    @Column({ name: 'birthday', type: 'date', nullable: true })
+    birthDay: Date;
+
     //1: Nam, 2: Nữ
     @Column({ name: 'sex', type: 'int', nullable: true })
     sex: number;
 
-    @Column({ name: 'area_code', type: 'varchar', length: 5, nullable: true })
-    areaCode: string;
+    @Column({ name: 'identity_number', type: 'nvarchar', length: 255, nullable: true })
+    identityNumber: string;
 
-    @Column({ name: 'phone', type: 'varchar', length: 15, nullable: true })
-    phone: string;
+    @Column({ name: 'identity_date', type: 'date', nullable: true })
+    identityDate: Date;
 
-    @Column({ name: 'birthday', type: 'varchar', length: 255, nullable: true })
-    birthday: string;
+    @Column({ name: 'identity_place', type: 'varchar', length: 255, nullable: true })
+    identityPlace: string;
 
-    @Column({ name: 'address', type: 'varchar', length: 500, nullable: true })
-    address: string;
+    @Column({ name: 'passport_number', type: 'varchar', length: 255, nullable: true })
+    passportNumber: string;
 
-    @Column({ name: 'gender', type: 'varchar', length: 10, nullable: true })
-    gender: string;
+    @Column({ name: 'passport_date', type: 'date', nullable: true })
+    passportDate: Date;
 
-    @Column({ name: 'description', type: 'varchar', length: 255, nullable: true })
-    description: string;
-
-    @Column({ type: 'enum', enum: USER_STATUS, default: USER_STATUS.ACTIVE })
-    status: USER_STATUS;
-
-    @Column({ name: 'identity', type: 'nvarchar', length: 255, nullable: true })
-    identity: string;
-
-    @Column({ name: 'degree', type: 'varchar', length: 255, nullable: true })
-    degree: string;
+    @Column({ name: 'passport_place', type: 'varchar', length: 255, nullable: true })
+    passportPlace: string;
 
     @Column({ name: 'passport_expired', type: 'date', nullable: true })
     passportExpired: Date;
 
-    @Column({ name: 'department_id', type: 'int', unsigned: true, nullable: true })
-    departmentId: number;
+    @Column({ name: 'place_of_birth', type: 'varchar', length: 255, nullable: true })
+    placeOfBirth: string;
+
+    @Column({ name: 'nation', type: 'varchar', length: 255, nullable: true })
+    nation: string;
+
+    @Column({ name: 'province', type: 'varchar', length: 255, nullable: true })
+    province: string;
+
+    @Column({ name: 'religion', type: 'varchar', length: 255, nullable: true })
+    religion: string;
+
+    @Column({ name: 'marital_status', type: 'varchar', length: 255, nullable: true })
+    maritalStatus: string;
+
+    @Column({ type: 'enum', enum: USER_STATUS, default: USER_STATUS.ACTIVE })
+    status: USER_STATUS;
+
+    @Column({ name: 'date_of_join', type: 'date', nullable: true })
+    dateOfJoin: Date;
+
+    @Column({ name: 'tax_code', type: 'varchar', length: 255, nullable: true })
+    taxCode: string;
+
+    @Column({ name: 'bank_account', type: 'varchar', length: 255, nullable: true })
+    bankAccount: string;
+
+    @Column({ name: 'bank_name', type: 'varchar', length: 255, nullable: true })
+    bankName: string;
+
+    @Column({ name: 'bank_branch', type: 'varchar', length: 255, nullable: true })
+    bankBranch: string;
 
     @Column({ name: 'created_by', type: 'int', unsigned: true, nullable: true })
     createdBy: number;
 
     @Column({ name: 'updated_by', type: 'int', unsigned: true, nullable: true })
     updatedBy: number;
+
+    @Column({ name: 'department_id', type: 'int', unsigned: true, nullable: true })
+    departmentId: number;
+
+    @Column({ name: 'account_id', type: 'int', unsigned: true, nullable: true })
+    accountId: number;
+
+    @Column({ name: 'role_id', type: 'int', unsigned: true, nullable: true })
+    roleId: number;
+
+    @Column({ name: 'position_id', type: 'int', unsigned: true, nullable: true })
+    positionId: number;
+
+    @Column({ name: 'indirect_superior', type: 'int', unsigned: true, nullable: true })
+    indirectSuperior: number;
+
+    @Column({ name: 'direct_superior', type: 'int', unsigned: true, nullable: true })
+    directSuperior: number;
 
     /* RELATION */
     @OneToOne(() => AccountEntity, { createForeignKeyConstraints: false })
@@ -100,15 +145,6 @@ export class UserEntity extends AbstractEntity {
     })
     @JoinColumn({ name: 'role_id', referencedColumnName: 'id' })
     role: Relation<RoleEntity>;
-
-    @ManyToOne(() => MediaEntity, (entity: MediaEntity) => entity.users, {
-        nullable: true,
-        onDelete: 'SET NULL',
-        onUpdate: 'CASCADE',
-        createForeignKeyConstraints: false,
-    })
-    @JoinColumn({ name: 'media_id', referencedColumnName: 'id' })
-    avatar: Relation<MediaEntity>;
 
     @ManyToOne(() => DepartmentEntity, (entity: DepartmentEntity) => entity.users, {
         nullable: true,
@@ -237,15 +273,15 @@ export class UserEntity extends AbstractEntity {
     })
     rewards: Relation<RewardEntity>[];
 
-    @OneToMany(() => CalendarEntity, (entity: CalendarEntity) => entity.user, {
-        nullable: true,
-        createForeignKeyConstraints: false,
-    })
-    calendars: Relation<CalendarEntity>[];
-
     @OneToMany(() => FreeTimekeepingEntity, (entity: FreeTimekeepingEntity) => entity.user, {
         nullable: true,
         createForeignKeyConstraints: false,
     })
     freeTimekeepings: Relation<FreeTimekeepingEntity>[];
+
+    @OneToMany(() => CalendarUserEntity, (entity: CalendarUserEntity) => entity.user, {
+        nullable: true,
+        createForeignKeyConstraints: false,
+    })
+    calendarUsers: Relation<CalendarUserEntity>[];
 }

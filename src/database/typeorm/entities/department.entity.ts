@@ -65,11 +65,11 @@ export class DepartmentEntity extends AbstractEntity {
     })
     children: Relation<DepartmentEntity>[];
 
-    @OneToMany(() => CalendarEntity, (entity: CalendarEntity) => entity.department, {
-        nullable: true,
-        createForeignKeyConstraints: false,
-    })
-    calendars: Relation<CalendarEntity>[];
+    // @OneToMany(() => CalendarEntity, (entity: CalendarEntity) => entity.department, {
+    //     nullable: true,
+    //     createForeignKeyConstraints: false,
+    // })
+    // calendars: Relation<CalendarEntity>[];
 
     @OneToMany(() => DepartmentTaskEntity, (entity: DepartmentTaskEntity) => entity.department, {
         nullable: true,
