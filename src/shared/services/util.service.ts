@@ -1,4 +1,5 @@
 import { BadRequestException, HttpException, Injectable } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { createCipheriv, createDecipheriv } from 'crypto';
 import fs from 'fs';
 import moment from 'moment';
@@ -7,10 +8,11 @@ import { In, Repository, SelectQueryBuilder } from 'typeorm';
 import { DEFAULT_PAGE, DEFAULT_PER_PAGE } from '~/common/constants/constant';
 import { MEDIA_TYPE } from '~/common/enums/enum';
 import { DatabaseService } from '~/database/typeorm/database.service';
+import { InventoryEntity } from '~/database/typeorm/entities/inventory.entity';
 
 @Injectable()
 export class UtilService {
-    constructor(private readonly database: DatabaseService) {}
+    constructor(private readonly database: DatabaseService, private eventEmitter: EventEmitter2) {}
 
     capitalizeFirstLetter(str: string) {
         if (!str) return null;
@@ -379,5 +381,47 @@ export class UtilService {
     async checkApprovalPermission(data: { entity: string; approverId: number; toStatus: string }) {
         const config = await this.database.approvalConfig.getConfig(data);
         if (!config) throw new HttpException('Bạn không có quyền duyệt phiếu sửa chữa', 403);
+    }
+
+    async notifyLimits(inventories: Partial<InventoryEntity>[]) {
+        const productIds = inventories.map((inventory) => inventory.productId);
+        const limits = await this.database.quantityLimit.find({ where: { productId: In(productIds) }, relations: ['product'] });
+        const warehouses = await this.database.warehouse.find({
+            where: { id: In(inventories.map((i) => i.warehouseId)) },
+            select: ['id', 'name', 'managerId'],
+        });
+
+        const notifications = inventories.map((inventory) => {
+            const product = limits.find((limit) => limit.productId === inventory.productId)?.product;
+            const limit = limits.find((limit) => limit.productId === inventory.productId);
+            const warehouse = warehouses.find((warehouse) => warehouse.id === inventory.warehouseId);
+            if (!limit) return null;
+            if (limit.minQuantity > 0 && inventory.quantity < limit.minQuantity) {
+                return {
+                    receiverId: warehouse?.managerId,
+                    warehouseName: warehouse?.name,
+                    productId: inventory.productId,
+                    productName: product?.name,
+                    quantity: inventory.quantity,
+                    min: limit.minQuantity,
+                };
+            } else if (limit.maxQuantity > 0 && inventory.quantity > limit.maxQuantity) {
+                return {
+                    receiverId: warehouse?.managerId,
+                    warehouseName: warehouse?.name,
+                    productId: inventory.productId,
+                    productName: product?.name,
+                    quantity: inventory.quantity,
+                    max: limit.maxQuantity,
+                };
+            }
+
+            return null;
+        });
+
+        this.eventEmitter.emit(
+            'inventory.notifyLimits',
+            notifications.filter((notification) => notification !== null),
+        );
     }
 }

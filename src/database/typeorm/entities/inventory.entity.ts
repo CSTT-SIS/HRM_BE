@@ -45,6 +45,9 @@ export class InventoryEntity extends AbstractEntity {
     @Column({ name: 'notify_before', type: 'int', unsigned: true, nullable: true, default: 1 })
     notifyBefore: number; // days
 
+    @Column({ name: 'notify_expired', type: 'tinyint', unsigned: true, nullable: true, default: 0 })
+    notifyExpired: boolean;
+
     /* RELATIONS */
     @ManyToOne(() => WarehouseEntity, (warehouse) => warehouse.inventories, { createForeignKeyConstraints: false })
     @JoinColumn({ name: 'warehouse_id', referencedColumnName: 'id' })

@@ -1,7 +1,6 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn, Relation } from 'typeorm';
 import { MEDIA_TYPE } from '~/common/enums/enum';
 import { ProductEntity } from '~/database/typeorm/entities/product.entity';
-import { UserEntity } from '~/database/typeorm/entities/user.entity';
 import { AbstractEntity } from './abstract.entity';
 import { DepartmentEntity } from './department.entity';
 
@@ -20,8 +19,8 @@ export class MediaEntity extends AbstractEntity {
     path: string;
 
     /* RELATION */
-    @OneToMany(() => UserEntity, (entity: UserEntity) => entity.avatar, { createForeignKeyConstraints: false })
-    users: Relation<UserEntity>[];
+    // @OneToMany(() => UserEntity, (entity: UserEntity) => entity.avatar, { createForeignKeyConstraints: false })
+    // users: Relation<UserEntity>[];
 
     @OneToMany(() => ProductEntity, (entity: ProductEntity) => entity.media, { createForeignKeyConstraints: false })
     products: Relation<ProductEntity>[];

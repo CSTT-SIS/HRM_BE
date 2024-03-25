@@ -348,32 +348,36 @@ export class StocktakeService {
         const inventories = await this.database.inventory.findBy({ productId: In(products.map((product) => product.productId)) });
 
         const inventoryHistories = [];
-        const updatedInventories = products.map((product) => {
-            const inventory = inventories.find((inventory) => inventory.productId === product.productId);
-            const change = product.actualQuantity - (inventory?.quantity || 0);
-            if (inventory) {
-                inventoryHistories.push(
-                    this.database.inventoryHistory.create({
-                        inventoryId: inventory.id,
-                        from: inventory.quantity,
-                        to: inventory.quantity + change,
-                        change: change,
-                        updatedById: UserStorage.getId(),
-                        type: INVENTORY_HISTORY_TYPE.STOCKTAKE,
-                        note: JSON.stringify({ stocktakeId: id, stocktakeDetailId: product.detailId }),
-                    }),
-                );
-                return {
-                    ...inventory,
-                    quantity: inventory.quantity + change,
-                };
-            }
+        const updatedInventories = products
+            .map((product) => {
+                const inventory = inventories.find((inventory) => inventory.productId === product.productId);
+                const change = product.actualQuantity - (inventory?.quantity || 0);
+                if (inventory) {
+                    inventoryHistories.push(
+                        this.database.inventoryHistory.create({
+                            inventoryId: inventory.id,
+                            from: inventory.quantity,
+                            to: inventory.quantity + change,
+                            change: change,
+                            updatedById: UserStorage.getId(),
+                            type: INVENTORY_HISTORY_TYPE.STOCKTAKE,
+                            note: JSON.stringify({ stocktakeId: id, stocktakeDetailId: product.detailId }),
+                        }),
+                    );
+                    return {
+                        ...inventory,
+                        quantity: inventory.quantity + change,
+                    };
+                }
 
-            return null;
-        });
+                return null;
+            })
+            .filter((inventory) => inventory !== null);
 
-        this.database.inventory.save(updatedInventories.filter((inventory) => inventory !== null));
+        this.database.inventory.save(updatedInventories);
         this.database.inventoryHistory.save(inventoryHistories);
+        //notify limits
+        this.utilService.notifyLimits(updatedInventories);
     }
 
     private emitEventByStatus(status: STOCKTAKE_STATUS, data: { id: number }) {

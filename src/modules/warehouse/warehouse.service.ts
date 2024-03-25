@@ -100,6 +100,7 @@ export class WarehouseService {
                 quantity: inventory.quantity + data.quantity,
                 expiredAt: data.expiredDate ? moment(data.expiredDate).toDate() : null,
                 notifyBefore: data.notifyBefore,
+                notifyExpired: data.notifyExpired,
             });
             this.database.inventoryHistory.save(
                 this.database.inventoryHistory.create({
@@ -119,6 +120,7 @@ export class WarehouseService {
                     notifyBefore: data.notifyBefore,
                     warehouseId: id,
                     createdById: UserStorage.getId(),
+                    notifyExpired: data.notifyExpired,
                 }),
             );
             this.database.inventoryHistory.save(
@@ -133,6 +135,8 @@ export class WarehouseService {
             );
         }
 
+        this.utilService.notifyLimits([inventory]);
+
         return inventory;
     }
 
@@ -145,6 +149,7 @@ export class WarehouseService {
                 ...data,
                 expiredAt: data.expiredDate ? moment(data.expiredDate).toDate() : null,
                 notifyBefore: data.notifyBefore,
+                notifyExpired: data.notifyExpired,
             });
             // this.database.inventoryHistory.save(
             //     this.database.inventoryHistory.create({
