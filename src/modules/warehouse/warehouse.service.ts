@@ -135,6 +135,8 @@ export class WarehouseService {
             );
         }
 
+        this.utilService.notifyLimits([inventory]);
+
         return inventory;
     }
 

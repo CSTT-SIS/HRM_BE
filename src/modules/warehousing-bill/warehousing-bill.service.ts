@@ -612,6 +612,8 @@ export class WarehousingBillService {
         const { updatedInventories, newInventories } = this.updateOrCreateInventories(bill, billProducts, inventories);
 
         await Promise.all([this.database.inventory.save(updatedInventories), this.database.inventory.save(newInventories)]);
+        // notify limits
+        this.utilService.notifyLimits([...updatedInventories, ...newInventories]);
 
         const inventoryHistories = this.createInventoryHistories(bill, billProducts, updatedInventories, newInventories);
         await this.database.inventoryHistory.save(inventoryHistories);
