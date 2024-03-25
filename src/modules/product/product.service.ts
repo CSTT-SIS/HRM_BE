@@ -131,6 +131,12 @@ export class ProductService {
     }
 
     private async updateLimit(id: number, data: UpdateProductLimitDto) {
+        if (data.minQuantity > data.maxQuantity) {
+            const tmp = data.minQuantity;
+            data.minQuantity = data.maxQuantity;
+            data.maxQuantity = tmp;
+        }
+
         const limit = await this.database.quantityLimit.findOne({ where: { productId: id } });
         if (limit) {
             return this.database.quantityLimit.update(limit.id, { updatedById: UserStorage.getId(), ...data });
