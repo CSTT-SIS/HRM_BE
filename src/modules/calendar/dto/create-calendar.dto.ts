@@ -1,35 +1,37 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDateString, IsNotEmpty, IsNumber, IsOptional, IsString, Length } from 'class-validator';
-import { CALENDAR_TYPE } from '~/common/enums/enum';
+import { ArrayMinSize, IsArray, IsDateString, IsNotEmpty, IsNumber, IsOptional, IsString, Length } from 'class-validator';
+import { CALENDAR_TYPE, LEVEL_CALENDAR } from '~/common/enums/enum';
 import { IsIdExist } from '~/common/validators/is-id-exist.validator';
 
 export class CreateCalendarDto {
-    @ApiProperty({ type: 'string', description: 'Nội dung', required: true })
-    @IsNotEmpty({ message: 'Nội dung không được để trống' })
-    @Length(1, 255, { message: 'Tên phải từ 1-255 ký tự' })
-    content: string;
+    @ApiProperty({ type: 'string', description: 'Tiêu đề', required: true })
+    @IsNotEmpty({ message: 'Tiêu đề không được để trống' })
+    @Length(1, 255, { message: 'Tiêu đề phải từ 1-255 ký tự' })
+    title: string;
 
-    @ApiProperty({ type: 'string', description: 'Mô tả', required: false })
+    @ApiProperty({ type: 'string', description: 'Mô tả', required: true })
     @IsOptional()
     description: string;
 
-    @ApiProperty({ type: 'string', format: 'date', description: 'Thời gian', required: true })
+    @ApiProperty({ type: 'string', format: 'date-time', description: 'Thời gian bắt đầu', required: true })
     @IsNotEmpty()
     @IsDateString()
-    time: Date;
+    startDate: Date;
 
-    @ApiProperty({ enum: CALENDAR_TYPE, description: 'Loại lịch', required: true })
+    @ApiProperty({ type: 'string', format: 'date-time', description: 'Thời gian', required: true })
+    @IsNotEmpty()
+    @IsDateString()
+    endDate: Date;
+
+    @ApiProperty({ enum: LEVEL_CALENDAR, description: 'Mức độ', required: true })
     @IsNotEmpty()
     @IsNumber()
-    type: CALENDAR_TYPE;
+    level: LEVEL_CALENDAR;
 
-    @ApiProperty({ type: 'number', description: 'Id phòng ban', required: false })
-    @IsOptional()
-    @IsIdExist({ entity: 'department' }, { message: 'Id phòng ban không tồn tại' })
-    departmentId: number;
-
-    @ApiProperty({ type: 'number', description: 'Id nhân viên', required: false })
-    @IsOptional()
-    @IsIdExist({ entity: 'user' }, { message: 'Id nhân viên không tồn tại' })
-    userId: number;
+    @ApiProperty({ type: 'number', isArray: true, description: 'Id nhân viên', required: true })
+    @IsNotEmpty()
+    @IsNumber({}, { each: true })
+    @IsArray()
+    @ArrayMinSize(1)
+    userIds: number[];
 }

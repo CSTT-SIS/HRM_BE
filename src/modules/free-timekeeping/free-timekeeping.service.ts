@@ -13,7 +13,7 @@ export class FreeTimekeepingService {
         return this.database.freeTimekeeping.save(
             this.database.freeTimekeeping.create({
                 ...createFreeTimekeepingDto,
-                supportingDocuments: files.length !== 0 ? files.map((file) => file.filename).join(', ') : null,
+                supportingDocuments: files.length !== 0 ? files.map((file) => file.filename).join(',') : null,
                 createdBy: userId,
             }),
         );
@@ -48,7 +48,7 @@ export class FreeTimekeepingService {
     update(id: number, updateFreeTimekeepingDto: UpdateFreeTimekeepingDto, files: Array<Express.Multer.File>, userId: number) {
         return this.database.freeTimekeeping.update(id, {
             ...updateFreeTimekeepingDto,
-            supportingDocuments: files.length !== 0 ? files.map((file) => file.filename).join(', ') : null,
+            supportingDocuments: files.length !== 0 ? files.map((file) => file.filename).join(',') : null,
             updatedBy: userId,
         });
     }

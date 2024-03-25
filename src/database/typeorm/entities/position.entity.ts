@@ -10,6 +10,15 @@ export class PositionEntity extends AbstractEntity {
     @Column({ name: 'name', type: 'varchar', length: 255, nullable: true })
     name: string;
 
+    @Column({ name: 'code', type: 'varchar', length: 50, nullable: true })
+    code: string;
+
+    @Column({ name: 'group_position', type: 'varchar', length: 255, nullable: true })
+    groupPosition: string;
+
+    @Column({ name: 'is_active', type: 'boolean', default: true })
+    isActive: boolean;
+
     @Column({ name: 'description', type: 'varchar', length: 255, nullable: true })
     description: string;
 

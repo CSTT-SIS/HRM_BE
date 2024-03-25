@@ -8,6 +8,12 @@ export class ShiftEntity extends AbstractEntity {
     @PrimaryGeneratedColumn('increment', { name: 'id', type: 'int', unsigned: true })
     id: number;
 
+    @Column({ name: 'name', type: 'varchar', length: 255, nullable: true })
+    name: string;
+
+    @Column({ name: 'code', type: 'varchar', length: 50, nullable: true })
+    code: string;
+
     @Column({ type: 'enum', enum: SHIFT_TYPE, default: SHIFT_TYPE.TIME_RANGE })
     type: SHIFT_TYPE;
 
@@ -32,7 +38,10 @@ export class ShiftEntity extends AbstractEntity {
     @Column({ name: 'note', type: 'varchar', length: 255, nullable: true })
     note: string;
 
-    @Column({ name: 'is_active', type: 'boolean', default: true, nullable: true })
+    @Column({ name: 'description', type: 'varchar', length: 255, nullable: true })
+    description: string;
+
+    @Column({ name: 'is_active', type: 'boolean', default: true })
     isActive: boolean;
 
     /* RELATION */

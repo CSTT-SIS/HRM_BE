@@ -8,11 +8,20 @@ export class CreateDepartmentDto {
     name: string;
 
     @ApiProperty()
+    @IsNotEmpty({ message: 'Tên viết tắt không được để trống' })
+    @Length(1, 255, { message: 'Tên phải từ 1-255 ký tự' })
+    abbreviation: string;
+
+    @ApiProperty()
+    @IsNotEmpty({ message: 'Mã phòng ban không được để trống' })
+    code: string;
+
+    @ApiProperty()
     @IsOptional()
     description: string;
 
     @ApiProperty()
-    @IsOptional()
+    @IsNotEmpty({ message: 'Người quản lý không được để trống' })
     headOfDepartmentId: number;
 
     @ApiProperty()

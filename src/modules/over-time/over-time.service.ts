@@ -14,7 +14,7 @@ export class OverTimeService {
         return this.database.overtimeRequest.save(
             this.database.overtimeRequest.create({
                 ...createOverTimeDto,
-                supportingDocuments: files.length !== 0 ? files.map((file) => file.filename).join(', ') : null,
+                supportingDocuments: files.length !== 0 ? files.map((file) => file.filename).join(',') : null,
                 createdBy: userId,
             }),
         );
@@ -51,7 +51,7 @@ export class OverTimeService {
 
         return this.database.overtimeRequest.update(id, {
             ...updateOverTimeDto,
-            supportingDocuments: files.length !== 0 ? files.map((file) => file.filename).join(', ') : null,
+            supportingDocuments: files.length !== 0 ? files.map((file) => file.filename).join(',') : null,
             approverId:
                 overTime.status !== OVERTIME_REQUEST_STATUS.APPROVED && updateOverTimeDto.status === OVERTIME_REQUEST_STATUS.APPROVED
                     ? userId

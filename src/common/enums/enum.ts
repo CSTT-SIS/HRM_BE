@@ -22,6 +22,15 @@ export enum MEDIA_TYPE {
     MISC = 'MISC',
 }
 
+export enum NOTIFICATION_TYPE {
+    NEW_TASK = 'NHIỆM VỤ MỚI',
+    NEW_LEAVE_REQUEST = 'YÊU CẦU NGHỈ PHÉP MỚI',
+    NEW_CLAIM = 'ĐƠN YÊU CẦU MỚI',
+    WORK_SOLVING_STATUS = 'TÌNH TRẠNG GIẢI QUYẾT CÔNG VIỆC',
+    APPLICATION_RESOLUTION_STATUS = 'TÌNH TRẠNG GIẢI QUYẾT ĐƠN TỪ',
+    EXPIRED_PASSPORT = 'HỘ CHIẾU HẾT HẠN',
+}
+
 export enum CACHE_TIME {
     ONE_MINUTE = 60,
     THIRTY_MINUTES = 1800,
@@ -147,7 +156,9 @@ export enum HUMAN_DASHBOARD_TYPE {
 }
 
 export enum CALENDAR_TYPE {
-    GENERAL = 1,
+    BY_MONTH = 'BY_MONTH',
+    BY_WEEK = 'BY_WEEK',
+    BY_DAY = 'BY_DAY',
     // ----
 }
 
@@ -223,5 +234,13 @@ export enum ASSET_STATUS {
 export enum LETTER_TYPE {
     LATE = 'LATE',
     SOON = 'SOON',
+    // ----
+}
+
+export enum LEVEL_CALENDAR {
+    LESS_IMPORTANT = 1,
+    NORMAL = 2,
+    IMPORTANT = 3,
+    HIGH_PRIORITY = 4,
     // ----
 }

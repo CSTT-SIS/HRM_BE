@@ -64,7 +64,33 @@ export class UserRepository extends Repository<UserEntity> {
         }));
     }
 
-    async getStatisByMonth() {
-        return [];
+    async getStatisByMonth(page: number, perPage: number, sortBy: string) {
+        let query = `SELECT YEAR(DATE_SUB(NOW(), INTERVAL ${(page - 1) * perPage} MONTH)) AS year,
+                        MONTH(DATE_SUB(NOW(), INTERVAL ${(page - 1) * perPage} MONTH)) AS month, 
+                        COUNT(*) AS quantity
+                        FROM contracts 
+                            WHERE DATE_FORMAT(start_day, '%Y-%m-01')<=LAST_DAY(DATE_SUB(NOW(), INTERVAL ${(page - 1) * perPage} MONTH))
+                            AND LAST_DAY(IFNULL(end_day, curdate()))>=DATE_FORMAT(DATE_SUB(NOW(), INTERVAL ${
+                                (page - 1) * perPage
+                            } MONTH), '%Y-%m-01')`;
+
+        for (let i = 1; i <= perPage; i++) {
+            query += ` UNION SELECT YEAR(DATE_SUB(NOW(), INTERVAL ${i + (page - 1) * perPage} MONTH)) AS year,
+                        MONTH(DATE_SUB(NOW(), INTERVAL ${i + (page - 1) * perPage} MONTH)) AS month, 
+                        COUNT(*) AS quantity
+                        FROM contracts 
+                            WHERE DATE_FORMAT(start_day, '%Y-%m-01')<=LAST_DAY(DATE_SUB(NOW(), INTERVAL ${i + (page - 1) * perPage} MONTH))
+                            AND LAST_DAY(IFNULL(end_day, curdate()))>=DATE_FORMAT(DATE_SUB(NOW(), INTERVAL ${
+                                i + (page - 1) * perPage
+                            } MONTH), '%Y-%m-01')`;
+        }
+
+        const result = this.query(query);
+
+        return (await result).map((item) => ({
+            year: Number(item.year),
+            month: Number(item.month),
+            quantity: Number(item.quantity),
+        }));
     }
 }
