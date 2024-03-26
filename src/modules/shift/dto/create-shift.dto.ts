@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsDateString, IsEnum, IsInt, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsDateString, IsEnum, IsInt, IsNotEmpty, IsOptional, IsString, Matches } from 'class-validator';
 import { SHIFT_TYPE } from '~/common/enums/enum';
 
 export class CreateShiftDto {
@@ -15,25 +15,29 @@ export class CreateShiftDto {
     @IsNotEmpty({ message: 'Mã ca làm việc không được để trống' })
     code: string;
 
-    @ApiProperty({ type: 'string', format: 'date-time', description: 'Thời gian bắt đầu', required: false })
+    @ApiProperty({ type: 'string', format: 'time', description: 'Thời gian bắt đầu', required: false })
     @IsOptional()
-    @IsDateString()
-    startTime: Date;
+    @IsString()
+    @Matches(/^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/)
+    startTime: string;
 
-    @ApiProperty({ type: 'string', format: 'date-time', description: 'Thời gian kết thúc', required: false })
+    @ApiProperty({ type: 'string', format: 'time', description: 'Thời gian kết thúc', required: false })
     @IsOptional()
-    @IsDateString()
-    endTime: Date;
+    @IsString()
+    @Matches(/^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/)
+    endTime: string;
 
-    @ApiProperty({ type: 'string', format: 'date-time', description: 'Thời gian nghỉ từ', required: false })
+    @ApiProperty({ type: 'string', format: 'time', description: 'Thời gian nghỉ từ', required: false })
     @IsOptional()
-    @IsDateString()
-    breakFrom: Date;
+    @IsString()
+    @Matches(/^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/)
+    breakFrom: string;
 
-    @ApiProperty({ type: 'string', format: 'date-time', description: 'Thời gian nghỉ đến', required: false })
+    @ApiProperty({ type: 'string', format: 'time', description: 'Thời gian nghỉ đến', required: false })
     @IsOptional()
-    @IsDateString()
-    breakTo: Date;
+    @IsString()
+    @Matches(/^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/)
+    breakTo: string;
 
     @ApiProperty({ type: 'number', description: 'Hệ số lương', required: false })
     @IsOptional()

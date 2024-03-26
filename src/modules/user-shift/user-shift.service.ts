@@ -47,4 +47,8 @@ export class UserShiftService {
     remove(id: number) {
         return this.database.userShift.delete(id);
     }
+
+    getUsers(id: number) {
+        return this.database.userShift.findAllUserByShiftId(id);
+    }
 }
