@@ -104,6 +104,7 @@ export class RepairRequestService {
         builder.leftJoinAndSelect('repairBy.department', 'rbDepartment');
         builder.leftJoinAndSelect('entity.createdBy', 'createdBy');
         builder.leftJoinAndSelect('createdBy.department', 'cbDepartment');
+        builder.leftJoinAndSelect('entity.images', 'images');
 
         builder.select([
             'entity',
@@ -128,6 +129,9 @@ export class RepairRequestService {
             'createdBy.fullName',
             'cbDepartment.id',
             'cbDepartment.name',
+            'images.id',
+            'images.name',
+            'images.path',
         ]);
 
         builder.where({ id });
