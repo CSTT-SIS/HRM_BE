@@ -116,6 +116,7 @@ export class VehicleService {
             'details',
             'replacementPart.id',
             'replacementPart.name',
+            'replacementPart.quantity',
             'progresses',
             'progressRepairBy.id',
             'progressRepairBy.fullName',
