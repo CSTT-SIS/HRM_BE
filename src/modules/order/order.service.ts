@@ -34,7 +34,7 @@ export class OrderService {
         const { builder, take, pagination } = this.utilService.getQueryBuilderAndPagination(this.database.order, queries);
 
         builder.andWhere(this.utilService.getConditionsFromQuery(queries, ['warehouseId', 'status']));
-        builder.andWhere(this.utilService.fullTextSearch({ fields: ['name'], keyword: queries.search }));
+        builder.andWhere(this.utilService.rawQuerySearch({ fields: ['name'], keyword: queries.search }));
 
         builder.leftJoinAndSelect('entity.createdBy', 'createdBy');
         builder.leftJoinAndSelect('createdBy.department', 'department');
@@ -138,7 +138,7 @@ export class OrderService {
 
     async getItems(queries: FilterDto & { orderId: number; productId: string }) {
         const { builder, take, pagination } = this.utilService.getQueryBuilderAndPagination(this.database.orderItem, queries);
-        builder.andWhere(this.utilService.fullTextSearch({ fields: ['product.name'], keyword: queries.search }));
+        builder.andWhere(this.utilService.rawQuerySearch({ fields: ['product.name'], keyword: queries.search }));
 
         builder.leftJoinAndSelect('entity.product', 'product');
         builder.leftJoinAndSelect('product.unit', 'unit');

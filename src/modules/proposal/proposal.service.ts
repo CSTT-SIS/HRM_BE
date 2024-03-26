@@ -27,7 +27,7 @@ export class ProposalService {
     async findAll(queries: FilterDto & { type: PROPOSAL_TYPE; status: PROPOSAL_STATUS; warehouseId: number }) {
         const { builder, take, pagination } = this.utilService.getQueryBuilderAndPagination(this.database.proposal, queries);
 
-        builder.andWhere(this.utilService.fullTextSearch({ fields: ['name'], keyword: queries.search }));
+        builder.andWhere(this.utilService.rawQuerySearch({ fields: ['name'], keyword: queries.search }));
         builder.andWhere(this.utilService.getConditionsFromQuery(queries, ['type', 'status', 'warehouseId']));
 
         builder.leftJoinAndSelect('entity.department', 'department');
@@ -244,7 +244,7 @@ export class ProposalService {
 
     async getDetails(queries: FilterDto & { proposalId: number; productId: number }) {
         const { builder, take, pagination } = this.utilService.getQueryBuilderAndPagination(this.database.proposalDetail, queries);
-        builder.andWhere(this.utilService.fullTextSearch({ fields: ['product.name'], keyword: queries.search }));
+        builder.andWhere(this.utilService.rawQuerySearch({ fields: ['product.name'], keyword: queries.search }));
 
         builder.leftJoinAndSelect('entity.product', 'product');
         builder.leftJoinAndSelect('product.unit', 'unit');

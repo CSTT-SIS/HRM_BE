@@ -161,7 +161,7 @@ export class WarehousingBillService {
 
     async getDetails(queries: FilterDto & { warehousingBillId: number; productId: string }) {
         const { builder, take, pagination } = this.utilService.getQueryBuilderAndPagination(this.database.warehousingBillDetail, queries);
-        builder.andWhere(this.utilService.fullTextSearch({ fields: ['product.name'], keyword: queries.search }));
+        builder.andWhere(this.utilService.rawQuerySearch({ fields: ['product.name'], keyword: queries.search }));
 
         builder.leftJoinAndSelect('entity.product', 'product');
         builder.leftJoinAndSelect('product.unit', 'unit');

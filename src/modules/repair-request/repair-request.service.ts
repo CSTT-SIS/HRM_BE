@@ -220,7 +220,7 @@ export class RepairRequestService {
 
     async getDetails(queries: FilterDto & { requestId: number; replacementPartId: number }) {
         const { builder, take, pagination } = this.utilService.getQueryBuilderAndPagination(this.database.repairDetail, queries);
-        builder.andWhere(this.utilService.fullTextSearch({ fields: ['replacementPart.name'], keyword: queries.search }));
+        builder.andWhere(this.utilService.rawQuerySearch({ fields: ['replacementPart.name'], keyword: queries.search }));
 
         builder.leftJoinAndSelect('entity.replacementPart', 'replacementPart');
         builder.leftJoinAndSelect('replacementPart.unit', 'unit');

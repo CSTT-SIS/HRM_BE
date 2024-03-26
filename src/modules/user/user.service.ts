@@ -53,8 +53,7 @@ export class UserService {
         const { builder, take, pagination } = this.utilService.getQueryBuilderAndPagination(this.database.user, queries);
 
         if (!this.utilService.isEmpty(queries.search)) {
-            builder.andWhere(this.utilService.fullTextSearch({ fields: ['fullName', 'email'], keyword: queries.search }));
-            // builder.andWhere(this.utilService.searchRawQuery({ fields: ['fullName', 'email'], keyword: queries.search }));
+            builder.andWhere(this.utilService.rawQuerySearch({ fields: ['fullName', 'email'], keyword: queries.search }));
         }
 
         builder.leftJoinAndSelect('entity.role', 'role');

@@ -172,7 +172,7 @@ export class StocktakeService {
     async getDetails(queries: FilterDto & { stocktakeId: number; productId: number }) {
         const { builder, take, pagination } = this.utilService.getQueryBuilderAndPagination(this.database.stocktakeDetail, queries);
         if (!this.utilService.isEmpty(queries.search))
-            builder.andWhere(this.utilService.fullTextSearch({ fields: ['product.name'], keyword: queries.search }));
+            builder.andWhere(this.utilService.rawQuerySearch({ fields: ['product.name'], keyword: queries.search }));
 
         builder.leftJoinAndSelect('entity.product', 'product');
         builder.leftJoinAndSelect('product.unit', 'unit');
