@@ -321,7 +321,7 @@ export class UtilService {
             fields
                 .map((field) => {
                     if (this.isEmpty(rest[field])) return null;
-                    const searchCondition = rest[field] == 0 ? 'IS NULL' : `= '${rest[field]}'`;
+                    const searchCondition = `= ${rest[field]}`;
                     return `${field.indexOf('.') === -1 ? entityAliasString : ''}${field} ${searchCondition}`;
                 })
                 .filter((el) => el !== null)

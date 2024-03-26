@@ -244,3 +244,9 @@ export enum LEVEL_CALENDAR {
     HIGH_PRIORITY = 4,
     // ----
 }
+
+export enum IS_MANAGER {
+    YES = 1,
+    NO = 0,
+    // ----
+}
