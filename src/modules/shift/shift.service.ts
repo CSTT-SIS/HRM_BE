@@ -18,6 +18,7 @@ export class ShiftService {
 
         // change to `rawQuerySearch` if entity don't have fulltext indices
         builder.andWhere(this.utilService.fullTextSearch({ fields: ['name'], keyword: queries.search }));
+        builder.andWhere(this.utilService.rawQuerySearch({ fields: ['type'], keyword: queries.type }));
 
         builder.select(['entity']);
 

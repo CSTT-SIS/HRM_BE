@@ -20,4 +20,8 @@ export class FilterDto {
     @ApiProperty({ required: false })
     @IsOptional()
     search: string;
+
+    @ApiProperty({ required: false })
+    @IsOptional()
+    type: string;
 }
