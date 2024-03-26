@@ -305,7 +305,9 @@ export class UtilService {
         if (this.isEmpty(data.keyword)) return {};
         const { entityAlias, keyword, fields } = data;
         const entityAliasString = entityAlias ? `${entityAlias}.` : 'entity.';
-        return fields.map((field) => `${field.indexOf('.') === -1 ? entityAliasString : ''}${field} LIKE '%${keyword}%'`).join(' OR ');
+        return fields
+            .map((field) => `LOWER(${field.indexOf('.') === -1 ? entityAliasString : ''}${field}) LIKE '%${keyword.toLowerCase()}%'`)
+            .join(' OR ');
     }
 
     /**

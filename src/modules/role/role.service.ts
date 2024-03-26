@@ -29,7 +29,7 @@ export class RoleService {
 
         if (Number(query.perPage) !== 0) builder.take(take).skip(skip);
         if (query.sortBy) builder.orderBy(this.utilService.getSortCondition('entity', query.sortBy));
-        if (query.search) builder.andWhere(this.utilService.fullTextSearch({ fields: ['name'], keyword: query.search }));
+        if (query.search) builder.andWhere(this.utilService.rawQuerySearch({ fields: ['name'], keyword: query.search }));
 
         const [result, total] = await builder.getManyAndCount();
         const totalPages = Math.ceil(total / take);
