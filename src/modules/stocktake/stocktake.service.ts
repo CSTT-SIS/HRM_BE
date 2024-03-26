@@ -89,6 +89,7 @@ export class StocktakeService {
         builder.leftJoinAndSelect('entity.details', 'details');
         builder.leftJoinAndSelect('details.product', 'product');
         builder.leftJoinAndSelect('product.unit', 'unit');
+        builder.leftJoinAndSelect('entity.attachments', 'attachments');
         builder.select([
             'entity',
             'createdBy.id',
@@ -116,6 +117,9 @@ export class StocktakeService {
             'product.quantity',
             'unit.id',
             'unit.name',
+            'attachments.id',
+            'attachments.name',
+            'attachments.path',
         ]);
         return builder.getOne();
     }
