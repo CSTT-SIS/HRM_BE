@@ -42,4 +42,10 @@ export class UserShiftController {
     remove(@Param('id', ParseIntPipe) id: string) {
         return this.userShiftService.remove(+id);
     }
+
+    @Permission('userShift:get-user-by-shiftId')
+    @Get(':id/users')
+    getUsers(@Param('id', ParseIntPipe) id: string) {
+        return this.userShiftService.getUsers(+id);
+    }
 }
