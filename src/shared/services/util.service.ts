@@ -5,6 +5,7 @@ import fs from 'fs';
 import moment from 'moment';
 import path from 'path';
 import { In, Repository, SelectQueryBuilder } from 'typeorm';
+import * as XLSX from 'xlsx';
 import { DEFAULT_PAGE, DEFAULT_PER_PAGE } from '~/common/constants/constant';
 import { MEDIA_TYPE } from '~/common/enums/enum';
 import { DatabaseService } from '~/database/typeorm/database.service';
@@ -304,7 +305,9 @@ export class UtilService {
         if (this.isEmpty(data.keyword)) return {};
         const { entityAlias, keyword, fields } = data;
         const entityAliasString = entityAlias ? `${entityAlias}.` : 'entity.';
-        return fields.map((field) => `${field.indexOf('.') === -1 ? entityAliasString : ''}${field} LIKE '%${keyword}%'`).join(' OR ');
+        return fields
+            .map((field) => `LOWER(${field.indexOf('.') === -1 ? entityAliasString : ''}${field}) LIKE '%${keyword.toLowerCase()}%'`)
+            .join(' OR ');
     }
 
     /**
@@ -423,5 +426,35 @@ export class UtilService {
             'inventory.notifyLimits',
             notifications.filter((notification) => notification !== null),
         );
+    }
+
+    readExcelFile(filePath: string, schema: { [oldKey: string]: { prop: string; type: any } }, sheetIndex = 0, startFromRow = 1) {
+        // check if file exists
+        if (!fs.existsSync(`.${filePath}`)) {
+            throw new HttpException('File không tồn tại', 400);
+        }
+
+        try {
+            // Read the xlsx file
+            const workbook = XLSX.readFile(`.${filePath}`);
+            const sheetName = workbook.SheetNames[sheetIndex];
+            const rows = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
+            const mappedData = rows
+                .map((row: any, index: number) => {
+                    if (index < startFromRow) return null;
+                    const mappedRow: any = {};
+                    const rowKeys = Object.keys(row);
+                    Object.keys(schema).forEach((key, index) => {
+                        const rowKey = rowKeys.find((rowKey) => rowKey.toLowerCase() === key.toLowerCase()) || rowKeys[index];
+                        mappedRow[schema[key].prop] = this.isEmpty(row[rowKey]) ? null : schema[key].type(row[rowKey]);
+                    });
+                    return mappedRow;
+                })
+                .filter((row) => row !== null);
+
+            return mappedData;
+        } catch (err) {
+            console.log(err);
+        }
     }
 }

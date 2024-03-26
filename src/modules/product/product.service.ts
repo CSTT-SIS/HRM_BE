@@ -25,7 +25,7 @@ export class ProductService {
         const { builder, take, pagination } = this.utilService.getQueryBuilderAndPagination(this.database.product, queries);
 
         builder.andWhere(this.utilService.relationQuerySearch({ categoryId: queries.categoryId }));
-        builder.andWhere(this.utilService.fullTextSearch({ fields: ['name', 'code', 'barcode'], keyword: queries.search }));
+        builder.andWhere(this.utilService.rawQuerySearch({ fields: ['name', 'code', 'barcode'], keyword: queries.search }));
 
         builder.leftJoinAndSelect('entity.category', 'category');
         builder.leftJoinAndSelect('entity.unit', 'unit');

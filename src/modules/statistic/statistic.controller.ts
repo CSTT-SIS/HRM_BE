@@ -1,6 +1,7 @@
 import { Controller, Get, ParseIntPipe, Query } from '@nestjs/common';
 import { ApiBasicAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Permission } from '~/common/decorators/permission.decorator';
+import { FilterDto } from '~/common/dtos/filter.dto';
 import { WAREHOUSING_BILL_TYPE } from '~/common/enums/enum';
 import { StatisticService } from './statistic.service';
 
@@ -71,5 +72,12 @@ export class StatisticController {
     @ApiQuery({ name: 'warehouseId', required: false, type: Number })
     product(@Query('warehouseId', new ParseIntPipe({ optional: true })) warehouseId?: string) {
         return this.statisticService.product(warehouseId);
+    }
+
+    @Permission('statistic:product')
+    @Get('products/inventory/expired')
+    @ApiQuery({ type: FilterDto })
+    expiredProduct(@Query() queries) {
+        return this.statisticService.expiredProduct({ ...queries });
     }
 }

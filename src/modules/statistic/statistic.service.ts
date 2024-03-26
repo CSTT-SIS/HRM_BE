@@ -1,4 +1,7 @@
 import { Injectable } from '@nestjs/common';
+import moment from 'moment';
+import { HUMAN_TIMESTAMP_FORMAT } from '~/common/constants/constant';
+import { FilterDto } from '~/common/dtos/filter.dto';
 import { ORDER_TYPE_NAME, PROPOSAL_TYPE_NAME, WAREHOUSING_BILL_TYPE_NAME } from '~/common/enums/enum';
 import { DatabaseService } from '~/database/typeorm/database.service';
 import { UtilService } from '~/shared/services';
@@ -120,5 +123,40 @@ export class StatisticService {
             warehouseId: item.inventories_warehouse_id,
             warehouseName: item.warehouse_name,
         }));
+    }
+
+    async expiredProduct(queries: FilterDto) {
+        const page = Number(queries.page) || 1;
+        const perPage = Number(queries.perPage) || 10;
+        const offset = (page - 1) * perPage;
+
+        const builder = this.database.product.createQueryBuilder('product');
+        builder.select(['product.name', 'category.name', 'SUM(inventories.quantity) as quantity', 'inventories.expiredAt', 'warehouse.name']);
+        builder.innerJoin('product.inventories', 'inventories');
+        builder.innerJoin('product.category', 'category');
+        builder.innerJoin('inventories.warehouse', 'warehouse');
+        builder.where('inventories.expiredAt < :now', { now: new Date() });
+        builder.groupBy('product.id');
+        builder.limit(perPage);
+        builder.offset(offset);
+
+        const total = await builder.getCount();
+        const totalPages = Math.ceil(total / perPage);
+
+        return {
+            data: (await builder.getRawMany()).map((item) => ({
+                name: item.product_name,
+                category: item.category_name,
+                warehouse: item.warehouse_name,
+                quantity: Number(item.quantity),
+                expiredAt: moment(item.inventories_expired_at).format(HUMAN_TIMESTAMP_FORMAT),
+            })),
+            pagination: {
+                page,
+                perPage,
+                totalRecords: total,
+                totalPages: totalPages,
+            },
+        };
     }
 }

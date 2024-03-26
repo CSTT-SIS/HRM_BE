@@ -17,7 +17,7 @@ export class RepairRequestRepository extends Repository<RepairRequestEntity> {
 
         return this.query(`
             INSERT INTO repair_requests_images (repair_request_id, image_id)
-            SELECT ${repairRequestId}, id FROM media WHERE id IN (${imageIds.join(',')})
+            SELECT ${repairRequestId}, id FROM medias WHERE id IN (${imageIds.join(',')})
                 AND id NOT IN (SELECT image_id FROM repair_requests_images WHERE repair_request_id = ${repairRequestId})
         `);
     }

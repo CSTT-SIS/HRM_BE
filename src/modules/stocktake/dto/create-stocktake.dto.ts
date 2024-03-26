@@ -34,4 +34,9 @@ export class CreateStocktakeDto {
     @IsNotEmpty({ message: 'Danh sách người tham gia không được để trống' })
     @IsArray({ message: 'Danh sách người tham gia phải là mảng' })
     participants: number[];
+
+    @ApiProperty({ type: [Number] })
+    @IsOptional()
+    @IsArray({ message: 'Danh sách file đính kèm phải là mảng' })
+    attachmentIds: number[];
 }

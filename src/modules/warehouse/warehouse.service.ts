@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, Injectable } from '@nestjs/common';
 import moment from 'moment';
 import { FilterDto } from '~/common/dtos/filter.dto';
 import { INVENTORY_HISTORY_TYPE } from '~/common/enums/enum';
@@ -25,7 +25,7 @@ export class WarehouseService {
         const { builder, take, pagination } = this.utilService.getQueryBuilderAndPagination(this.database.warehouse, queries);
 
         builder.andWhere(this.utilService.relationQuerySearch({ typeId: queries.typeId }));
-        builder.andWhere(this.utilService.fullTextSearch({ fields: ['name'], keyword: queries.search }));
+        builder.andWhere(this.utilService.rawQuerySearch({ fields: ['name'], keyword: queries.search }));
 
         const [result, total] = await builder.getManyAndCount();
         const totalPages = Math.ceil(total / take);
@@ -59,7 +59,7 @@ export class WarehouseService {
         const { builder, take, pagination } = this.utilService.getQueryBuilderAndPagination(this.database.inventory, queries);
 
         builder.andWhere(this.utilService.relationQuerySearch({ warehouseId: queries.warehouseId }));
-        builder.andWhere(this.utilService.fullTextSearch({ entityAlias: 'product', fields: ['name', 'code'], keyword: queries.search }));
+        builder.andWhere(this.utilService.rawQuerySearch({ entityAlias: 'product', fields: ['name', 'code'], keyword: queries.search }));
         builder.leftJoinAndSelect('entity.product', 'product');
         builder.leftJoinAndSelect('product.unit', 'unit');
         builder.leftJoinAndSelect('product.category', 'category');
@@ -164,5 +164,116 @@ export class WarehouseService {
         }
 
         return inventory;
+    }
+
+    async importFromFile(warehouseId: number, fileId: number) {
+        await this.utilService.checkRelationIdExist({ warehouse: warehouseId });
+        const media = await this.database.media.findOneBy({ id: fileId });
+        if (!media) {
+            throw new HttpException('File không tồn tại', 400);
+        }
+
+        // const schema = {
+        //     a: {
+        //         prop: 'index',
+        //         type: Number,
+        //     },
+        //     b: {
+        //         prop: 'name',
+        //         type: String,
+        //     },
+        //     c: {
+        //         prop: 'description',
+        //         type: String,
+        //     },
+        //     d: {
+        //         prop: 'evidence',
+        //         type: String,
+        //     },
+        //     e: {
+        //         prop: 'note',
+        //         type: String,
+        //     },
+        // };
+        const schema = {
+            'Tên vật tư': {
+                prop: 'name',
+                type: String,
+            },
+            Mã: {
+                prop: 'code',
+                type: String,
+            },
+            Đvt: {
+                prop: 'unit',
+                type: String,
+            },
+            'Loại vật tư': {
+                prop: 'category',
+                type: String,
+            },
+            'Mã nhóm mẹ': {
+                prop: 'parent_code',
+                type: String,
+            },
+            'Nhóm hàng': {
+                prop: 'type',
+                type: String,
+            },
+            g: {
+                prop: 'prod',
+                type: String,
+            },
+            h: {
+                prop: 'dept',
+                type: String,
+            },
+            ID: {
+                prop: 'id',
+                type: Number,
+            },
+        };
+        const fileData = await this.utilService.readExcelFile(media.path, schema);
+        // this.importProducts(warehouseId, fileData);
+        return fileData;
+    }
+
+    private async findOrCreateProduct(productName: string, productCode: string, unitName: string, categoryName: string) {
+        const unit = await this.database.unit.findOrCreate(unitName);
+        const category = await this.database.productCategory.findOrCreate(categoryName);
+        const product = await this.database.product.findOrCreate({ name: productName, code: productCode, unitId: unit.id, categoryId: category.id });
+
+        return product;
+    }
+
+    private async importProducts(warehouseId: number, items: { name: string; code: string; unit: string; category: string }[]) {
+        items.forEach(async (data) => {
+            const product = await this.findOrCreateProduct(data.name, data.code, data.unit, data.category);
+            const inventory = await this.database.inventory.findOne({ where: { warehouseId, productId: product.id } });
+            if (inventory) {
+                // this.database.inventory.update(inventory.id, {
+                //     quantity: inventory.quantity + data.quantity,
+                // });
+                // this.database.inventoryHistory.save(
+                //     this.database.inventoryHistory.create({
+                //         inventoryId: inventory.id,
+                //         from: inventory.quantity,
+                //         to: inventory.quantity + data.quantity,
+                //         change: data.quantity,
+                //         updatedById: UserStorage.getId(),
+                //         type: INVENTORY_HISTORY_TYPE.IMPORT,
+                //     }),
+                // );
+            } else {
+                this.database.inventory.save(
+                    this.database.inventory.create({
+                        ...data,
+                        warehouseId: warehouseId,
+                        productId: product.id,
+                        createdById: UserStorage.getId(),
+                    }),
+                );
+            }
+        });
     }
 }
