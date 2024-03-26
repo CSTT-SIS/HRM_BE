@@ -32,9 +32,19 @@ function generateFilename(file) {
 }
 
 function checkMimeTypeCallback(file, cb) {
-    const filetypes = /jpg|jpeg|png|gif|bmp/;
-    const mimetype = filetypes.test(file.mimetype);
+    const mimeTypes = [
+        'image/jpg',
+        'image/jpeg',
+        'image/png',
+        'image/gif',
+        'image/bmp',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    ];
+    const filetypes = /jpg|jpeg|png|gif|bmp|xlsx/;
+    const mimetype = mimeTypes.includes(file.mimetype);
     const checkExtname = filetypes.test(extname(file.originalname));
+    console.log(file.mimetype, extname(file.originalname));
+
     if (mimetype && checkExtname) {
         return cb(null, true);
     }

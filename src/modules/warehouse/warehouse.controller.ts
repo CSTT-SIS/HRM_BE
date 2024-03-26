@@ -59,6 +59,12 @@ export class WarehouseController {
     }
 
     @Permission('warehouse:import')
+    @Post(':id/import-from-file/:fileId')
+    importFromFile(@Param('id', ParseIntPipe) id: string, @Param('fileId', ParseIntPipe) fileId: string) {
+        return this.warehouseService.importFromFile(+id, +fileId);
+    }
+
+    @Permission('warehouse:import')
     @Patch(':id/products/:inventoryId')
     updateGood(@Param('id', ParseIntPipe) id: string, @Param('inventoryId', ParseIntPipe) inventoryId: string, @Body() updateGoodDto: UpdateGoodDto) {
         return this.warehouseService.updateGood(+id, +inventoryId, updateGoodDto);

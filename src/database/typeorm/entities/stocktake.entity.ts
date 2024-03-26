@@ -1,4 +1,5 @@
 import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn, Relation } from 'typeorm';
+import { MediaEntity } from '~/database/typeorm/entities/media.entity';
 import { StocktakeDetailEntity } from '~/database/typeorm/entities/stocktakeDetail.entity';
 import { UserEntity } from '~/database/typeorm/entities/user.entity';
 import { WarehouseEntity } from '~/database/typeorm/entities/warehouse.entity';
@@ -56,4 +57,12 @@ export class StocktakeEntity extends AbstractEntity {
 
     @OneToMany(() => StocktakeDetailEntity, (entity) => entity.stocktake, { createForeignKeyConstraints: false })
     details: Relation<StocktakeDetailEntity>[];
+
+    @ManyToMany(() => MediaEntity, { createForeignKeyConstraints: false })
+    @JoinTable({
+        name: 'stocktakes_attachments',
+        joinColumn: { name: 'stocktake_id', referencedColumnName: 'id' },
+        inverseJoinColumn: { name: 'media_id', referencedColumnName: 'id' },
+    })
+    attachments: Relation<MediaEntity>[];
 }

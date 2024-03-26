@@ -116,6 +116,7 @@ export class RepairRequestService {
             'details',
             'replacementPart.id',
             'replacementPart.name',
+            'replacementPart.quantity',
             'progresses',
             'progressRepairBy.id',
             'progressRepairBy.fullName',
@@ -221,7 +222,7 @@ export class RepairRequestService {
         builder.leftJoinAndSelect('replacementPart.unit', 'unit');
         builder.andWhere('entity.repairRequestId = :id', { id: queries.requestId });
         builder.andWhere(this.utilService.getConditionsFromQuery(queries, ['replacementPartId']));
-        builder.select(['entity', 'replacementPart.id', 'replacementPart.name', 'unit.id', 'unit.name']);
+        builder.select(['entity', 'replacementPart.id', 'replacementPart.name', 'replacementPart.quantity', 'unit.id', 'unit.name']);
 
         const [result, total] = await builder.getManyAndCount();
         const totalPages = Math.ceil(total / take);

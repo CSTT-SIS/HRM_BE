@@ -17,4 +17,12 @@ export class StocktakeRepository extends Repository<StocktakeEntity> {
     removeAllParticipants(stocktakeId: number) {
         return this.query(`DELETE FROM stocktakes_participants WHERE stocktake_id = ${stocktakeId}`);
     }
+
+    addAttachments(stocktakeId: number, attachmentIds: number[]) {
+        return this.createQueryBuilder('stocktake').relation(StocktakeEntity, 'attachments').of(stocktakeId).add(attachmentIds);
+    }
+
+    removeAllAttachments(stocktakeId: number) {
+        return this.query(`DELETE FROM stocktakes_attachments WHERE stocktake_id = ${stocktakeId}`);
+    }
 }

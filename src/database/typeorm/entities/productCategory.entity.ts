@@ -14,7 +14,7 @@ export class ProductCategoryEntity extends AbstractEntity {
     @Column({ name: 'name', type: 'varchar', length: 255, nullable: false })
     name: string;
 
-    @Column({ name: 'description', type: 'varchar', length: 500, nullable: false })
+    @Column({ name: 'description', type: 'varchar', length: 500, nullable: true })
     description: string;
 
     /* RELATIONS */
