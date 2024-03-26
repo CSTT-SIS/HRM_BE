@@ -49,6 +49,7 @@ import { ShiftRepository } from '~/database/typeorm/repositories/shift.repositor
 import { UserShiftRepository } from '~/database/typeorm/repositories/userShift.repository';
 import { AssetRepository } from '~/database/typeorm/repositories/asset.repository';
 import { ApprovalConfigRepository } from '~/database/typeorm/repositories/approvalConfig.repository';
+import { PositionGroupRepository } from '~/database/typeorm/repositories/positionGroup.repository';
 
 @Injectable()
 export class DatabaseService {
@@ -102,6 +103,7 @@ export class DatabaseService {
         public readonly asset: AssetRepository,
         public readonly approvalConfig: ApprovalConfigRepository,
         public readonly calendarUser: CalendarUserRepository,
+        public readonly positionGroup: PositionGroupRepository,
     ) {
         // load all departments to cache
         // this.loadDepartmentsToCache();

@@ -105,6 +105,8 @@ import { ApprovalConfigEntity } from '~/database/typeorm/entities/approvalConfig
 import { ApprovalConfigRepository } from '~/database/typeorm/repositories/approvalConfig.repository';
 import { CalendarUserEntity } from '~/database/typeorm/entities/calendarUser.entity';
 import { CalendarUserRepository } from '~/database/typeorm/repositories/calendarUser.repository';
+import { PositionGroupEntity } from '~/database/typeorm/entities/positionGroup.entity';
+import { PositionGroupRepository } from '~/database/typeorm/repositories/positionGroup.repository';
 
 const entities = [
     RoleEntity,
@@ -163,6 +165,7 @@ const entities = [
     HolidayEntity,
     ApprovalConfigEntity,
     CalendarUserEntity,
+    PositionGroupEntity,
 ];
 
 const repositories = [
@@ -213,6 +216,7 @@ const repositories = [
     AssetRepository,
     ApprovalConfigRepository,
     CalendarUserRepository,
+    PositionGroupRepository,
 ];
 
 @Global()

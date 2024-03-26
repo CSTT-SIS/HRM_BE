@@ -22,8 +22,6 @@ import { UpdateHumanDto } from './dto/update-human.dto';
 import { HumanService } from './human.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { multerOptions } from '~/config/fileUpload.config';
-import { CreateCalendarDto } from '../calendar/dto/create-calendar.dto';
-import { UpdateCalendarDto } from '../calendar/dto/update-calendar.dto';
 import { HUMAN_DASHBOARD_TYPE } from '~/common/enums/enum';
 import { AuthGuard } from '../auth/guards/auth.guard';
 
@@ -47,6 +45,19 @@ export class HumanController {
     @ApiQuery({ type: FilterDto })
     findAll(@Query() queries) {
         return this.humanService.findAll({ ...queries });
+    }
+
+    @Permission('human:findAll')
+    @Get('by-position-group-id')
+    @ApiQuery({ type: FilterDto })
+    @ApiQuery({
+        name: 'positionGroupId',
+        type: Number,
+        description: 'Id nhóm chức vụ',
+        required: true,
+    })
+    findAllByPositionGroup(@Query() queries, @Query('positionGroupId', new ParseIntPipe({ optional: true })) positionGroupId: string) {
+        return this.humanService.findAllByPositionGroup({ ...queries, positionGroupId });
     }
 
     @Permission('human:dashboard')
