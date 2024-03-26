@@ -19,12 +19,13 @@ export class StocktakeService {
 
     async create(createStocktakeDto: CreateStocktakeDto) {
         // has possible to add multiple warehouses
-        const { participants, ...rest } = createStocktakeDto;
+        const { participants, attachmentIds, ...rest } = createStocktakeDto;
         await this.utilService.checkRelationIdExist({ user: { id: In(participants), errorMessage: 'Người tham gia không tồn tại' } });
         const entity = await this.database.stocktake.save(
             this.database.stocktake.create({ ...rest, status: STOCKTAKE_STATUS.DRAFT, createdById: UserStorage.getId() }),
         );
         this.database.stocktake.addParticipants(entity.id, participants);
+        if (!this.utilService.isEmpty(attachmentIds)) this.database.stocktake.addAttachments(entity.id, attachmentIds);
 
         // notify all participants
         this.emitEvent('stocktake.created', { id: entity.id });
@@ -120,13 +121,17 @@ export class StocktakeService {
     }
 
     async update(id: number, updateStocktakeDto: UpdateStocktakeDto) {
-        const { participants, ...rest } = updateStocktakeDto;
+        const { participants, attachmentIds, ...rest } = updateStocktakeDto;
         const entity = await this.database.stocktake.findOne({ where: { id, status: STOCKTAKE_STATUS.DRAFT } });
         if (!entity) throw new HttpException('Phiếu kiểm kê không tồn tại hoặc không ở trạng thái nháp', 400);
         if (!this.utilService.isEmpty(participants)) {
             await this.utilService.checkRelationIdExist({ user: { id: In(participants), errorMessage: 'Người tham gia không tồn tại' } });
             await this.database.stocktake.removeAllParticipants(id);
             await this.database.stocktake.addParticipants(id, participants);
+        }
+        if (!this.utilService.isEmpty(attachmentIds)) {
+            await this.database.stocktake.removeAllAttachments(id);
+            await this.database.stocktake.addAttachments(id, attachmentIds);
         }
         return this.database.stocktake.update(id, { ...rest, updatedById: UserStorage.getId() });
     }
