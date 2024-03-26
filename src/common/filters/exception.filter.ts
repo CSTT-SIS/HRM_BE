@@ -34,6 +34,8 @@ export class AllExceptionsFilter implements ExceptionFilter {
                 message = exception.response.message || exception.message || 'Unprocessable Entity';
                 break;
             default:
+                message = exception.response.message || exception.message || message;
+                break;
         }
 
         Logger.error(`[${status}] {${request.url}, ${response?.req?.route?.path}, ${request.method}}: ${exception?.message}`, 'ExceptionFilter');

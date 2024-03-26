@@ -8,6 +8,7 @@ export class AppService {
 
     async test(str) {
         // return this.tokenService.hashPassword(str);
-        return this.database.repairDetail.getDetailByRequestId(1);
+        // return this.database.repairDetail.getDetailByRequestId(1);
+        return this.database.productCategory.findOrCreate(str);
     }
 }
