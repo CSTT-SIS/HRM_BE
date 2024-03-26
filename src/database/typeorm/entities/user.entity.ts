@@ -21,6 +21,7 @@ import { RewardEntity } from './reward.entity';
 import { TaskEntity } from './task.entity';
 import { TimeAttendanceEntity } from './timeAttendance.entity';
 import { UserShiftEntity } from './userShift.entity';
+import { PositionEntity } from './position.entity';
 
 @Entity({ name: 'users' })
 export class UserEntity extends AbstractEntity {
@@ -151,6 +152,13 @@ export class UserEntity extends AbstractEntity {
     })
     @JoinColumn({ name: 'department_id', referencedColumnName: 'id' })
     department: Relation<DepartmentEntity>;
+
+    @ManyToOne(() => PositionEntity, (entity: PositionEntity) => entity.users, {
+        nullable: true,
+        createForeignKeyConstraints: false,
+    })
+    @JoinColumn({ name: 'position_id', referencedColumnName: 'id' })
+    position: Relation<PositionEntity>;
 
     @OneToMany(() => InventoryEntity, (entity: InventoryEntity) => entity.createdBy, { createForeignKeyConstraints: false })
     inventories: Relation<InventoryEntity>[];

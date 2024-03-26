@@ -61,6 +61,7 @@ import { AssetModule } from '~/modules/asset/asset.module';
 import { ApprovalManagementModule } from '~/modules/approval-management/approval-management.module';
 import { VehicleModule } from '~/modules/vehicle/vehicle.module';
 import { CronjobModule } from '~/modules/cronjob/cronjob.module';
+import { PositionGroupModule } from '~/modules/position-group/position-group.module';
 
 @Module({
     imports: [
@@ -125,6 +126,7 @@ import { CronjobModule } from '~/modules/cronjob/cronjob.module';
         ApprovalManagementModule,
         VehicleModule,
         CronjobModule,
+        PositionGroupModule,
     ],
     controllers: [AppController],
     providers: [

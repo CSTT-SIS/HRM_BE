@@ -34,6 +34,29 @@ export class HumanService {
         };
     }
 
+    async findAllByPositionGroup(queries: FilterDto & { positionGroupId: number }) {
+        const { builder, take, pagination } = this.utilService.getQueryBuilderAndPagination(this.database.user, queries);
+
+        // change to `rawQuerySearch` if entity don't have fulltext indices
+        builder.andWhere(this.utilService.rawQuerySearch({ fields: ['fullName'], keyword: queries.search }));
+        builder.andWhere(this.utilService.relationQuerySearch({ entityAlias: 'position', positionGroupId: queries.positionGroupId }));
+
+        builder.leftJoinAndSelect('entity.position', 'position');
+
+        builder.select(['entity']);
+
+        const [result, total] = await builder.getManyAndCount();
+        const totalPages = Math.ceil(total / take);
+        return {
+            data: result,
+            pagination: {
+                ...pagination,
+                totalRecords: total,
+                totalPages: totalPages,
+            },
+        };
+    }
+
     findOne(id: number) {
         const builder = this.database.user.createQueryBuilder('entity');
         builder.where({ id });
