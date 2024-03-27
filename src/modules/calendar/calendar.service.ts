@@ -30,10 +30,11 @@ export class CalendarService {
     async findAllByUserLogin(queries: FilterDto & { userId: string }) {
         const { builder, take, pagination } = this.utilService.getQueryBuilderAndPagination(this.database.calendar, queries);
 
-        builder.andWhere(this.utilService.getConditionsFromQuery(queries, ['userId']));
         // change to `rawQuerySearch` if entity don't have fulltext indices
         builder.andWhere(this.utilService.rawQuerySearch({ fields: ['content'], keyword: queries.search }));
+        builder.andWhere(this.utilService.relationQuerySearch({ entityAlias: 'calendarUser', userId: queries.userId }));
 
+        builder.leftJoinAndSelect('entity.calendarUsers', 'calendarUser');
         builder.select(['entity']);
 
         const [result, total] = await builder.getManyAndCount();
