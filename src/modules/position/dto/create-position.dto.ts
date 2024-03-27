@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsNotEmpty, IsOptional, Length } from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsNumber, IsOptional, Length } from 'class-validator';
+import { IsIdExist } from '~/common/validators/is-id-exist.validator';
 
 export class CreatePositionDto {
     @ApiProperty()
@@ -10,10 +11,6 @@ export class CreatePositionDto {
     @IsNotEmpty({ message: 'Mã chức vụ không được để trống' })
     code: string;
 
-    @ApiProperty()
-    @IsNotEmpty({ message: 'Tên nhóm chức vụ không được để trống' })
-    groupPosition: string;
-
     @ApiProperty({ type: 'boolean', description: 'Hoạt động' })
     @IsBoolean()
     isActive: boolean;
@@ -21,4 +18,9 @@ export class CreatePositionDto {
     @ApiProperty()
     @IsOptional()
     description: string;
+
+    @ApiProperty({ type: 'number', description: 'Id nhóm chức vụ', required: false })
+    @IsOptional()
+    @IsIdExist({ entity: 'positionGroup' }, { message: 'Id nhóm chức vụ không tồn tại' })
+    positionGroupId: number;
 }
