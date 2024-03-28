@@ -22,7 +22,7 @@ import { UpdateHumanDto } from './dto/update-human.dto';
 import { HumanService } from './human.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { multerOptions } from '~/config/fileUpload.config';
-import { HUMAN_DASHBOARD_TYPE } from '~/common/enums/enum';
+import { HUMAN_DASHBOARD_TYPE, IS_MANAGER } from '~/common/enums/enum';
 import { AuthGuard } from '../auth/guards/auth.guard';
 
 @ApiTags('Human')
@@ -58,6 +58,19 @@ export class HumanController {
     })
     findAllByPositionGroup(@Query() queries, @Query('positionGroupId', new ParseIntPipe({ optional: true })) positionGroupId: string) {
         return this.humanService.findAllByPositionGroup({ ...queries, positionGroupId });
+    }
+
+    @Permission('human:findAll')
+    @Get('by-is-manager')
+    @ApiQuery({ type: FilterDto })
+    @ApiQuery({
+        name: 'isManager',
+        enum: IS_MANAGER,
+        description: 'Có phải là quản lý không? 1: phải, 0: không phải',
+        required: true,
+    })
+    findAllByIsManager(@Query() queries, @Query('isManager', new ParseIntPipe({ optional: true })) isManager: string) {
+        return this.humanService.findAllByIsManager({ ...queries, isManager });
     }
 
     @Permission('human:dashboard')
