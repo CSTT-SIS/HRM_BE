@@ -53,7 +53,9 @@ export class DropdownService {
         });
     }
 
-    async proposal(queries: FilterDto & { type: PROPOSAL_TYPE; status: PROPOSAL_STATUS; isCreatedBill: boolean; isCreatedOrder: boolean }) {
+    async proposal(
+        queries: FilterDto & { type: PROPOSAL_TYPE; status: PROPOSAL_STATUS; isCreatedBill: boolean; isCreatedOrder: boolean; warehouseId: number },
+    ) {
         // get order has not created warehousing bill
         let ids = queries.isCreatedBill
             ? (await this.database.warehousingBill.createQueryBuilder().select('proposal_id').getRawMany())
@@ -68,7 +70,7 @@ export class DropdownService {
             label: 'name',
             value: 'id',
             fulltext: true,
-            andWhere: { ...this.utilService.getConditionsFromQuery(queries, ['type', 'status']), id: Not(In(ids)) },
+            andWhere: { ...this.utilService.getConditionsFromQuery(queries, ['type', 'status', 'warehouseId']), id: Not(In(ids)) },
         });
     }
 
