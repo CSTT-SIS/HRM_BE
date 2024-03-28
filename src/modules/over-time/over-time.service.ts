@@ -14,7 +14,7 @@ export class OverTimeService {
         return this.database.overtimeRequest.save(
             this.database.overtimeRequest.create({
                 ...createOverTimeDto,
-                supportingDocuments: files.length !== 0 ? files.map((file) => file.filename).join(',') : null,
+                ...(files.length !== 0 && { supportingDocuments: files.map((file) => file.filename).join(',') }),
                 createdBy: userId,
             }),
         );
@@ -48,14 +48,17 @@ export class OverTimeService {
 
     async update(id: number, updateOverTimeDto: UpdateOverTimeDto, files: Array<Express.Multer.File>, userId: number) {
         const overTime = await this.database.overtimeRequest.findOneBy({ id });
+        const approverData: any = {};
+
+        if (overTime.status !== OVERTIME_REQUEST_STATUS.APPROVED && updateOverTimeDto.status === OVERTIME_REQUEST_STATUS.APPROVED) {
+            approverData.approverId = userId;
+            approverData.approverDate = new Date();
+        }
 
         return this.database.overtimeRequest.update(id, {
             ...updateOverTimeDto,
-            supportingDocuments: files.length !== 0 ? files.map((file) => file.filename).join(',') : null,
-            approverId:
-                overTime.status !== OVERTIME_REQUEST_STATUS.APPROVED && updateOverTimeDto.status === OVERTIME_REQUEST_STATUS.APPROVED
-                    ? userId
-                    : overTime.approverId,
+            ...(files.length !== 0 && { supportingDocuments: files.map((file) => file.filename).join(',') }),
+            ...approverData,
             updatedBy: userId,
         });
     }

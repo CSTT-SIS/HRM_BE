@@ -65,7 +65,7 @@ export class HumanController {
     @ApiQuery({ type: FilterDto })
     @ApiQuery({
         name: 'isManager',
-        enum: IS_MANAGER,
+        type: Number,
         description: 'Có phải là quản lý không? 1: phải, 0: không phải',
         required: true,
     })

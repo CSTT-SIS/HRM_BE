@@ -51,7 +51,7 @@ export class UserEntity extends AbstractEntity {
     @Column({ name: 'birthday', type: 'date', nullable: true })
     birthDay: Date;
 
-    //1: Nam, 2: Nữ
+    //0: Nam, 1: Nữ
     @Column({ name: 'sex', type: 'int', nullable: true })
     sex: number;
 

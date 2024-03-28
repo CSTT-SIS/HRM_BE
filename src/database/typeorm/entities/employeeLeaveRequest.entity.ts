@@ -1,5 +1,5 @@
 import { Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
-import { EMPLOYEE_LEAVE_REQUEST_STATUS, LETTER_TYPE } from '~/common/enums/enum';
+import { EMPLOYEE_LEAVE_REQUEST_STATUS } from '~/common/enums/enum';
 import { AbstractEntity } from './abstract.entity';
 import { UserEntity } from './user.entity';
 
@@ -7,9 +7,6 @@ import { UserEntity } from './user.entity';
 export class EmployeeLeaveRequestEntity extends AbstractEntity {
     @PrimaryGeneratedColumn('increment', { name: 'id', type: 'int', unsigned: true })
     id: number;
-
-    @Column({ name: 'type', type: 'varchar', length: 1000, nullable: true })
-    type: string;
 
     @Column({ name: 'reason', type: 'varchar', length: 255, nullable: true })
     reason: string;
@@ -20,7 +17,7 @@ export class EmployeeLeaveRequestEntity extends AbstractEntity {
     @Column({ name: 'end_day', type: 'date', nullable: true })
     endDay: Date;
 
-    @Column({ name: 'status', type: 'varchar', length: 255, nullable: true })
+    @Column({ type: 'enum', enum: EMPLOYEE_LEAVE_REQUEST_STATUS, default: EMPLOYEE_LEAVE_REQUEST_STATUS.PENDING })
     status: EMPLOYEE_LEAVE_REQUEST_STATUS;
 
     @Column({ name: 'approver_id', type: 'int', unsigned: true, nullable: true })
