@@ -17,7 +17,6 @@ export class DepartmentRepository extends Repository<DepartmentEntity> {
                 'headOfDepartment',
                 'parent',
                 'children',
-                'calendars',
                 'departmentTasks',
                 'assets',
                 'documents',

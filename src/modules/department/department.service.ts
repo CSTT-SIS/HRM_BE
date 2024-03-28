@@ -105,20 +105,6 @@ export class DepartmentService {
         builder.leftJoinAndSelect('entity.sendDocuments', 'sendDocuments');
         builder.leftJoinAndSelect('entity.textEmbryos', 'textEmbryos');
 
-        // builder.select([
-        //     'entity',
-        //     // 'avatar',
-        //     // 'users',
-        //     // 'headOfDepartment',
-        //     'parent',
-        //     'children',
-        //     // 'departmentTasks',
-        //     // 'assets',
-        //     // 'documents',
-        //     // 'sendDocuments',
-        //     // 'textEmbryos',
-        // ]);
-
         builder.orderBy('entity.parentId', 'ASC');
 
         builder.addSelect('CASE WHEN entity.parentId IS NULL THEN 0 ELSE 1 END', 'isRoot');
