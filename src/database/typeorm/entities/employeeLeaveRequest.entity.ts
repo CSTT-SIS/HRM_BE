@@ -8,8 +8,8 @@ export class EmployeeLeaveRequestEntity extends AbstractEntity {
     @PrimaryGeneratedColumn('increment', { name: 'id', type: 'int', unsigned: true })
     id: number;
 
-    @Column({ type: 'enum', enum: LETTER_TYPE, default: LETTER_TYPE.LATE })
-    type: LETTER_TYPE;
+    @Column({ name: 'type', type: 'varchar', length: 1000, nullable: true })
+    type: string;
 
     @Column({ name: 'reason', type: 'varchar', length: 255, nullable: true })
     reason: string;
