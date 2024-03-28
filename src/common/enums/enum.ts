@@ -23,12 +23,12 @@ export enum MEDIA_TYPE {
 }
 
 export enum NOTIFICATION_TYPE {
-    NEW_TASK = 'NHIỆM VỤ MỚI',
-    NEW_LEAVE_REQUEST = 'YÊU CẦU NGHỈ PHÉP MỚI',
-    NEW_CLAIM = 'ĐƠN YÊU CẦU MỚI',
-    WORK_SOLVING_STATUS = 'TÌNH TRẠNG GIẢI QUYẾT CÔNG VIỆC',
-    APPLICATION_RESOLUTION_STATUS = 'TÌNH TRẠNG GIẢI QUYẾT ĐƠN TỪ',
-    EXPIRED_PASSPORT = 'HỘ CHIẾU HẾT HẠN',
+    NEW_TASK = 'NEW_TASK',
+    NEW_LEAVE_REQUEST = 'NEW_LEAVE_REQUEST',
+    NEW_CLAIM = 'NEW_CLAIM',
+    WORK_SOLVING_STATUS = 'WORK_SOLVING_STATUS',
+    APPLICATION_RESOLUTION_STATUS = 'APPLICATION_RESOLUTION_STATUS',
+    EXPIRED_PASSPORT = 'EXPIRED_PASSPORT',
 }
 
 export enum CACHE_TIME {
@@ -198,7 +198,9 @@ export enum RESIGNATION_STATUS {
 }
 
 export enum EMPLOYEE_LEAVE_REQUEST_STATUS {
-    ACCEPT = 1,
+    PENDING = 'PENDING',
+    APPROVED = 'APPROVED',
+    CLOSED = 'CLOSED',
     // ----
 }
 
@@ -217,7 +219,7 @@ export enum OVERTIME_REQUEST_STATUS {
 }
 
 export enum TIME_ATTENDANCE_STATUS {
-    ACCEPT = 1,
+    ACCEPT = 'ACCEPT',
     // ----
 }
 
@@ -227,21 +229,15 @@ export enum TASK_PRIORITY {
 }
 
 export enum ASSET_STATUS {
-    ACTIVE = 1,
-    INACTIVE = 0,
-}
-
-export enum LETTER_TYPE {
-    LATE = 'LATE',
-    SOON = 'SOON',
-    // ----
+    ACTIVE = 'ACTIVE',
+    INACTIVE = 'INACTIVE',
 }
 
 export enum LEVEL_CALENDAR {
-    LESS_IMPORTANT = 1,
-    NORMAL = 2,
-    IMPORTANT = 3,
-    HIGH_PRIORITY = 4,
+    LESS_IMPORTANT = 'LESS_IMPORTANT',
+    NORMAL = 'NORMAL',
+    IMPORTANT = 'IMPORTANT',
+    HIGH_PRIORITY = 'HIGH_PRIORITY',
     // ----
 }
 

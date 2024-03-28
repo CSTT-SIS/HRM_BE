@@ -129,6 +129,4 @@ export class CreateHumanDto {
     @ApiProperty({ type: 'string', description: 'Chi nhánh ngân hàng', required: false })
     @IsOptional()
     bankBranch: string;
-
-    
 }

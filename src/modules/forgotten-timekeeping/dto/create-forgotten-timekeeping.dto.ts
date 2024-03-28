@@ -1,6 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsDateString, IsNotEmpty, IsNumber, IsOptional, IsString, Length } from 'class-validator';
-import { FORGOTTEN_TIMEKEEPING_REQUEST_STATUS } from '~/common/enums/enum';
 import { IsIdExist } from '~/common/validators/is-id-exist.validator';
 
 export class CreateForgottenTimekeepingDto {
@@ -31,24 +30,10 @@ export class CreateForgottenTimekeepingDto {
     @IsOptional()
     supportingDocuments: Array<Express.Multer.File>;
 
-    @ApiProperty({ enum: FORGOTTEN_TIMEKEEPING_REQUEST_STATUS, description: 'Trạng thái', required: true })
-    @IsString()
-    status: FORGOTTEN_TIMEKEEPING_REQUEST_STATUS;
-
-    @ApiProperty({ type: 'string', description: 'Ngày duyệt', required: false })
-    @IsOptional()
-    @IsString()
-    approverDate: Date;
-
     @ApiProperty({ type: 'string', description: 'Ghi chú', required: false })
     @IsOptional()
     @IsString()
     comments: string;
-
-    @ApiProperty({ type: 'number', description: 'Id người duyệt', required: false })
-    @IsOptional()
-    @IsIdExist({ entity: 'user' }, { message: 'Id người duyệt không tồn tại' })
-    approverId: number;
 
     @ApiProperty({ type: 'number', description: 'Id nhân viên yêu cầu', required: false })
     @IsOptional()

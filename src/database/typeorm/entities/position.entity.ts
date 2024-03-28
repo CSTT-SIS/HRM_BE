@@ -21,7 +21,7 @@ export class PositionEntity extends AbstractEntity {
     @Column({ name: 'description', type: 'varchar', length: 255, nullable: true })
     description: string;
 
-    @Column({ name: 'position_group_id', type: 'int', unsigned: true , nullable: true })
+    @Column({ name: 'position_group_id', type: 'int', unsigned: true, nullable: true })
     positionGroupId: number;
 
     /* RELATION */

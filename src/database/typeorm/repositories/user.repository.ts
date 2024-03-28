@@ -39,7 +39,7 @@ export class UserRepository extends Repository<UserEntity> {
         `);
 
         return (await result).map((item) => ({
-            sex: item.sex === 1 ? 'Nam' : 'Nữ',
+            sex: item.sex === 0 ? 'Nam' : 'Nữ',
             quantity: Number(item.quantity),
         }));
     }

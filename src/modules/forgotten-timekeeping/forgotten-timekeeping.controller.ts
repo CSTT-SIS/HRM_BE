@@ -41,8 +41,14 @@ export class ForgottenTimekeepingController {
     @Permission('forgottenTimekeeping:findAll')
     @Get()
     @ApiQuery({ type: FilterDto })
-    findAll(@Query() queries) {
-        return this.forgottenTimekeepingService.findAll({ ...queries });
+    @ApiQuery({
+        name: 'departmentId',
+        type: Number,
+        description: 'Id phòng ban',
+        required: false,
+    })
+    findAll(@Query() queries, @Query('departmentId', new ParseIntPipe({ optional: true })) departmentId: string) {
+        return this.forgottenTimekeepingService.findAll({ ...queries, departmentId });
     }
 
     @Permission('forgottenTimekeeping:findOne')

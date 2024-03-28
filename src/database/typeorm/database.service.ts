@@ -90,7 +90,7 @@ export class DatabaseService {
         public readonly notificationDetail: NotificationDetailRepository,
         public readonly calendar: CalendarRepository,
         public readonly employeeLeaveRequest: EmployeeLeaveRequestRepository,
-        public readonly forgottentimekeepingrequest: ForgottenTimekeepingRequestRepository,
+        public readonly forgottentimekeepingRequest: ForgottenTimekeepingRequestRepository,
         public readonly overtimeRequest: OvertimeRequestRepository,
         public readonly timeAttendance: TimeAttendanceRepository,
         public readonly task: TaskRepository,

@@ -1,6 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDateString, IsNotEmpty, IsNumber, IsNumberString, IsOptional, IsString, Length } from 'class-validator';
-import { OVERTIME_REQUEST_STATUS } from '~/common/enums/enum';
+import { IsDateString, IsNotEmpty, IsNumberString, IsOptional, IsString, Length } from 'class-validator';
 import { IsIdExist } from '~/common/validators/is-id-exist.validator';
 
 export class CreateOverTimeDto {
@@ -45,16 +44,6 @@ export class CreateOverTimeDto {
     })
     @IsOptional()
     supportingDocuments: string;
-
-    @ApiProperty({ enum: OVERTIME_REQUEST_STATUS, description: 'Trạng thái', required: false })
-    @IsOptional()
-    @IsString()
-    status: OVERTIME_REQUEST_STATUS;
-
-    @ApiProperty({ type: 'string', format: 'date', description: 'Ngày duyệt', required: false })
-    @IsOptional()
-    @IsDateString()
-    approverDate: Date;
 
     @ApiProperty({ type: 'string', description: 'Ghi chú', required: false })
     @IsOptional()

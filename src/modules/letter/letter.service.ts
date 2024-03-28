@@ -4,6 +4,7 @@ import { UtilService } from '~/shared/services';
 import { CreateLetterDto } from './dto/create-letter.dto';
 import { UpdateLetterDto } from './dto/update-letter.dto';
 import { FilterDto } from '~/common/dtos/filter.dto';
+import { EMPLOYEE_LEAVE_REQUEST_STATUS } from '~/common/enums/enum';
 
 @Injectable()
 export class LetterService {
@@ -39,8 +40,19 @@ export class LetterService {
         return builder.getOne();
     }
 
-    update(id: number, updateLetterDto: UpdateLetterDto, userId: number) {
-        return this.database.employeeLeaveRequest.update(id, { ...updateLetterDto, updatedBy: userId });
+    async update(id: number, updateLetterDto: UpdateLetterDto, userId: number) {
+        const employeeLeaveRequest = await this.database.employeeLeaveRequest.findOneBy({ id });
+        const approverData: any = {};
+
+        if (
+            employeeLeaveRequest.status !== EMPLOYEE_LEAVE_REQUEST_STATUS.APPROVED &&
+            updateLetterDto.status === EMPLOYEE_LEAVE_REQUEST_STATUS.APPROVED
+        ) {
+            approverData.approverId = userId;
+            approverData.approverDate = new Date();
+        }
+
+        return this.database.employeeLeaveRequest.update(id, { ...updateLetterDto, ...approverData, updatedBy: userId });
     }
 
     remove(id: number) {

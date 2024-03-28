@@ -1,6 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDateString, IsNotEmpty, IsNumber, IsOptional, IsString, Length } from 'class-validator';
-import { EMPLOYEE_LEAVE_REQUEST_STATUS } from '~/common/enums/enum';
+import { IsDateString, IsNotEmpty, IsOptional, IsString, Length } from 'class-validator';
 import { IsIdExist } from '~/common/validators/is-id-exist.validator';
 
 export class CreateLetterDto {
@@ -23,21 +22,6 @@ export class CreateLetterDto {
     @IsOptional()
     @IsDateString()
     endDay: Date;
-
-    @ApiProperty({ enum: EMPLOYEE_LEAVE_REQUEST_STATUS, description: 'Trạng thái', required: false })
-    @IsOptional()
-    @IsNumber()
-    status: EMPLOYEE_LEAVE_REQUEST_STATUS;
-
-    @ApiProperty({ type: 'number', description: 'Id người duyệt đơn', required: false })
-    @IsOptional()
-    @IsIdExist({ entity: 'user' }, { message: 'Id người duyệt đơn không tồn tại' })
-    approverId: number;
-
-    @ApiProperty({ type: 'string', format: 'date', description: 'Ngày duyệt', required: false })
-    @IsOptional()
-    @IsDateString()
-    approverDate: Date;
 
     @ApiProperty({ type: 'string', description: 'Ghi chú', required: false })
     @IsOptional()
