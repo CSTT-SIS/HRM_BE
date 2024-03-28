@@ -17,7 +17,7 @@ export class PositionService {
         const { builder, take, pagination } = this.utilService.getQueryBuilderAndPagination(this.database.position, queries);
 
         // change to `rawQuerySearch` if entity don't have fulltext indices
-        builder.andWhere(this.utilService.fullTextSearch({ fields: ['name'], keyword: queries.search }));
+        builder.andWhere(this.utilService.rawQuerySearch({ fields: ['name'], keyword: queries.search }));
 
         builder.leftJoinAndSelect('entity.contracts', 'contracts');
 
