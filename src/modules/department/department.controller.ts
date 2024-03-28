@@ -25,6 +25,13 @@ export class DepartmentController {
         return this.departmentService.findAll({ ...queries });
     }
 
+    @Permission('department:findAll')
+    @Get('/list-tree')
+    @ApiQuery({ type: FilterDto })
+    getListTypeTree(@Query() queries) {
+        return this.departmentService.getListTypeTree({ ...queries });
+    }
+
     @Permission('department:findOne')
     @Get(':id')
     findOne(@Param('id', ParseIntPipe) id: string) {

@@ -4,6 +4,11 @@ import { EMPLOYEE_LEAVE_REQUEST_STATUS } from '~/common/enums/enum';
 import { IsIdExist } from '~/common/validators/is-id-exist.validator';
 
 export class CreateLetterDto {
+    @ApiProperty({ type: 'string', description: 'Loại đơn', required: false })
+    @IsOptional()
+    @IsString()
+    type: string;
+
     @ApiProperty({ type: 'string', description: 'Lý do', required: true })
     @IsNotEmpty({ message: 'Lý do không được để trống' })
     @Length(1, 255, { message: 'Lý do phải từ 1-255 ký tự' })
