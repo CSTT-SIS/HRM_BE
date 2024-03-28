@@ -1,6 +1,5 @@
 import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query } from '@nestjs/common';
 import { ApiBasicAuth, ApiBody, ApiQuery, ApiTags } from '@nestjs/swagger';
-import { BYPASS_PERMISSION } from '~/common/constants/constant';
 import { Permission } from '~/common/decorators/permission.decorator';
 import { FilterDto } from '~/common/dtos/filter.dto';
 import { REPAIR_REQUEST_STATUS } from '~/common/enums/enum';
@@ -48,7 +47,8 @@ export class RepairRequestController {
         return this.repairRequestService.remove(+id);
     }
 
-    @Permission(BYPASS_PERMISSION)
+    @Permission('repairRequest:head-approve')
+    // @Permission(BYPASS_PERMISSION)
     @Patch(':id/head-approve')
     headApprove(@Param('id', ParseIntPipe) id: string) {
         return this.repairRequestService.headApprove(+id);
@@ -64,7 +64,8 @@ export class RepairRequestController {
             },
         },
     })
-    @Permission(BYPASS_PERMISSION)
+    @Permission('repairRequest:head-reject')
+    // @Permission(BYPASS_PERMISSION)
     @Patch(':id/head-reject')
     headReject(@Param('id', ParseIntPipe) id: string, @Body() body: { comment: string }) {
         return this.repairRequestService.headReject(+id, body?.comment);
