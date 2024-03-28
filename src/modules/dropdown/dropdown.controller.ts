@@ -47,14 +47,16 @@ export class DropdownController {
     @ApiQuery({ name: 'status', enum: PROPOSAL_STATUS, required: false, isArray: true })
     @ApiQuery({ name: 'isCreatedBill', required: false, type: Boolean })
     @ApiQuery({ name: 'isCreatedOrder', required: false, type: Boolean })
+    @ApiQuery({ name: 'warehouseId', required: false, type: Number })
     proposal(
         @Query() queries,
         @Query('type') type: string,
         @Query('status') status: string,
         @Query('isCreatedBill') isCreatedBill: boolean,
         @Query('isCreatedOrder') isCreatedOrder: boolean,
+        @Query('warehouseId', new ParseIntPipe({ optional: true })) warehouseId: string,
     ) {
-        return this.dropdownService.proposal({ ...queries, type, status, isCreatedBill, isCreatedOrder });
+        return this.dropdownService.proposal({ ...queries, type, status, isCreatedBill, isCreatedOrder, warehouseId });
     }
 
     @Permission('proposal:findAll')

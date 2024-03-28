@@ -94,11 +94,12 @@ export class WarehouseService {
     async importGoods(id: number, data: ImportGoodDto) {
         await this.utilService.checkRelationIdExist({ warehouse: id });
 
+        const { expiredDate, ...rest } = data;
         let inventory = await this.database.inventory.findOne({ where: { warehouseId: id, productId: data.productId } });
         if (inventory) {
             this.database.inventory.update(inventory.id, {
                 quantity: inventory.quantity + data.quantity,
-                expiredAt: data.expiredDate ? moment(data.expiredDate).toDate() : null,
+                expiredAt: expiredDate ? moment(expiredDate).toDate() : null,
                 notifyBefore: data.notifyBefore,
                 notifyExpired: data.notifyExpired,
             });
@@ -115,8 +116,8 @@ export class WarehouseService {
         } else {
             inventory = await this.database.inventory.save(
                 this.database.inventory.create({
-                    ...data,
-                    expiredAt: data.expiredDate ? moment(data.expiredDate).toDate() : null,
+                    ...rest,
+                    expiredAt: expiredDate ? moment(expiredDate).toDate() : null,
                     notifyBefore: data.notifyBefore,
                     warehouseId: id,
                     createdById: UserStorage.getId(),
@@ -143,11 +144,12 @@ export class WarehouseService {
     async updateGood(warehouseId: number, inventoryId: number, data: UpdateGoodDto) {
         await this.utilService.checkRelationIdExist({ warehouse: warehouseId });
 
+        const { expiredDate, ...rest } = data;
         const inventory = await this.database.inventory.findOneBy({ id: inventoryId });
         if (inventory) {
             this.database.inventory.update(inventoryId, {
-                ...data,
-                expiredAt: data.expiredDate ? moment(data.expiredDate).toDate() : null,
+                ...rest,
+                expiredAt: expiredDate ? moment(expiredDate).toDate() : null,
                 notifyBefore: data.notifyBefore,
                 notifyExpired: data.notifyExpired,
             });

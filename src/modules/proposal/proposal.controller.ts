@@ -1,6 +1,5 @@
 import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query } from '@nestjs/common';
 import { ApiBasicAuth, ApiBody, ApiQuery, ApiTags } from '@nestjs/swagger';
-import { BYPASS_PERMISSION } from '~/common/constants/constant';
 import { Permission } from '~/common/decorators/permission.decorator';
 import { FilterDto } from '~/common/dtos/filter.dto';
 import { PROPOSAL_STATUS, PROPOSAL_TYPE } from '~/common/enums/enum';
@@ -94,7 +93,8 @@ export class ProposalController {
     //     return this.proposalService.return(+id, body?.comment);
     // }
 
-    @Permission(BYPASS_PERMISSION)
+    @Permission('proposal:head-approve')
+    // @Permission(BYPASS_PERMISSION)
     @Patch(':id/head-approve')
     headApprove(@Param('id', ParseIntPipe) id: string) {
         return this.proposalService.headApprove(+id);
@@ -110,7 +110,8 @@ export class ProposalController {
             },
         },
     })
-    @Permission(BYPASS_PERMISSION)
+    @Permission('proposal:head-reject')
+    // @Permission(BYPASS_PERMISSION)
     @Patch(':id/head-reject')
     headReject(@Param('id', ParseIntPipe) id: string, @Body() body: { comment: string }) {
         return this.proposalService.headReject(+id, body?.comment);

@@ -1,6 +1,5 @@
 import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query } from '@nestjs/common';
 import { ApiBasicAuth, ApiBody, ApiQuery, ApiTags } from '@nestjs/swagger';
-import { BYPASS_PERMISSION } from '~/common/constants/constant';
 import { Permission } from '~/common/decorators/permission.decorator';
 import { FilterDto } from '~/common/dtos/filter.dto';
 import { ORDER_STATUS } from '~/common/enums/enum';
@@ -52,7 +51,8 @@ export class OrderController {
         return this.orderService.remove(+id);
     }
 
-    @Permission(BYPASS_PERMISSION)
+    @Permission('order:head-approve')
+    // @Permission(BYPASS_PERMISSION)
     @Patch(':id/head-approve')
     headApprove(@Param('id', ParseIntPipe) id: string) {
         return this.orderService.headApprove(+id);
@@ -68,13 +68,15 @@ export class OrderController {
             },
         },
     })
-    @Permission(BYPASS_PERMISSION)
+    @Permission('order:head-reject')
+    // @Permission(BYPASS_PERMISSION)
     @Patch(':id/head-reject')
     headReject(@Param('id', ParseIntPipe) id: string, @Body() body: { comment: string }) {
         return this.orderService.headReject(+id, body?.comment);
     }
 
-    @Permission(BYPASS_PERMISSION)
+    @Permission('order:manager-approve')
+    // @Permission(BYPASS_PERMISSION)
     @Patch(':id/manager-approve')
     managerApprove(@Param('id', ParseIntPipe) id: string) {
         return this.orderService.managerApprove(+id);
@@ -90,7 +92,8 @@ export class OrderController {
             },
         },
     })
-    @Permission(BYPASS_PERMISSION)
+    @Permission('order:manager-reject')
+    // @Permission(BYPASS_PERMISSION)
     @Patch(':id/manager-reject')
     managerReject(@Param('id', ParseIntPipe) id: string, @Body() body: { comment: string }) {
         return this.orderService.managerReject(+id, body?.comment);
