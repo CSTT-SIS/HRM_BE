@@ -16,4 +16,11 @@ export class UserShiftRepository extends Repository<UserShiftEntity> {
             relations: ['user', 'shift'],
         });
     };
+
+    findAllUserByShiftId = (id: number) => {
+        return this.findOne({
+            where: { shiftId: id },
+            relations: ['user', 'shift'],
+        });
+    };
 }

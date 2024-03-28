@@ -17,16 +17,16 @@ export class ShiftEntity extends AbstractEntity {
     @Column({ type: 'enum', enum: SHIFT_TYPE, default: SHIFT_TYPE.TIME_RANGE })
     type: SHIFT_TYPE;
 
-    @Column({ name: 'start_time', type: 'datetime', nullable: true })
+    @Column({ name: 'start_time', type: 'time', nullable: true })
     startTime: Date;
 
-    @Column({ name: 'end_time', type: 'datetime', nullable: true })
+    @Column({ name: 'end_time', type: 'time', nullable: true })
     endTime: Date;
 
-    @Column({ name: 'break_from', type: 'datetime', nullable: true })
+    @Column({ name: 'break_from', type: 'time', nullable: true })
     breakFrom: Date;
 
-    @Column({ name: 'break_to', type: 'datetime', nullable: true })
+    @Column({ name: 'break_to', type: 'time', nullable: true })
     breakTo: Date;
 
     @Column({ name: 'wage_rate', type: 'int', nullable: true })
